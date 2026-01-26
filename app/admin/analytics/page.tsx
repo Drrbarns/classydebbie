@@ -201,7 +201,7 @@ export default function AnalyticsPage() {
                     innerRadius={60}
                     outerRadius={100}
                     dataKey="revenue"
-                    label={({ percent }: { percent: number }) => `${(percent * 100).toFixed(0)}%`}
+                    label={({ percent }: any) => `${((percent || 0) * 100).toFixed(0)}%`}
                   >
                     {categoryRevenue.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
