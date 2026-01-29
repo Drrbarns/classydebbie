@@ -5,6 +5,7 @@ import Link from 'next/link';
 import MiniCart from './MiniCart';
 import { useCart } from '@/context/CartContext';
 import { supabase } from '@/lib/supabase';
+import { useCMS } from '@/context/CMSContext';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -14,6 +15,9 @@ export default function Header() {
   const [user, setUser] = useState<any>(null);
 
   const { cartCount, isCartOpen, setIsCartOpen } = useCart();
+  const { getSetting } = useCMS();
+
+  const siteName = getSetting('site_name') || 'StandardStore';
 
   useEffect(() => {
     // Wishlist logic
@@ -65,7 +69,7 @@ export default function Header() {
                 className="text-2xl font-['Pacifico'] text-gray-900 hover:text-emerald-700 transition-colors"
                 aria-label="Go to homepage"
               >
-                logo
+                {siteName}
               </Link>
 
               <div className="hidden lg:flex items-center space-x-8">
@@ -203,7 +207,7 @@ export default function Header() {
             </nav>
           </div>
         )}
-      </header>
+      </header >
 
       {isSearchOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center pt-24">
@@ -239,7 +243,8 @@ export default function Header() {
             </div>
           </div>
         </div>
-      )}
+      )
+      }
     </>
   );
 }

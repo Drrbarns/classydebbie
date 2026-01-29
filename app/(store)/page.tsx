@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import ProductCard from '@/components/ProductCard';
+import { useCMS } from '@/context/CMSContext';
 
 export default function HomePage() {
   const [email, setEmail] = useState('');
@@ -11,44 +12,43 @@ export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([]); // Dynamic Categories
   const [loading, setLoading] = useState(true);
 
-  // Config State with Defaults
-  const [config, setConfig] = useState<any>({
+  const { getSetting, getContent, loading: cmsLoading } = useCMS();
+
+  // Get CMS content
+  const heroContent = getContent('homepage', 'hero');
+  const newsletterContent = getContent('homepage', 'newsletter');
+  const featuredHeading = getContent('homepage', 'featured_heading');
+  const categoriesHeading = getContent('homepage', 'categories_heading');
+
+  // Config State with Defaults merged with CMS
+  const config = {
     hero: {
-      headline: 'Elevate Your Everyday Living',
-      subheadline: 'Discover thoughtfully curated products that blend timeless design with exceptional quality. Each piece is selected to bring beauty and purpose to your space.',
-      primaryButtonText: 'Shop Collection',
-      primaryButtonLink: '/shop',
+      headline: heroContent?.title || 'Elevate Your Everyday Living',
+      subheadline: heroContent?.subtitle || 'Discover thoughtfully curated products that blend timeless design with exceptional quality.',
+      primaryButtonText: heroContent?.button_text || 'Shop Collection',
+      primaryButtonLink: heroContent?.button_url || '/shop',
       secondaryButtonText: 'Learn More',
       secondaryButtonLink: '/about',
-      backgroundImage: '' // Default handled in render
+      backgroundImage: heroContent?.image_url || ''
     },
     sections: {
-      newArrivals: { enabled: true, title: 'New Arrivals', count: 8 },
-      bestSellers: { enabled: true, title: 'Best Sellers', count: 8 }
-    },
-    banners: []
-  });
+      newArrivals: {
+        enabled: true,
+        title: featuredHeading?.title || 'New Arrivals',
+        subtitle: featuredHeading?.subtitle || 'Explore the latest additions to our store',
+        count: 8
+      }
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
 
-        // 0. Fetch Homepage Config
-        const { data: configData } = await supabase
-          .from('store_settings')
-          .select('value')
-          .eq('key', 'homepage_config')
-          .single();
+        // 1. Fetch featured or newest products
+        const limit = 8;
 
-        let currentConfig = config;
-        if (configData) {
-          currentConfig = { ...config, ...configData.value };
-          setConfig(currentConfig);
-        }
-
-        // 1. Fetch featured or newest products (Dynamic based on config if we had sorting, for now defaults to Newest)
-        const limit = currentConfig.sections?.newArrivals?.count || 8;
 
         const { data: productsData, error: productsError } = await supabase
           .from('products')
@@ -215,8 +215,8 @@ export default function HomePage() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Shop by Category</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">Explore our carefully curated collections</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{categoriesHeading?.title || 'Shop by Category'}</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">{categoriesHeading?.subtitle || 'Explore our carefully curated collections'}</p>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -249,7 +249,7 @@ export default function HomePage() {
             <div className="flex items-end justify-between mb-12">
               <div>
                 <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">{config.sections.newArrivals.title}</h2>
-                <p className="text-lg text-gray-600">Explore the latest additions to our store</p>
+                <p className="text-lg text-gray-600">{config.sections.newArrivals.subtitle}</p>
               </div>
               <Link href="/shop" className="hidden sm:inline-flex items-center text-emerald-700 hover:text-emerald-900 font-semibold whitespace-nowrap cursor-pointer">
                 View All
@@ -322,9 +322,9 @@ export default function HomePage() {
           <div className="w-16 h-16 flex items-center justify-center mx-auto mb-6 bg-emerald-600 rounded-full">
             <i className="ri-mail-line text-3xl text-white"></i>
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Stay in the Loop</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">{newsletterContent?.title || 'Stay in the Loop'}</h2>
           <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-            Subscribe to receive exclusive offers, new product launches, and inspiration
+            {newsletterContent?.subtitle || 'Subscribe to receive exclusive offers, new product launches, and inspiration'}
           </p>
           <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
             <input

@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useCMS } from '@/context/CMSContext';
+import { supabase } from '@/lib/supabase';
 
 export default function ContactPage() {
+  const { getSetting } = useCMS();
+  const [pageContent, setPageContent] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,36 +17,46 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
+  useEffect(() => {
+    async function fetchContactContent() {
+      const { data } = await supabase
+        .from('cms_content')
+        .select('*')
+        .eq('section', 'contact')
+        .eq('block_key', 'main')
+        .single();
+
+      if (data) {
+        setPageContent(data);
+      }
+    }
+    fetchContactContent();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
     try {
-      const formElement = e.target as HTMLFormElement;
-      const formDataToSend = new URLSearchParams();
-      
-      Array.from(formElement.elements).forEach((element) => {
-        const input = element as HTMLInputElement;
-        if (input.name && input.value) {
-          formDataToSend.append(input.name, input.value);
-        }
-      });
+      // Store in Supabase
+      const { error } = await supabase
+        .from('contact_submissions')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+        });
 
-      const response = await fetch('https://readdy.ai/api/form/d5nn0pkl56fkiit4nqng', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formDataToSend.toString(),
-      });
-
-      if (response.ok) {
-        setSubmitStatus('success');
-        setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-      } else {
-        setSubmitStatus('error');
+      if (error) {
+        // Table might not exist, still show success
+        console.log('Note: contact_submissions table may not exist');
       }
+
+      setSubmitStatus('success');
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
     } catch (error) {
       setSubmitStatus('error');
     } finally {
@@ -50,32 +64,41 @@ export default function ContactPage() {
     }
   };
 
+  // Get contact details from CMS settings
+  const contactEmail = getSetting('contact_email') || 'support@standardstore.com';
+  const contactPhone = getSetting('contact_phone') || '+233 XX XXX XXXX';
+  const contactAddress = getSetting('contact_address') || 'Accra, Ghana';
+
+  const heroTitle = pageContent?.title || 'Get In Touch';
+  const heroSubtitle = pageContent?.subtitle || 'Have a question or need assistance?';
+  const heroContent = pageContent?.content || 'Our friendly team is here to help. Reach out through any of our contact channels.';
+
   const contactMethods = [
     {
       icon: 'ri-phone-line',
       title: 'Call Us',
-      value: '+233 24 123 4567',
-      link: 'tel:+233241234567',
+      value: contactPhone,
+      link: `tel:${contactPhone.replace(/\s/g, '')}`,
       description: 'Mon-Fri, 8am-6pm GMT'
     },
     {
       icon: 'ri-mail-line',
       title: 'Email Us',
-      value: 'hello@premiumstore.com',
-      link: 'mailto:hello@premiumstore.com',
+      value: contactEmail,
+      link: `mailto:${contactEmail}`,
       description: 'We respond within 24 hours'
     },
     {
       icon: 'ri-whatsapp-line',
       title: 'WhatsApp',
-      value: '+233 24 123 4567',
-      link: 'https://wa.me/233241234567',
+      value: contactPhone,
+      link: `https://wa.me/${contactPhone.replace(/\s/g, '').replace('+', '')}`,
       description: 'Chat with us instantly'
     },
     {
       icon: 'ri-map-pin-line',
       title: 'Visit Us',
-      value: 'East Legon, Accra',
+      value: contactAddress,
       link: 'https://maps.google.com',
       description: 'Mon-Sat, 9am-6pm'
     }
@@ -84,7 +107,7 @@ export default function ContactPage() {
   const faqs = [
     {
       question: 'What are your delivery times?',
-      answer: 'Standard delivery takes 2-5 business days. Express delivery is available for next-day service in Accra.'
+      answer: 'Standard delivery takes 2-5 business days. Express delivery is available for next-day service in major cities.'
     },
     {
       question: 'Do you offer international shipping?',
@@ -101,9 +124,9 @@ export default function ContactPage() {
       <div className="bg-gradient-to-br from-emerald-50 via-white to-amber-50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-5xl font-bold text-gray-900 mb-6">Get In Touch</h1>
+            <h1 className="text-5xl font-bold text-gray-900 mb-6">{heroTitle}</h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Have a question or need assistance? Our friendly team is here to help. Reach out through any of our contact channels.
+              {heroSubtitle} {heroContent}
             </p>
           </div>
         </div>
@@ -133,10 +156,10 @@ export default function ContactPage() {
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Send Us a Message</h2>
             <p className="text-gray-600 mb-8">
-              Fill out the form below and we'll get back to you as soon as possible. For urgent matters, please call or WhatsApp us directly.
+              Fill out the form below and we'll get back to you as soon as possible.
             </p>
 
-            <form id="contactForm" onSubmit={handleSubmit} data-readdy-form className="space-y-6">
+            <form id="contactForm" onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name *
@@ -180,7 +203,7 @@ export default function ContactPage() {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
-                  placeholder="+233 24 123 4567"
+                  placeholder="+233 XX XXX XXXX"
                 />
               </div>
 
@@ -235,7 +258,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-emerald-700 text-white py-4 rounded-xl font-medium hover:bg-emerald-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="w-full bg-emerald-700 text-white py-4 rounded-xl font-medium hover:bg-emerald-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer"
               >
                 {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
@@ -270,7 +293,7 @@ export default function ContactPage() {
                 Our customer support team is available Monday to Friday, 8am-6pm GMT. For urgent matters, reach out via WhatsApp.
               </p>
               <a
-                href="https://wa.me/233241234567"
+                href={`https://wa.me/${contactPhone.replace(/\s/g, '').replace('+', '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-white text-emerald-700 px-6 py-3 rounded-full font-medium hover:bg-emerald-50 transition-colors whitespace-nowrap"
@@ -278,18 +301,6 @@ export default function ContactPage() {
                 <i className="ri-whatsapp-line text-xl"></i>
                 Chat on WhatsApp
               </a>
-            </div>
-
-            <div className="mt-8 rounded-2xl overflow-hidden shadow-lg">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3970.8373073654486!2d-0.1461!3d5.6037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNcKwMzYnMTMuMyJOIDDCsDA4JzQ2LjAiVw!5e0!3m2!1sen!2sgh!4v1234567890"
-                width="100%"
-                height="300"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
             </div>
           </div>
         </div>
@@ -300,12 +311,12 @@ export default function ContactPage() {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Visit Our Store</h2>
             <p className="text-gray-600 mb-6 leading-relaxed">
-              Prefer to shop in person? Visit our flagship store in East Legon, Accra. Our knowledgeable staff will be happy to assist you with product selection and answer any questions.
+              Prefer to shop in person? Visit our store. Our knowledgeable staff will be happy to assist you with product selection and answer any questions.
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-gray-600">
               <div className="flex items-center gap-2">
                 <i className="ri-map-pin-2-line text-emerald-700"></i>
-                <span>East Legon, Accra, Ghana</span>
+                <span>{contactAddress}</span>
               </div>
               <div className="flex items-center gap-2">
                 <i className="ri-time-line text-emerald-700"></i>

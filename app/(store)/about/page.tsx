@@ -1,10 +1,32 @@
 "use client";
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useCMS } from '@/context/CMSContext';
+import { supabase } from '@/lib/supabase';
 
 export default function AboutPage() {
+  const { getSetting, getContent } = useCMS();
   const [activeTab, setActiveTab] = useState('story');
+  const [pageContent, setPageContent] = useState<any>(null);
+
+  useEffect(() => {
+    async function fetchAboutContent() {
+      const { data } = await supabase
+        .from('cms_content')
+        .select('*')
+        .eq('section', 'about')
+        .eq('block_key', 'main')
+        .single();
+
+      if (data) {
+        setPageContent(data);
+      }
+    }
+    fetchAboutContent();
+  }, []);
+
+  const siteName = getSetting('site_name') || 'StandardStore';
 
   const values = [
     {
@@ -33,25 +55,25 @@ export default function AboutPage() {
     {
       name: 'Kwame Mensah',
       role: 'Founder & CEO',
-      image: 'https://readdy.ai/api/search-image?query=Professional%20African%20businessman%20in%20modern%20office%20wearing%20business%20casual%20attire%20confident%20smile%20natural%20lighting%20clean%20minimal%20background%20corporate%20portrait%20style&width=400&height=500&seq=team1&orientation=portrait',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop',
       bio: 'With over 15 years in retail and ecommerce, Kwame founded our company to bring premium products to Ghana.'
     },
     {
       name: 'Ama Osei',
       role: 'Head of Operations',
-      image: 'https://readdy.ai/api/search-image?query=Professional%20African%20businesswoman%20in%20elegant%20blazer%20warm%20smile%20modern%20office%20setting%20natural%20lighting%20clean%20background%20confident%20corporate%20portrait&width=400&height=500&seq=team2&orientation=portrait',
+      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop',
       bio: 'Ama ensures every order is fulfilled perfectly and our customers receive exceptional service.'
     },
     {
       name: 'Yaw Darko',
       role: 'Product Curator',
-      image: 'https://readdy.ai/api/search-image?query=Professional%20African%20man%20creative%20director%20stylish%20casual%20outfit%20friendly%20expression%20modern%20workspace%20natural%20light%20clean%20minimal%20background%20portrait&width=400&height=500&seq=team3&orientation=portrait',
+      image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=500&fit=crop',
       bio: 'Yaw travels the world discovering unique, high-quality products for our discerning customers.'
     },
     {
       name: 'Efua Asante',
       role: 'Customer Experience',
-      image: 'https://readdy.ai/api/search-image?query=Professional%20African%20businesswoman%20customer%20service%20friendly%20smile%20modern%20office%20professional%20attire%20natural%20lighting%20clean%20background%20corporate%20portrait%20style&width=400&height=500&seq=team4&orientation=portrait',
+      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=500&fit=crop',
       bio: 'Efua leads our support team, ensuring every customer interaction exceeds expectations.'
     }
   ];
@@ -66,16 +88,21 @@ export default function AboutPage() {
     { year: '2024', event: 'Serving 100,000+ customers with 500+ premium products' }
   ];
 
+  // Use CMS content if available, otherwise use defaults
+  const heroTitle = pageContent?.title || 'Redefining Premium Shopping in Ghana';
+  const heroSubtitle = pageContent?.subtitle || "We're more than just an online store.";
+  const heroContent = pageContent?.content || "We're a curated marketplace bringing the world's finest products to your doorstep, backed by exceptional service and genuine care.";
+
   return (
     <div className="min-h-screen bg-white">
       <div className="bg-gradient-to-br from-emerald-50 via-white to-amber-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-5xl font-bold text-gray-900 mb-6">
-              Redefining Premium Shopping in Ghana
+              {heroTitle}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              We're more than just an online store. We're a curated marketplace bringing the world's finest products to your doorstep, backed by exceptional service and genuine care.
+              {heroSubtitle} {heroContent}
             </p>
           </div>
         </div>
@@ -85,21 +112,19 @@ export default function AboutPage() {
         <div className="flex border-b border-gray-200 mb-12">
           <button
             onClick={() => setActiveTab('story')}
-            className={`px-6 py-4 font-medium transition-colors ${
-              activeTab === 'story'
+            className={`px-6 py-4 font-medium transition-colors cursor-pointer ${activeTab === 'story'
                 ? 'text-emerald-700 border-b-2 border-emerald-700'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             Our Story
           </button>
           <button
             onClick={() => setActiveTab('mission')}
-            className={`px-6 py-4 font-medium transition-colors ${
-              activeTab === 'mission'
+            className={`px-6 py-4 font-medium transition-colors cursor-pointer ${activeTab === 'mission'
                 ? 'text-emerald-700 border-b-2 border-emerald-700'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             Mission & Vision
           </button>
@@ -111,19 +136,19 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold text-gray-900 mb-6">How It All Began</h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>
-                  In 2018, our founder Kwame Mensah returned to Ghana after years working in international retail. He saw a gap in the market: Ghanaians wanted access to premium products but faced limited options, poor service, and unreliable delivery.
+                  {siteName} was founded with a simple mission: to bring premium quality products to customers who value both quality and convenience.
                 </p>
                 <p>
-                  Armed with a vision and a small team of passionate individuals, we launched with a simple promise: to bring the best products from around the world to Ghana, with service that rivals the finest retailers globally.
+                  We saw a gap in the market for a curated shopping experience that combines world-class products with exceptional local service.
                 </p>
                 <p>
-                  Today, we serve over 100,000 customers nationwide, offering 500+ carefully curated products. But our mission remains unchanged: to delight every customer, every time.
+                  Today, we serve thousands of customers, offering carefully selected products. But our mission remains unchanged: to delight every customer, every time.
                 </p>
               </div>
             </div>
             <div className="relative h-96 rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="https://readdy.ai/api/search-image?query=Modern%20African%20retail%20warehouse%20with%20organised%20shelves%20packages%20being%20prepared%20employees%20working%20bright%20clean%20professional%20environment%20natural%20lighting%20wide%20angle%20view&width=800&height=600&seq=about1&orientation=landscape"
+                src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=600&fit=crop"
                 alt="Our warehouse"
                 className="w-full h-full object-cover"
               />
@@ -139,7 +164,7 @@ export default function AboutPage() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
               <p className="text-gray-600 leading-relaxed">
-                To provide Ghanaians with seamless access to premium products from around the world, delivered with exceptional service, transparent pricing, and a commitment to sustainability. We exist to make premium shopping accessible, reliable, and delightful.
+                To provide seamless access to premium products, delivered with exceptional service, transparent pricing, and a commitment to sustainability. We exist to make premium shopping accessible, reliable, and delightful.
               </p>
             </div>
             <div className="bg-amber-50 p-8 rounded-2xl">
@@ -148,7 +173,7 @@ export default function AboutPage() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Vision</h3>
               <p className="text-gray-600 leading-relaxed">
-                To become Africa's most trusted premium ecommerce platform, setting new standards for quality, service, and customer experience. We envision a future where every African has access to the world's best products, delivered to their doorstep with care.
+                To become the most trusted premium ecommerce platform, setting new standards for quality, service, and customer experience. We envision a future where everyone has access to the world's best products, delivered with care.
               </p>
             </div>
           </div>
@@ -176,60 +201,6 @@ export default function AboutPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
-          <p className="text-xl text-gray-600">The passionate people behind your shopping experience</p>
-        </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {team.map((member, index) => (
-            <div key={index} className="text-center">
-              <div className="relative w-full h-80 rounded-2xl overflow-hidden mb-6 shadow-lg">
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
-              <p className="text-emerald-700 font-medium mb-3">{member.role}</p>
-              <p className="text-gray-600 text-sm leading-relaxed">{member.bio}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="bg-gradient-to-br from-emerald-700 to-emerald-900 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Our Journey</h2>
-            <p className="text-xl text-emerald-100">Key milestones that shaped our story</p>
-          </div>
-          <div className="relative">
-            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-emerald-500/30"></div>
-            <div className="space-y-12">
-              {milestones.map((milestone, index) => (
-                <div
-                  key={index}
-                  className={`flex items-center gap-8 ${
-                    index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'
-                  }`}
-                >
-                  <div className={`flex-1 ${index % 2 === 0 ? 'text-right' : 'text-left'}`}>
-                    <div className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20">
-                      <p className="text-emerald-300 font-medium mb-2">{milestone.year}</p>
-                      <p className="text-white leading-relaxed">{milestone.event}</p>
-                    </div>
-                  </div>
-                  <div className="w-4 h-4 bg-emerald-400 rounded-full ring-4 ring-emerald-700 z-10"></div>
-                  <div className="flex-1"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid md:grid-cols-3 gap-8 text-center">
           <div>
             <div className="text-5xl font-bold text-emerald-700 mb-2">100K+</div>
@@ -250,7 +221,7 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">Join Our Journey</h2>
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            Every order you place supports our mission to bring premium products and exceptional service to Ghana. Thank you for being part of our story.
+            Every order you place supports our mission to bring premium products and exceptional service. Thank you for being part of our story.
           </p>
           <Link
             href="/shop"
