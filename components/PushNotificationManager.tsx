@@ -12,7 +12,7 @@ export default function PushNotificationManager() {
       setPermission(Notification.permission);
 
       const lastPromptTime = localStorage.getItem('notificationPromptTime');
-      const daysSinceLastPrompt = lastPromptTime 
+      const daysSinceLastPrompt = lastPromptTime
         ? (Date.now() - parseInt(lastPromptTime)) / (1000 * 60 * 60 * 24)
         : 999;
 
@@ -36,7 +36,7 @@ export default function PushNotificationManager() {
       if (permission === 'granted') {
         await subscribeToPushNotifications();
         setShowPrompt(false);
-        
+
         new Notification('Notifications Enabled! 🎉', {
           body: 'You will now receive updates about orders, deals, and more.',
           icon: '/icon-192x192.png',
@@ -56,7 +56,7 @@ export default function PushNotificationManager() {
 
     try {
       const registration = await navigator.serviceWorker.ready;
-      
+
       const existingSubscription = await registration.pushManager.getSubscription();
       if (existingSubscription) {
         setSubscription(existingSubscription);
@@ -64,16 +64,16 @@ export default function PushNotificationManager() {
       }
 
       const vapidPublicKey = 'YOUR_VAPID_PUBLIC_KEY_HERE';
-      
+
       const newSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as any
       });
 
       setSubscription(newSubscription);
-      
+
       console.log('Push subscription:', JSON.stringify(newSubscription));
-      
+
     } catch (error) {
       console.error('Error subscribing to push notifications:', error);
     }
@@ -144,7 +144,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
     .replace(/_/g, '/');
 
   const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
+  const outputArray = new Uint8Array(new ArrayBuffer(rawData.length));
 
   for (let i = 0; i < rawData.length; ++i) {
     outputArray[i] = rawData.charCodeAt(i);

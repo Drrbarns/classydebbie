@@ -139,7 +139,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                 featured,
                 seo_title: seoTitle,
                 seo_description: metaDescription,
-                tags: keywords.split(',').map(k => k.trim()).filter(Boolean),
+                tags: (keywords as string).split(',').map((k: string) => k.trim()).filter(Boolean),
                 metadata: {
                     low_stock_threshold: parseInt(lowStockThreshold) || 5
                 }
@@ -278,8 +278,8 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center space-x-2 px-6 py-4 font-semibold whitespace-nowrap transition-colors border-b-2 cursor-pointer ${activeTab === tab.id
-                                        ? 'border-emerald-700 text-emerald-700 bg-emerald-50'
-                                        : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                    ? 'border-emerald-700 text-emerald-700 bg-emerald-50'
+                                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                                     }`}
                             >
                                 <i className={`${tab.icon} text-xl`}></i>

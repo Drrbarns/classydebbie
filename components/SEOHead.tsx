@@ -53,7 +53,7 @@ export function generateMetadata({
       title: fullTitle,
       description,
       images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
-      type: ogType,
+      type: ogType as any,
       siteName,
       locale: 'en_GH'
     },
@@ -120,8 +120,8 @@ export function generateProductSchema(product: {
       '@type': 'Offer',
       price: product.price,
       priceCurrency: product.currency || 'GHS',
-      availability: product.availability === 'in_stock' 
-        ? 'https://schema.org/InStock' 
+      availability: product.availability === 'in_stock'
+        ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
       url: typeof window !== 'undefined' ? window.location.href : '',
       priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
