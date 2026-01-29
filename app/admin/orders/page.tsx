@@ -1,7 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+
+interface Order {
+  id: string;
+  order_number: string;
+  email: string;
+  total: number;
+  status: string;
+  payment_method: string;
+  shipping_method: string;
+  created_at: string;
+  profiles?: {
+    full_name: string;
+    email: string;
+  };
+  order_items?: {
+    quantity: number;
+  }[];
+}
+
+interface OrderStats {
+  label: string;
+  count: number;
+  status: string;
+}
 
 export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -9,132 +34,125 @@ export default function AdminOrdersPage() {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState('date');
-
-  const [orders, setOrders] = useState([
-    {
-      id: 'ORD-2024-324',
-      customer: { name: 'Ama Osei', email: 'ama.osei@example.com', avatar: 'AO' },
-      date: 'Dec 20, 2024 10:30 AM',
-      items: 2,
-      total: 450.00,
-      status: 'Processing',
-      payment: 'Moolre',
-      shipping: 'Express'
-    },
-    {
-      id: 'ORD-2024-323',
-      customer: { name: 'Kwame Mensah', email: 'kwame.m@example.com', avatar: 'KM' },
-      date: 'Dec 20, 2024 09:15 AM',
-      items: 1,
-      total: 289.00,
-      status: 'Shipped',
-      payment: 'Paystack',
-      shipping: 'Standard'
-    },
-    {
-      id: 'ORD-2024-322',
-      customer: { name: 'Efua Asante', email: 'efua.asante@example.com', avatar: 'EA' },
-      date: 'Dec 19, 2024 04:20 PM',
-      items: 3,
-      total: 678.00,
-      status: 'Delivered',
-      payment: 'Cash on Delivery',
-      shipping: 'Standard'
-    },
-    {
-      id: 'ORD-2024-321',
-      customer: { name: 'Kofi Adjei', email: 'kofi.adjei@example.com', avatar: 'KA' },
-      date: 'Dec 19, 2024 02:45 PM',
-      items: 1,
-      total: 195.00,
-      status: 'Pending',
-      payment: 'Moolre',
-      shipping: 'Express'
-    },
-    {
-      id: 'ORD-2024-320',
-      customer: { name: 'Abena Mensah', email: 'abena.m@example.com', avatar: 'AM' },
-      date: 'Dec 19, 2024 11:30 AM',
-      items: 4,
-      total: 824.00,
-      status: 'Processing',
-      payment: 'Paystack',
-      shipping: 'Store Pickup'
-    },
-    {
-      id: 'ORD-2024-319',
-      customer: { name: 'Yaw Boateng', email: 'yaw.b@example.com', avatar: 'YB' },
-      date: 'Dec 18, 2024 05:10 PM',
-      items: 2,
-      total: 387.00,
-      status: 'Shipped',
-      payment: 'Moolre',
-      shipping: 'Standard'
-    },
-    {
-      id: 'ORD-2024-318',
-      customer: { name: 'Akosua Darko', email: 'akosua.d@example.com', avatar: 'AD' },
-      date: 'Dec 18, 2024 01:25 PM',
-      items: 1,
-      total: 156.00,
-      status: 'Delivered',
-      payment: 'Cash on Delivery',
-      shipping: 'Standard'
-    },
-    {
-      id: 'ORD-2024-317',
-      customer: { name: 'Kwesi Amoako', email: 'kwesi.a@example.com', avatar: 'KA' },
-      date: 'Dec 18, 2024 10:00 AM',
-      items: 5,
-      total: 1245.00,
-      status: 'Processing',
-      payment: 'Paystack',
-      shipping: 'Express'
-    },
-    {
-      id: 'ORD-2024-316',
-      customer: { name: 'Adwoa Owusu', email: 'adwoa.o@example.com', avatar: 'AO' },
-      date: 'Dec 17, 2024 03:40 PM',
-      items: 2,
-      total: 523.00,
-      status: 'Cancelled',
-      payment: 'Moolre',
-      shipping: 'Express'
-    },
-    {
-      id: 'ORD-2024-315',
-      customer: { name: 'Fiifi Nkrumah', email: 'fiifi.n@example.com', avatar: 'FN' },
-      date: 'Dec 17, 2024 12:15 PM',
-      items: 3,
-      total: 689.00,
-      status: 'Delivered',
-      payment: 'Paystack',
-      shipping: 'Standard'
-    }
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [orderStats, setOrderStats] = useState<OrderStats[]>([
+    { label: 'All Orders', count: 0, status: 'all' },
+    { label: 'Pending', count: 0, status: 'pending' },
+    { label: 'Processing', count: 0, status: 'processing' },
+    { label: 'Shipped', count: 0, status: 'shipped' },
+    { label: 'Delivered', count: 0, status: 'delivered' },
+    { label: 'Cancelled', count: 0, status: 'cancelled' }
   ]);
 
-  const statusColors: any = {
-    'Pending': 'bg-amber-100 text-amber-700 border-amber-200',
-    'Processing': 'bg-blue-100 text-blue-700 border-blue-200',
-    'Shipped': 'bg-purple-100 text-purple-700 border-purple-200',
-    'Delivered': 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    'Cancelled': 'bg-red-100 text-red-700 border-red-200'
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch orders with related data
+      const { data: ordersData, error } = await supabase
+        .from('orders')
+        .select(`
+          id,
+          order_number,
+          email,
+          total,
+          status,
+          payment_method,
+          shipping_method,
+          created_at,
+          profiles (
+            full_name,
+            email
+          ),
+          order_items (
+            quantity
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setOrders(ordersData || []);
+
+      // Calculate stats
+      const stats = [
+        { label: 'All Orders', count: ordersData?.length || 0, status: 'all' },
+        { label: 'Pending', count: ordersData?.filter(o => o.status === 'pending').length || 0, status: 'pending' },
+        { label: 'Processing', count: ordersData?.filter(o => o.status === 'processing').length || 0, status: 'processing' },
+        { label: 'Shipped', count: ordersData?.filter(o => o.status === 'shipped').length || 0, status: 'shipped' },
+        { label: 'Delivered', count: ordersData?.filter(o => o.status === 'delivered').length || 0, status: 'delivered' },
+        { label: 'Cancelled', count: ordersData?.filter(o => o.status === 'cancelled').length || 0, status: 'cancelled' }
+      ];
+      setOrderStats(stats);
+
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const orderStats = [
-    { label: 'All Orders', count: 324, status: 'all' },
-    { label: 'Pending', count: 45, status: 'Pending' },
-    { label: 'Processing', count: 78, status: 'Processing' },
-    { label: 'Shipped', count: 52, status: 'Shipped' },
-    { label: 'Delivered', count: 142, status: 'Delivered' },
-    { label: 'Cancelled', count: 7, status: 'Cancelled' }
-  ];
+  const statusColors: Record<string, string> = {
+    'pending': 'bg-amber-100 text-amber-700 border-amber-200',
+    'processing': 'bg-blue-100 text-blue-700 border-blue-200',
+    'shipped': 'bg-purple-100 text-purple-700 border-purple-200',
+    'delivered': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    'cancelled': 'bg-red-100 text-red-700 border-red-200'
+  };
+
+  const formatStatus = (status: string) => {
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+
+  const getCustomerName = (order: Order) => {
+    if (order.profiles?.full_name) return order.profiles.full_name;
+    if (order.email) {
+      const name = order.email.split('@')[0];
+      return name.charAt(0).toUpperCase() + name.slice(1);
+    }
+    return 'Guest';
+  };
+
+  const getCustomerEmail = (order: Order) => {
+    return order.profiles?.email || order.email || 'N/A';
+  };
+
+  const getCustomerAvatar = (order: Order) => {
+    const name = getCustomerName(order);
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return parts[0][0] + parts[1][0];
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  const getItemCount = (order: Order) => {
+    if (!order.order_items) return 0;
+    return order.order_items.reduce((sum, item) => sum + item.quantity, 0);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
 
   const handleSelectAll = () => {
-    if (selectedOrders.length === orders.length) {
+    if (selectedOrders.length === filteredOrders.length) {
       setSelectedOrders([]);
     } else {
-      setSelectedOrders(orders.map(o => o.id));
+      setSelectedOrders(filteredOrders.map(o => o.id));
     }
   };
 
@@ -146,15 +164,28 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const handleBulkAction = (action: string, newStatus?: string) => {
+  const handleBulkAction = async (action: string, newStatus?: string) => {
     if (newStatus) {
-      setOrders(orders.map(order => 
-        selectedOrders.includes(order.id) ? { ...order, status: newStatus } : order
-      ));
-      setSelectedOrders([]);
-      alert(`${selectedOrders.length} orders updated to ${newStatus}`);
+      try {
+        const { error } = await supabase
+          .from('orders')
+          .update({ status: newStatus })
+          .in('id', selectedOrders);
+
+        if (error) throw error;
+
+        await fetchOrders();
+        setSelectedOrders([]);
+        alert(`${selectedOrders.length} orders updated to ${newStatus}`);
+      } catch (error) {
+        console.error('Error updating orders:', error);
+        alert('Failed to update orders');
+      }
     } else if (action === 'Export') {
-      const csvContent = `Order ID,Customer,Email,Date,Items,Total,Status,Payment,Shipping\n${orders.filter(o => selectedOrders.includes(o.id)).map(o => `${o.id},${o.customer.name},${o.customer.email},${o.date},${o.items},${o.total},${o.status},${o.payment},${o.shipping}`).join('\n')}`;
+      const ordersToExport = orders.filter(o => selectedOrders.includes(o.id));
+      const csvContent = `Order ID,Customer,Email,Date,Items,Total,Status,Payment\n${ordersToExport.map(o =>
+        `${o.order_number || o.id},${getCustomerName(o)},${getCustomerEmail(o)},${formatDate(o.created_at)},${getItemCount(o)},${o.total},${o.status},${o.payment_method || 'N/A'}`
+      ).join('\n')}`;
       const blob = new Blob([csvContent], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -168,7 +199,9 @@ export default function AdminOrdersPage() {
   };
 
   const handleExportAll = () => {
-    const csvContent = `Order ID,Customer,Email,Date,Items,Total,Status,Payment,Shipping\n${orders.map(o => `${o.id},${o.customer.name},${o.customer.email},${o.date},${o.items},${o.total},${o.status},${o.payment},${o.shipping}`).join('\n')}`;
+    const csvContent = `Order ID,Customer,Email,Date,Items,Total,Status,Payment\n${orders.map(o =>
+      `${o.order_number || o.id},${getCustomerName(o)},${getCustomerEmail(o)},${formatDate(o.created_at)},${getItemCount(o)},${o.total},${o.status},${o.payment_method || 'N/A'}`
+    ).join('\n')}`;
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -181,13 +214,17 @@ export default function AdminOrdersPage() {
   };
 
   const handlePrintInvoice = (orderId: string) => {
-    alert(`Printing invoice for ${orderId}...`);
+    window.open(`/admin/orders/${orderId}?print=true`, '_blank');
   };
 
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const customerName = getCustomerName(order).toLowerCase();
+    const customerEmail = getCustomerEmail(order).toLowerCase();
+    const orderId = (order.order_number || order.id).toLowerCase();
+
+    const matchesSearch = orderId.includes(searchQuery.toLowerCase()) ||
+      customerName.includes(searchQuery.toLowerCase()) ||
+      customerEmail.includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -210,11 +247,10 @@ export default function AdminOrdersPage() {
           <button
             key={stat.status}
             onClick={() => setStatusFilter(stat.status)}
-            className={`p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${
-              statusFilter === stat.status
+            className={`p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${statusFilter === stat.status
                 ? 'border-emerald-700 bg-emerald-50'
                 : 'border-gray-200 bg-white hover:border-gray-300'
-            }`}
+              }`}
           >
             <p className="text-2xl font-bold text-gray-900">{stat.count}</p>
             <p className="text-sm text-gray-600 mt-1">{stat.label}</p>
@@ -246,7 +282,7 @@ export default function AdminOrdersPage() {
                 <i className="ri-filter-line mr-2"></i>
                 Filters
               </button>
-              <select 
+              <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="px-4 py-3 pr-8 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-medium cursor-pointer"
@@ -269,8 +305,8 @@ export default function AdminOrdersPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Method</label>
                 <select className="w-full px-3 py-2 pr-8 border-2 border-gray-300 rounded-lg text-sm cursor-pointer">
                   <option>All Methods</option>
-                  <option>Moolre</option>
-                  <option>Paystack</option>
+                  <option>Mobile Money</option>
+                  <option>Card</option>
                   <option>Cash on Delivery</option>
                 </select>
               </div>
@@ -294,13 +330,13 @@ export default function AdminOrdersPage() {
             </p>
             <div className="flex items-center space-x-2">
               <button
-                onClick={() => handleBulkAction('Mark as Processing', 'Processing')}
+                onClick={() => handleBulkAction('Mark as Processing', 'processing')}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer"
               >
                 Mark Processing
               </button>
               <button
-                onClick={() => handleBulkAction('Mark as Shipped', 'Shipped')}
+                onClick={() => handleBulkAction('Mark as Shipped', 'shipped')}
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer"
               >
                 Mark Shipped
@@ -339,87 +375,85 @@ export default function AdminOrdersPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((order) => (
-                <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-6">
-                    <input
-                      type="checkbox"
-                      checked={selectedOrders.includes(order.id)}
-                      onChange={() => handleSelectOrder(order.id)}
-                      className="w-4 h-4 text-emerald-700 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer"
-                    />
-                  </td>
-                  <td className="py-4 px-4">
-                    <Link href={`/admin/orders/${order.id}`} className="text-emerald-700 hover:text-emerald-800 font-semibold whitespace-nowrap cursor-pointer">
-                      {order.id}
-                    </Link>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-full font-semibold text-sm">
-                        {order.customer.avatar}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 whitespace-nowrap">{order.customer.name}</p>
-                        <p className="text-sm text-gray-500">{order.customer.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4 text-gray-700 text-sm whitespace-nowrap">{order.date}</td>
-                  <td className="py-4 px-4 text-gray-700">{order.items}</td>
-                  <td className="py-4 px-4 font-semibold text-gray-900 whitespace-nowrap">GH₵ {order.total.toFixed(2)}</td>
-                  <td className="py-4 px-4 text-gray-700 text-sm whitespace-nowrap">{order.payment}</td>
-                  <td className="py-4 px-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${statusColors[order.status]}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-2">
-                      <Link
-                        href={`/admin/orders/${order.id}`}
-                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <i className="ri-eye-line text-lg w-4 h-4 flex items-center justify-center"></i>
-                      </Link>
-                      <button 
-                        onClick={() => handlePrintInvoice(order.id)}
-                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <i className="ri-printer-line text-lg w-4 h-4 flex items-center justify-center"></i>
-                      </button>
-                    </div>
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="py-12 text-center text-gray-500">
+                    <i className="ri-loader-4-line animate-spin text-3xl text-emerald-700"></i>
+                    <p className="mt-2">Loading orders...</p>
                   </td>
                 </tr>
-              ))}
+              ) : filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="py-12 text-center text-gray-500">
+                    <i className="ri-inbox-line text-4xl text-gray-300"></i>
+                    <p className="mt-2">No orders found</p>
+                    <p className="text-sm">Orders will appear here when customers place them</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredOrders.map((order) => (
+                  <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-6">
+                      <input
+                        type="checkbox"
+                        checked={selectedOrders.includes(order.id)}
+                        onChange={() => handleSelectOrder(order.id)}
+                        className="w-4 h-4 text-emerald-700 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer"
+                      />
+                    </td>
+                    <td className="py-4 px-4">
+                      <Link href={`/admin/orders/${order.id}`} className="text-emerald-700 hover:text-emerald-800 font-semibold whitespace-nowrap cursor-pointer">
+                        {order.order_number || order.id.substring(0, 8)}
+                      </Link>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-full font-semibold text-sm">
+                          {getCustomerAvatar(order)}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900 whitespace-nowrap">{getCustomerName(order)}</p>
+                          <p className="text-sm text-gray-500">{getCustomerEmail(order)}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-gray-700 text-sm whitespace-nowrap">{formatDate(order.created_at)}</td>
+                    <td className="py-4 px-4 text-gray-700">{getItemCount(order)}</td>
+                    <td className="py-4 px-4 font-semibold text-gray-900 whitespace-nowrap">GH₵ {order.total?.toFixed(2) || '0.00'}</td>
+                    <td className="py-4 px-4 text-gray-700 text-sm whitespace-nowrap">{order.payment_method || 'N/A'}</td>
+                    <td className="py-4 px-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${statusColors[order.status] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
+                        {formatStatus(order.status)}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <i className="ri-eye-line text-lg w-4 h-4 flex items-center justify-center"></i>
+                        </Link>
+                        <button
+                          onClick={() => handlePrintInvoice(order.id)}
+                          className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <i className="ri-printer-line text-lg w-4 h-4 flex items-center justify-center"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
-        <div className="p-6 border-t border-gray-200 flex items-center justify-between">
-          <p className="text-gray-600">Showing 1-10 of 324 orders</p>
-          <div className="flex items-center space-x-2">
-            <button className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-colors cursor-pointer">
-              <i className="ri-arrow-left-s-line text-xl text-gray-600 w-5 h-5 flex items-center justify-center"></i>
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center bg-emerald-700 text-white rounded-lg font-semibold cursor-pointer">
-              1
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-gray-700 cursor-pointer">
-              2
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-gray-700 cursor-pointer">
-              3
-            </button>
-            <span className="px-2 text-gray-600">...</span>
-            <button className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-gray-700 cursor-pointer">
-              33
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-colors cursor-pointer">
-              <i className="ri-arrow-right-s-line text-xl text-gray-600 w-5 h-5 flex items-center justify-center"></i>
-            </button>
+        {filteredOrders.length > 0 && (
+          <div className="p-6 border-t border-gray-200 flex items-center justify-between">
+            <p className="text-gray-600">Showing {filteredOrders.length} of {orders.length} orders</p>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
