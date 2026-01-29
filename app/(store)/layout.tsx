@@ -15,6 +15,7 @@ import FlashSaleBanner from '@/components/FlashSaleBanner';
 
 import CookieConsent from '@/components/CookieConsent';
 import AccessibilityMenu from '@/components/AccessibilityMenu';
+import { CMSProvider } from '@/context/CMSContext';
 
 export default function StoreLayout({
   children,
@@ -22,22 +23,24 @@ export default function StoreLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PWAInstaller />
-      <Header />
-      {children}
-      <Footer />
-      <MobileBottomNav />
-      <SessionTimeoutWarning />
-      <PWAPrompt />
-      <PushNotificationManager />
-      <OfflineIndicator />
-      <NetworkStatusMonitor />
-      <UpdatePrompt />
-      <LiveSalesNotification />
+    <CMSProvider>
+      <div className="min-h-screen bg-gray-50">
+        <PWAInstaller />
+        <Header />
+        {children}
+        <Footer />
+        <MobileBottomNav />
+        <SessionTimeoutWarning />
+        <PWAPrompt />
+        <PushNotificationManager />
+        <OfflineIndicator />
+        <NetworkStatusMonitor />
+        <UpdatePrompt />
+        <LiveSalesNotification />
 
-      <CookieConsent />
-      <AccessibilityMenu />
-    </div>
+        <CookieConsent />
+        <AccessibilityMenu />
+      </div>
+    </CMSProvider>
   );
 }
