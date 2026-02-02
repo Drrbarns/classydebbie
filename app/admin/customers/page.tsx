@@ -1,110 +1,103 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function AdminCustomersPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCustomers, setSelectedCustomers] = useState<number[]>([]);
+  const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sortOption, setSortOption] = useState('Sort by Join Date');
+  const [filterStatus, setFilterStatus] = useState('All Customers');
 
-  const customers = [
-    {
-      id: 1,
-      name: 'Ama Osei',
-      email: 'ama.osei@example.com',
-      phone: '+233 24 123 4567',
-      avatar: 'AO',
-      orders: 12,
-      totalSpent: 3456.00,
-      joined: 'Mar 15, 2024',
-      lastOrder: '2 days ago',
-      status: 'Active'
-    },
-    {
-      id: 2,
-      name: 'Kwame Mensah',
-      email: 'kwame.m@example.com',
-      phone: '+233 50 234 5678',
-      avatar: 'KM',
-      orders: 8,
-      totalSpent: 2187.00,
-      joined: 'Apr 22, 2024',
-      lastOrder: '5 days ago',
-      status: 'Active'
-    },
-    {
-      id: 3,
-      name: 'Efua Asante',
-      email: 'efua.asante@example.com',
-      phone: '+233 27 345 6789',
-      avatar: 'EA',
-      orders: 15,
-      totalSpent: 4892.00,
-      joined: 'Feb 8, 2024',
-      lastOrder: '1 day ago',
-      status: 'VIP'
-    },
-    {
-      id: 4,
-      name: 'Kofi Adjei',
-      email: 'kofi.adjei@example.com',
-      phone: '+233 55 456 7890',
-      avatar: 'KA',
-      orders: 3,
-      totalSpent: 687.00,
-      joined: 'Nov 10, 2024',
-      lastOrder: '1 week ago',
-      status: 'Active'
-    },
-    {
-      id: 5,
-      name: 'Abena Mensah',
-      email: 'abena.m@example.com',
-      phone: '+233 20 567 8901',
-      avatar: 'AM',
-      orders: 24,
-      totalSpent: 7845.00,
-      joined: 'Jan 5, 2024',
-      lastOrder: 'Today',
-      status: 'VIP'
-    },
-    {
-      id: 6,
-      name: 'Yaw Boateng',
-      email: 'yaw.b@example.com',
-      phone: '+233 24 678 9012',
-      avatar: 'YB',
-      orders: 6,
-      totalSpent: 1523.00,
-      joined: 'May 18, 2024',
-      lastOrder: '3 days ago',
-      status: 'Active'
-    },
-    {
-      id: 7,
-      name: 'Akosua Darko',
-      email: 'akosua.d@example.com',
-      phone: '+233 50 789 0123',
-      avatar: 'AD',
-      orders: 1,
-      totalSpent: 156.00,
-      joined: 'Dec 15, 2024',
-      lastOrder: '2 weeks ago',
-      status: 'New'
-    },
-    {
-      id: 8,
-      name: 'Kwesi Amoako',
-      email: 'kwesi.a@example.com',
-      phone: '+233 27 890 1234',
-      avatar: 'KA',
-      orders: 18,
-      totalSpent: 5234.00,
-      joined: 'Mar 1, 2024',
-      lastOrder: 'Yesterday',
-      status: 'VIP'
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
+      // Fetch profiles
+      const { data: profiles, error: pError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (pError) throw pError;
+
+      // Fetch all orders to aggregate stats
+      // Note: In a large system, this should be paginated or done via SQL View/RPC
+      const { data: orders, error: oError } = await supabase
+        .from('orders')
+        .select('id, user_id, total, created_at, status');
+
+      if (oError) throw oError;
+
+      if (profiles) {
+        const processed = profiles.map(profile => {
+          const userOrders = orders?.filter(o => o.user_id === profile.id && o.status !== 'cancelled') || [];
+          const totalSpent = userOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+
+          let lastOrderDate: Date | null = null;
+          if (userOrders.length > 0) {
+            const dates = userOrders.map(o => new Date(o.created_at).getTime());
+            lastOrderDate = new Date(Math.max(...dates));
+          }
+
+          // Determine status dynamically
+          let status = 'New';
+          if (totalSpent > 1000) status = 'VIP'; // Example threshold
+          else if (userOrders.length > 0) status = 'Active';
+          else if (new Date(profile.created_at).getTime() < Date.now() - 30 * 24 * 60 * 60 * 1000) status = 'Inactive';
+
+          return {
+            id: profile.id,
+            name: profile.full_name || 'No Name',
+            email: profile.email,
+            phone: profile.phone || 'N/A',
+            avatar: getInitials(profile.full_name || profile.email),
+            orders: userOrders.length,
+            totalSpent: totalSpent,
+            joined: new Date(profile.created_at).toLocaleDateString(),
+            lastOrder: lastOrderDate ? timeAgo(lastOrderDate) : 'Never',
+            status: status,
+            rawJoined: new Date(profile.created_at),
+            rawLastOrder: lastOrderDate
+          };
+        });
+        setCustomers(processed);
+      }
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const getInitials = (name: string) => {
+    if (!name) return '??';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  };
+
+  const timeAgo = (date: Date) => {
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + " years ago";
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + " months ago";
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + " days ago";
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + " hours ago";
+    return "Just now";
+  }
 
   const statusColors: any = {
     'New': 'bg-blue-100 text-blue-700',
@@ -121,13 +114,56 @@ export default function AdminCustomersPage() {
     }
   };
 
-  const handleSelectCustomer = (customerId: number) => {
+  const handleSelectCustomer = (customerId: string) => {
     if (selectedCustomers.includes(customerId)) {
       setSelectedCustomers(selectedCustomers.filter(id => id !== customerId));
     } else {
       setSelectedCustomers([...selectedCustomers, customerId]);
     }
   };
+
+  // Memoized filter and sort
+  const filteredCustomers = useMemo(() => {
+    let result = customers;
+
+    // Filter by Status
+    if (filterStatus !== 'All Customers') {
+      result = result.filter(c => c.status === filterStatus);
+    }
+
+    // Search
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(c =>
+        c.name.toLowerCase().includes(q) ||
+        c.email.toLowerCase().includes(q) ||
+        c.phone.toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    result = [...result].sort((a, b) => {
+      if (sortOption === 'Sort by Name') return a.name.localeCompare(b.name);
+      if (sortOption === 'Sort by Orders') return b.orders - a.orders;
+      if (sortOption === 'Sort by Spent') return b.totalSpent - a.totalSpent;
+      if (sortOption === 'Sort by Join Date') return b.rawJoined.getTime() - a.rawJoined.getTime();
+      return 0;
+    });
+
+    return result;
+  }, [customers, searchQuery, sortOption, filterStatus]);
+
+  // Derived Stats
+  const stats = useMemo(() => ({
+    total: customers.length,
+    newThisMonth: customers.filter(c => {
+      const d = new Date(c.rawJoined);
+      const now = new Date();
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).length,
+    vip: customers.filter(c => c.status === 'VIP').length,
+    avgLTV: customers.length > 0 ? (customers.reduce((sum, c) => sum + c.totalSpent, 0) / customers.length) : 0
+  }), [customers]);
 
   return (
     <div className="space-y-6">
@@ -136,7 +172,7 @@ export default function AdminCustomersPage() {
           <h1 className="text-3xl font-bold text-gray-900">Customers</h1>
           <p className="text-gray-600 mt-1">Manage your customer base and relationships</p>
         </div>
-        <button className="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap">
+        <button className="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer">
           <i className="ri-download-line mr-2"></i>
           Export Customers
         </button>
@@ -145,19 +181,19 @@ export default function AdminCustomersPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border-2 border-gray-200 p-4">
           <p className="text-sm text-gray-600 mb-1">Total Customers</p>
-          <p className="text-2xl font-bold text-gray-900">1,842</p>
+          <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
         </div>
         <div className="bg-white rounded-xl border-2 border-gray-200 p-4">
           <p className="text-sm text-gray-600 mb-1">New This Month</p>
-          <p className="text-2xl font-bold text-emerald-700">127</p>
+          <p className="text-2xl font-bold text-emerald-700">{stats.newThisMonth}</p>
         </div>
         <div className="bg-white rounded-xl border-2 border-gray-200 p-4">
           <p className="text-sm text-gray-600 mb-1">VIP Customers</p>
-          <p className="text-2xl font-bold text-purple-700">89</p>
+          <p className="text-2xl font-bold text-purple-700">{stats.vip}</p>
         </div>
         <div className="bg-white rounded-xl border-2 border-gray-200 p-4">
           <p className="text-sm text-gray-600 mb-1">Avg Lifetime Value</p>
-          <p className="text-2xl font-bold text-gray-900">GH₵ 2.8K</p>
+          <p className="text-2xl font-bold text-gray-900">GH₵ {stats.avgLTV.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
         </div>
       </div>
 
@@ -166,7 +202,7 @@ export default function AdminCustomersPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <i className="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                <i className="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg flex items-center justify-center"></i>
                 <input
                   type="text"
                   value={searchQuery}
@@ -178,18 +214,26 @@ export default function AdminCustomersPage() {
             </div>
 
             <div className="flex items-center space-x-3">
-              <select className="px-4 py-3 pr-8 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-medium cursor-pointer">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-4 py-3 pr-8 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-medium cursor-pointer"
+              >
                 <option>All Customers</option>
                 <option>New</option>
                 <option>Active</option>
                 <option>VIP</option>
                 <option>Inactive</option>
               </select>
-              <select className="px-4 py-3 pr-8 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-medium cursor-pointer">
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+                className="px-4 py-3 pr-8 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-medium cursor-pointer"
+              >
+                <option>Sort by Join Date</option>
                 <option>Sort by Name</option>
                 <option>Sort by Orders</option>
                 <option>Sort by Spent</option>
-                <option>Sort by Join Date</option>
               </select>
             </div>
           </div>
@@ -201,15 +245,15 @@ export default function AdminCustomersPage() {
               {selectedCustomers.length} customer{selectedCustomers.length > 1 ? 's' : ''} selected
             </p>
             <div className="flex items-center space-x-2">
-              <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+              <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer">
                 <i className="ri-mail-line mr-2"></i>
                 Send Email
               </button>
-              <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+              <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer">
                 <i className="ri-vip-crown-line mr-2"></i>
                 Mark as VIP
               </button>
-              <button className="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+              <button className="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer">
                 <i className="ri-download-line mr-2"></i>
                 Export
               </button>
@@ -224,7 +268,7 @@ export default function AdminCustomersPage() {
                 <th className="py-4 px-6">
                   <input
                     type="checkbox"
-                    checked={selectedCustomers.length === customers.length}
+                    checked={selectedCustomers.length === filteredCustomers.length && filteredCustomers.length > 0}
                     onChange={handleSelectAll}
                     className="w-4 h-4 text-emerald-700 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer"
                   />
@@ -239,77 +283,73 @@ export default function AdminCustomersPage() {
               </tr>
             </thead>
             <tbody>
-              {customers.map((customer) => (
-                <tr key={customer.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-6">
-                    <input
-                      type="checkbox"
-                      checked={selectedCustomers.includes(customer.id)}
-                      onChange={() => handleSelectCustomer(customer.id)}
-                      className="w-4 h-4 text-emerald-700 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer"
-                    />
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 flex items-center justify-center bg-emerald-100 text-emerald-700 rounded-full font-semibold">
-                        {customer.avatar}
+              {loading ? (
+                <tr><td colSpan={8} className="p-10 text-center text-gray-500">Loading customers...</td></tr>
+              ) : filteredCustomers.length === 0 ? (
+                <tr><td colSpan={8} className="p-10 text-center text-gray-500">No customers found.</td></tr>
+              ) : (
+                filteredCustomers.map((customer) => (
+                  <tr key={customer.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-6">
+                      <input
+                        type="checkbox"
+                        checked={selectedCustomers.includes(customer.id)}
+                        onChange={() => handleSelectCustomer(customer.id)}
+                        className="w-4 h-4 text-emerald-700 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer"
+                      />
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 flex items-center justify-center bg-emerald-100 text-emerald-700 rounded-full font-semibold">
+                          {customer.avatar}
+                        </div>
+                        <div>
+                          <Link href={`/admin/customers/${customer.id}`} className="font-semibold text-gray-900 hover:text-emerald-700 whitespace-nowrap">
+                            {customer.name}
+                          </Link>
+                          <p className="text-sm text-gray-500">Joined {customer.joined}</p>
+                        </div>
                       </div>
-                      <div>
-                        <Link href={`/admin/customers/${customer.id}`} className="font-semibold text-gray-900 hover:text-emerald-700 whitespace-nowrap">
-                          {customer.name}
+                    </td>
+                    <td className="py-4 px-4">
+                      <p className="text-gray-700 text-sm">{customer.email}</p>
+                      <p className="text-gray-600 text-sm">{customer.phone}</p>
+                    </td>
+                    <td className="py-4 px-4 font-semibold text-gray-900">{customer.orders}</td>
+                    <td className="py-4 px-4 font-semibold text-emerald-700 whitespace-nowrap">GH₵ {customer.totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td className="py-4 px-4 text-gray-700 text-sm whitespace-nowrap">{customer.lastOrder}</td>
+                    <td className="py-4 px-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${statusColors[customer.status]}`}>
+                        {customer.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <Link
+                          href={`/admin/customers/${customer.id}`}
+                          className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
+                        >
+                          <i className="ri-eye-line text-lg"></i>
                         </Link>
-                        <p className="text-sm text-gray-500">Joined {customer.joined}</p>
+                        <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
+                          <i className="ri-mail-line text-lg"></i>
+                        </button>
+                        <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                          <i className="ri-delete-bin-line text-lg"></i>
+                        </button>
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <p className="text-gray-700 text-sm">{customer.email}</p>
-                    <p className="text-gray-600 text-sm">{customer.phone}</p>
-                  </td>
-                  <td className="py-4 px-4 font-semibold text-gray-900">{customer.orders}</td>
-                  <td className="py-4 px-4 font-semibold text-emerald-700 whitespace-nowrap">GH₵ {customer.totalSpent.toFixed(2)}</td>
-                  <td className="py-4 px-4 text-gray-700 text-sm whitespace-nowrap">{customer.lastOrder}</td>
-                  <td className="py-4 px-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${statusColors[customer.status]}`}>
-                      {customer.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-2">
-                      <Link
-                        href={`/admin/customers/${customer.id}`}
-                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
-                      >
-                        <i className="ri-eye-line text-lg"></i>
-                      </Link>
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors">
-                        <i className="ri-mail-line text-lg"></i>
-                      </button>
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
-                        <i className="ri-delete-bin-line text-lg"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
         <div className="p-6 border-t border-gray-200 flex items-center justify-between">
-          <p className="text-gray-600">Showing 1-8 of 1,842 customers</p>
+          <p className="text-gray-600">Showing {filteredCustomers.length} of {customers.length} customers</p>
           <div className="flex items-center space-x-2">
-            <button className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-colors">
-              <i className="ri-arrow-left-s-line text-xl text-gray-600"></i>
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center bg-emerald-700 text-white rounded-lg font-semibold">1</button>
-            <button className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-gray-700">2</button>
-            <button className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-gray-700">3</button>
-            <span className="px-2 text-gray-600">...</span>
-            <button className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-gray-700">231</button>
-            <button className="w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-colors">
-              <i className="ri-arrow-right-s-line text-xl text-gray-600"></i>
-            </button>
+            {/* Simple pagination place holder logic or hidden if few */}
           </div>
         </div>
       </div>
