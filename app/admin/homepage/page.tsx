@@ -200,8 +200,8 @@ export default function HomepageEditorPage() {
                   key={config.key}
                   onClick={() => setActiveBlock(config.key)}
                   className={`w-full flex items-center space-x-3 p-3 rounded-lg text-left transition-colors ${activeBlock === config.key
-                      ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-300'
-                      : 'hover:bg-gray-100 text-gray-700 border-2 border-transparent'
+                    ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-300'
+                    : 'hover:bg-gray-100 text-gray-700 border-2 border-transparent'
                     }`}
                 >
                   <i className={`${config.icon} text-xl`}></i>
@@ -273,25 +273,82 @@ export default function HomepageEditorPage() {
               {activeBlock === 'hero' && (
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Background Image URL
+                    Background Image
                   </label>
-                  <input
-                    type="text"
-                    value={currentBlock.image_url || ''}
-                    onChange={(e) => updateBlock(activeBlock, 'image_url', e.target.value)}
-                    placeholder="https://example.com/hero-image.jpg"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
-                  {currentBlock.image_url && (
-                    <div className="mt-3">
-                      <img
-                        src={currentBlock.image_url}
-                        alt="Hero Preview"
-                        className="w-full h-32 object-cover rounded-lg"
-                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={currentBlock.image_url || ''}
+                        onChange={(e) => updateBlock(activeBlock, 'image_url', e.target.value)}
+                        placeholder="https://example.com/hero-image.jpg"
+                        className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                       />
+                      <input
+                        type="file"
+                        id="hero-image-upload"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+
+                          try {
+                            setSaving(true);
+                            const fileName = `hero-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+                            const { error: uploadError } = await supabase.storage
+                              .from('media')
+                              .upload(`uploads/${fileName}`, file, {
+                                cacheControl: '3600',
+                                upsert: false,
+                              });
+
+                            if (uploadError) throw uploadError;
+
+                            const { data: urlData } = supabase.storage
+                              .from('media')
+                              .getPublicUrl(`uploads/${fileName}`);
+
+                            updateBlock(activeBlock, 'image_url', urlData.publicUrl);
+                          } catch (error) {
+                            console.error('Error uploading image:', error);
+                            alert('Failed to upload image');
+                          } finally {
+                            setSaving(false);
+                            // Reset file input
+                            e.target.value = '';
+                          }
+                        }}
+                      />
+                      <label
+                        htmlFor="hero-image-upload"
+                        className="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors cursor-pointer flex items-center whitespace-nowrap"
+                      >
+                        <i className="ri-upload-2-line mr-2"></i>
+                        Upload
+                      </label>
                     </div>
-                  )}
+                    {currentBlock.image_url && (
+                      <div className="mt-3 relative group">
+                        <img
+                          src={currentBlock.image_url}
+                          alt="Hero Preview"
+                          className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                          onError={(e) => (e.currentTarget.style.display = 'none')}
+                        />
+                        <button
+                          onClick={() => updateBlock(activeBlock, 'image_url', '')}
+                          className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                          title="Remove Image"
+                        >
+                          <i className="ri-close-line"></i>
+                        </button>
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Recommended size: 1920x1080px or larger. Supports JPG, PNG, WEBP.
+                    </p>
+                  </div>
                 </div>
               )}
 
