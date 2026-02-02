@@ -27,16 +27,26 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
       try {
         setLoading(true);
         // Fetch main product
-        const { data: productData, error } = await supabase
+        // Fetch main product
+        let query = supabase
           .from('products')
           .select(`
             *,
             categories(name),
             product_variants(*),
             product_images(url, position, alt_text)
-          `)
-          .eq('slug', slug)
-          .single();
+          `);
+
+        // Check if slug looks like a UUID
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+
+        if (isUUID) {
+          query = query.or(`id.eq.${slug},slug.eq.${slug}`);
+        } else {
+          query = query.eq('slug', slug);
+        }
+
+        const { data: productData, error } = await query.single();
 
         if (error || !productData) {
           console.error('Error fetching product:', error);

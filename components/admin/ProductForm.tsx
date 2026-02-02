@@ -245,10 +245,14 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
                 <div className="flex items-center space-x-3">
                     {isEditMode && (
-                        <button className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 transition-colors font-semibold whitespace-nowrap cursor-pointer">
+                        <Link
+                            href={`/product/${initialData?.id}`}
+                            target="_blank"
+                            className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 transition-colors font-semibold whitespace-nowrap cursor-pointer flex items-center"
+                        >
                             <i className="ri-eye-line mr-2"></i>
                             Preview
-                        </button>
+                        </Link>
                     )}
                     <button
                         onClick={handleSubmit}
