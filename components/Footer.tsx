@@ -44,7 +44,7 @@ export default function Footer() {
               <h3 className="text-2xl font-bold mb-2">Stay in the Loop</h3>
               <p className="text-emerald-100">Subscribe for exclusive deals and new arrivals</p>
             </div>
-            <form id="newsletterForm" onSubmit={handleSubmit} className="flex gap-3 w-full md:w-auto">
+            <form id="newsletterForm" onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
               <input
                 type="email"
                 name="email"
@@ -52,12 +52,12 @@ export default function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="px-6 py-3 rounded-full text-gray-900 focus:ring-2 focus:ring-white min-w-80 text-sm"
+                className="px-6 py-3 rounded-full text-gray-900 focus:ring-2 focus:ring-white w-full md:w-80 text-sm"
               />
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-gray-900 text-white px-8 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="bg-gray-900 text-white px-8 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap w-full md:w-auto"
               >
                 {isSubmitting ? 'Subscribing...' : 'Subscribe'}
               </button>
