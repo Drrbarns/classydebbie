@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sendOrderConfirmation, sendOrderStatusUpdate, sendWelcomeMessage, sendContactMessage } from '@/lib/notifications';
+import { sendOrderConfirmation, sendOrderStatusUpdate, sendWelcomeMessage, sendContactMessage, sendEmail, sendSMS } from '@/lib/notifications';
 
 export async function POST(request: Request) {
     try {
@@ -29,6 +29,35 @@ export async function POST(request: Request) {
         if (type === 'contact') {
             await sendContactMessage(payload);
             return NextResponse.json({ success: true, message: 'Contact message sent' });
+        }
+
+        if (type === 'campaign') {
+            const { recipients, subject, message, channels } = payload;
+
+            // recipients is array of { email, phone, name }
+            // Basic loop - in production use a queue
+            const results = { email: 0, sms: 0 };
+
+            for (const recipient of recipients) {
+                if (channels.email && recipient.email) {
+                    await sendEmail({
+                        to: recipient.email,
+                        subject: subject,
+                        html: `<h1>${subject}</h1><p>Hi ${recipient.name || 'Customer'},</p><p>${message.replace(/\n/g, '<br/>')}</p>`
+                    });
+                    results.email++;
+                }
+
+                if (channels.sms && recipient.phone) {
+                    await sendSMS({
+                        to: recipient.phone,
+                        message: message
+                    });
+                    results.sms++;
+                }
+            }
+
+            return NextResponse.json({ success: true, message: `Campaign sent to ${results.email} emails and ${results.sms} numbers.` });
         }
 
         return NextResponse.json({ error: 'Invalid notification type' }, { status: 400 });

@@ -129,6 +129,11 @@ export default function AdminLayout({
       path: '/admin/customer-insights'
     },
     {
+      title: 'Notifications',
+      icon: 'ri-notification-3-line',
+      path: '/admin/notifications'
+    },
+    {
       title: 'CMS / Pages',
       icon: 'ri-file-list-line',
       path: '/admin/cms'
