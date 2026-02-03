@@ -7,7 +7,7 @@ import ProductCard from '@/components/ProductCard';
 import { useCMS } from '@/context/CMSContext';
 
 export default function HomePage() {
-  const [email, setEmail] = useState('');
+
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]); // Dynamic Categories
   const [loading, setLoading] = useState(true);
@@ -16,7 +16,7 @@ export default function HomePage() {
 
   // Get CMS content
   const heroContent = getContent('homepage', 'hero');
-  const newsletterContent = getContent('homepage', 'newsletter');
+
   const featuredHeading = getContent('homepage', 'featured_heading');
   const categoriesHeading = getContent('homepage', 'categories_heading');
 
@@ -115,11 +115,7 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert('Thank you for subscribing!');
-    setEmail('');
-  };
+
 
   const getHeroImage = () => {
     if (config.hero.backgroundImage) return config.hero.backgroundImage;
@@ -321,35 +317,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-900 to-gray-800">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <div className="w-16 h-16 flex items-center justify-center mx-auto mb-6 bg-emerald-600 rounded-full">
-            <i className="ri-mail-line text-3xl text-white"></i>
-          </div>
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">{newsletterContent?.title || 'Stay in the Loop'}</h2>
-          <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-            {newsletterContent?.subtitle || 'Subscribe to receive exclusive offers, new product launches, and inspiration'}
-          </p>
-          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email address"
-              required
-              className="flex-1 px-6 py-4 rounded-lg text-gray-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-base"
-            />
-            <button
-              type="submit"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer"
-            >
-              Subscribe
-            </button>
-          </form>
-          <p className="text-sm text-gray-400 mt-4">Get 10% off your first order when you subscribe</p>
-        </div>
-      </section>
+
     </main>
   );
 }
