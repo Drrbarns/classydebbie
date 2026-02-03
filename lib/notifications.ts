@@ -49,12 +49,20 @@ function formatPhoneNumber(phone: string): string {
 
 export async function sendSMS({ to, message }: { to: string; message: string }) {
     // Allow distinct SMS credentials, falling back to payment credentials
+    // Note: Moolre SMS might not use PubKey, or might differ from Payment PubKey.
+    // Logic: If using custom SMS User, only use custom SMS PubKey (don't fallback to Payment PubKey).
+    const isCustomSmsUser = !!process.env.MOOLRE_SMS_API_USER;
     const smsUser = process.env.MOOLRE_SMS_API_USER || process.env.MOOLRE_API_USER;
-    const smsPubKey = process.env.MOOLRE_SMS_API_PUBKEY || process.env.MOOLRE_API_PUBKEY;
     const smsVasKey = process.env.MOOLRE_SMS_API_KEY || process.env.MOOLRE_API_KEY;
 
-    if (!smsVasKey || !smsUser || !smsPubKey) {
-        console.warn('Missing Moolre credentials (VASKEY, USER, or PUBKEY) for SMS.');
+    let smsPubKey = process.env.MOOLRE_SMS_API_PUBKEY;
+    if (!isCustomSmsUser) {
+        // If reusing Payment User, reuse Payment PubKey
+        smsPubKey = smsPubKey || process.env.MOOLRE_API_PUBKEY;
+    }
+
+    if (!smsVasKey || !smsUser) {
+        console.warn('Missing Moolre credentials (VASKEY or USER) for SMS.');
         return null;
     }
 
@@ -68,7 +76,7 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
                 'Content-Type': 'application/json',
                 'X-API-VASKEY': smsVasKey,
                 'X-API-USER': smsUser,
-                'X-API-PUBKEY': smsPubKey
+                'X-API-PUBKEY': smsPubKey || ''
             },
             body: JSON.stringify({
                 type: 1,
