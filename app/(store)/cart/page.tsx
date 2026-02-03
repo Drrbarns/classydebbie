@@ -5,7 +5,7 @@ import { useState } from 'react';
 import CartCountdown from '@/components/CartCountdown';
 // import CartSuggestions from '@/components/CartSuggestions'; // Removed demo suggestions
 import AdvancedCouponSystem from '@/components/AdvancedCouponSystem';
-import FreeShippingBar from '@/components/FreeShippingBar';
+// import FreeShippingBar from '@/components/FreeShippingBar';
 import { useCart } from '@/context/CartContext';
 
 export default function CartPage() {
@@ -62,7 +62,7 @@ export default function CartPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
 
         <CartCountdown />
-        <FreeShippingBar currentAmount={subtotal} threshold={200} />
+        {/* <FreeShippingBar currentAmount={subtotal} threshold={200} /> */}
 
         {cartItems.length === 0 && savedItems.length === 0 ? (
           <section className="py-20">
@@ -209,7 +209,7 @@ export default function CartPage() {
 
                       {shipping > 0 && (
                         <p className="text-sm text-amber-600">
-                          Add GH₵{(200 - subtotal).toFixed(2)} more for free pickup/shipping benefit
+                          {/* Shipping threshold text removed */}
                         </p>
                       )}
                     </div>
