@@ -48,8 +48,8 @@ function formatPhoneNumber(phone: string): string {
 }
 
 export async function sendSMS({ to, message }: { to: string; message: string }) {
-    if (!process.env.MOOLRE_API_KEY) {
-        console.warn('MOOLRE_API_KEY is missing. SMS not sent.');
+    if (!process.env.MOOLRE_API_KEY || !process.env.MOOLRE_API_USER || !process.env.MOOLRE_API_PUBKEY) {
+        console.warn('Missing Moolre credentials (API_KEY, USER, or PUBKEY) for SMS.');
         return null;
     }
 
@@ -61,7 +61,9 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-VASKEY': process.env.MOOLRE_API_KEY
+                'X-API-VASKEY': process.env.MOOLRE_API_KEY,
+                'X-API-USER': process.env.MOOLRE_API_USER || '',
+                'X-API-PUBKEY': process.env.MOOLRE_API_PUBKEY || ''
             },
             body: JSON.stringify({
                 type: 1,
