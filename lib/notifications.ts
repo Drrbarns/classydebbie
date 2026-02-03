@@ -10,7 +10,7 @@ export async function sendEmail({ to, subject, html }: { to: string; subject: st
     }
     try {
         const data = await resend.emails.send({
-            from: 'Standard Store <onboarding@resend.dev>', // Default Resend test domain
+            from: 'Sarah Lawson Imports <orders@yourdomain.com>', // User needs to configure this
             to,
             subject,
             html,
@@ -42,7 +42,7 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
             },
             body: JSON.stringify({
                 type: 1,
-                senderid: 'Standard', // Customizable
+                senderid: 'SarahLawson', // Max 11 chars
                 messages: [
                     {
                         recipient: to,
@@ -102,7 +102,7 @@ export async function sendOrderConfirmation(order: any) {
     if (phone) {
         await sendSMS({
             to: phone,
-            message: `Hi ${name}, thanks for your order #${order_number || id} at Standard Store! We will update you when it ships.`
+            message: `Hi ${name}, thanks for your order #${order_number || id} at Sarah Lawson Imports! We will update you when it ships.`
         });
     }
 }
