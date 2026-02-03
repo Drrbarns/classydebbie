@@ -138,7 +138,7 @@ export default function CheckoutPage() {
           email: shippingData.email,
           phone: shippingData.phone,
           status: 'pending',
-          payment_status: 'checkout',
+          payment_status: paymentMethod === 'cod' ? 'pending' : 'awaiting_payment',
           currency: 'GHS',
           subtotal: subtotal,
           tax_total: tax,
@@ -194,7 +194,41 @@ export default function CheckoutPage() {
 
       if (itemsError) throw itemsError;
 
-      // 4. Send Notifications (Async)
+      // 4. Handle Payment Redirects or Completion
+      if (paymentMethod === 'moolre') {
+        try {
+          const paymentRes = await fetch('/api/payment/moolre', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderId: orderNumber,
+              amount: total,
+              customerEmail: shippingData.email
+            })
+          });
+
+          const paymentResult = await paymentRes.json();
+
+          if (!paymentResult.success) {
+            throw new Error(paymentResult.message || 'Payment initialization failed');
+          }
+
+          // Clear cart before redirecting
+          clearCart();
+
+          // Redirect to Moolre
+          window.location.href = paymentResult.url;
+          return;
+
+        } catch (paymentErr: any) {
+          console.error('Payment Error:', paymentErr);
+          alert('Failed to initialize payment: ' + paymentErr.message);
+          setIsLoading(false);
+          return; // Stop execution
+        }
+      }
+
+      // 5. Send Notifications (For COD or others)
       fetch('/api/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -204,7 +238,7 @@ export default function CheckoutPage() {
         })
       }).catch(err => console.error('Notification trigger error:', err));
 
-      // 5. Clear Cart & Redirect
+      // 6. Clear Cart & Redirect (For COD)
       clearCart();
       router.push(`/order-success?order=${orderNumber}`);
 
