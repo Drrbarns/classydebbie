@@ -240,7 +240,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <p className="text-sm text-emerald-700 font-semibold mb-2">{product.category}</p>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-3">{product.name}</h1>
+                    <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">{product.name}</h1>
                   </div>
                   <button
                     onClick={() => setIsWishlisted(!isWishlisted)}
@@ -263,7 +263,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 </div>
 
                 <div className="flex items-baseline space-x-4 mb-6">
-                  <span className="text-4xl font-bold text-gray-900">GH₵{product.price.toFixed(2)}</span>
+                  <span className="text-3xl lg:text-4xl font-bold text-gray-900">GH₵{product.price.toFixed(2)}</span>
                   {product.compare_at_price && product.compare_at_price > product.price && (
                     <span className="text-xl text-gray-400 line-through">GH₵{product.compare_at_price.toFixed(2)}</span>
                   )}

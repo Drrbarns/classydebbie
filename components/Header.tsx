@@ -63,13 +63,22 @@ export default function Header() {
         <nav aria-label="Main navigation">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
             <div className="flex items-center justify-between">
-              <Link
-                href="/"
-                className="text-2xl font-['Pacifico'] text-gray-900 hover:text-emerald-700 transition-colors"
-                aria-label="Go to homepage"
-              >
-                {siteName}
-              </Link>
+              <div className="flex items-center gap-4">
+                <button
+                  className="lg:hidden p-1 -ml-1 text-gray-700 hover:text-emerald-700 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(true)}
+                  aria-label="Open menu"
+                >
+                  <i className="ri-menu-line text-2xl"></i>
+                </button>
+                <Link
+                  href="/"
+                  className="text-2xl font-['Pacifico'] text-gray-900 hover:text-emerald-700 transition-colors"
+                  aria-label="Go to homepage"
+                >
+                  {siteName}
+                </Link>
+              </div>
 
               <div className="hidden lg:flex items-center space-x-8">
                 <Link
@@ -244,6 +253,69 @@ export default function Header() {
         </div>
       )
       }
+
+      {/* Mobile Menu Drawer */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[100] lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="absolute top-0 left-0 bottom-0 w-4/5 max-w-xs bg-white shadow-xl flex flex-col animate-in slide-in-from-left duration-300">
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+              <span className="text-xl font-['Pacifico'] text-gray-900">{siteName}</span>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 -mr-2 text-gray-500 hover:text-gray-900"
+                aria-label="Close menu"
+              >
+                <i className="ri-close-line text-2xl"></i>
+              </button>
+            </div>
+
+            <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+              {[
+                { label: 'Home', href: '/' },
+                { label: 'Shop', href: '/shop' },
+                { label: 'Categories', href: '/categories' },
+                { label: 'About', href: '/about' },
+                { label: 'Contact', href: '/contact' },
+              ].map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="block px-4 py-3 text-lg font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-lg transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <div className="h-px bg-gray-100 my-2"></div>
+              {[
+                { label: 'Track Order', href: '/order-tracking' },
+                { label: 'Wishlist', href: '/wishlist' },
+                { label: 'My Account', href: '/account' },
+              ].map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="block px-4 py-3 text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+
+            <div className="p-4 border-t border-gray-100">
+              <p className="text-xs text-gray-500 text-center">
+                &copy; {new Date().getFullYear()} {siteName}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
