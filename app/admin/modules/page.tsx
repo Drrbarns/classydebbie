@@ -156,6 +156,62 @@ export default function ModulesPage() {
 
   const categories = ['all', ...Array.from(new Set(modules.map(m => m.category)))];
 
+  /* Lock Screen Logic */
+  const [isLocked, setIsLocked] = useState(true);
+  const [pin, setPin] = useState('');
+  const [pinError, setPinError] = useState('');
+
+  const handleUnlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pin === '6526') {
+      setIsLocked(false);
+    } else {
+      setPinError('Incorrect PIN');
+      setPin('');
+    }
+  };
+
+  if (isLocked) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center border border-gray-100">
+          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i className="ri-lock-2-line text-4xl text-emerald-600"></i>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Restricted Access</h2>
+          <p className="text-gray-500 mb-8">Please enter the security PIN to access Modules.</p>
+
+          <form onSubmit={handleUnlock} className="space-y-4">
+            <div>
+              <input
+                type="password"
+                value={pin}
+                onChange={(e) => {
+                  setPin(e.target.value);
+                  setPinError('');
+                }}
+                className="w-full text-center text-3xl font-bold tracking-widest px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all"
+                placeholder="• • • •"
+                maxLength={4}
+                autoFocus
+              />
+            </div>
+            {pinError && (
+              <p className="text-red-500 text-sm font-medium animate-pulse">{pinError}</p>
+            )}
+            <button
+              type="submit"
+              className="w-full bg-gray-900 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl transition-colors text-lg"
+            >
+              Unlock Dashboard
+            </button>
+          </form>
+
+        </div>
+      </div>
+    );
+  }
+
   const filteredModules = modules.filter(module => {
     const matchesSearch = module.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       module.description.toLowerCase().includes(searchTerm.toLowerCase());
