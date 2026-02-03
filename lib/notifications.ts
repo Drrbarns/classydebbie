@@ -65,7 +65,7 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
             },
             body: JSON.stringify({
                 type: 1,
-                senderid: 'Standard', // Use a generic/short name. Max 11 chars.
+                senderid: 'SarahLawson', // Verified Approved Sender ID
                 messages: [
                     {
                         recipient: recipient,
