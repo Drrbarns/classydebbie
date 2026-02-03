@@ -1,17 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import OrderHistory from './OrderHistory';
 import AddressBook from './AddressBook';
 import { supabase } from '@/lib/supabase';
 
-export default function AccountPage() {
+function AccountContent() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('profile');
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'profile';
+
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Update active tab when URL param changes
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['profile', 'orders', 'addresses', 'security'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   // Profile Form States
   const [profileData, setProfileData] = useState({
@@ -433,5 +444,17 @@ export default function AccountPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <i className="ri-loader-4-line animate-spin text-4xl text-emerald-700"></i>
+      </div>
+    }>
+      <AccountContent />
+    </Suspense>
   );
 }
