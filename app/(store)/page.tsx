@@ -296,21 +296,21 @@ export default function HomePage() {
       )}
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
+      <section className="py-12 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
             {[
-              { icon: 'ri-truck-line', title: 'Free Shipping', description: 'On orders over GH₵200' },
+              { icon: 'ri-truck-line', title: 'Free Shipping', description: 'Orders over GH₵200' },
               { icon: 'ri-arrow-left-right-line', title: 'Easy Returns', description: '30-day return policy' },
-              { icon: 'ri-customer-service-2-line', title: '24/7 Support', description: 'Dedicated customer service' },
-              { icon: 'ri-shield-check-line', title: 'Secure Payment', description: 'Safe & secure checkout' }
+              { icon: 'ri-customer-service-2-line', title: '24/7 Support', description: 'Dedicated service' },
+              { icon: 'ri-shield-check-line', title: 'Secure Payment', description: 'Safe checkout' }
             ].map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4 bg-emerald-100 rounded-full">
-                  <i className={`${item.icon} text-3xl text-emerald-700`}></i>
+              <div key={index} className="text-center p-4 rounded-lg bg-gray-50 lg:bg-transparent">
+                <div className="w-12 h-12 lg:w-16 lg:h-16 flex items-center justify-center mx-auto mb-3 bg-emerald-100 rounded-full">
+                  <i className={`${item.icon} text-2xl lg:text-3xl text-emerald-700`}></i>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-sm text-gray-600">{item.description}</p>
+                <h3 className="font-semibold text-gray-900 mb-1 text-sm lg:text-base">{item.title}</h3>
+                <p className="text-xs lg:text-sm text-gray-600 leading-tight">{item.description}</p>
               </div>
             ))}
           </div>
