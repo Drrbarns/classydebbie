@@ -3,63 +3,32 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import CartCountdown from '@/components/CartCountdown';
-import CartSuggestions from '@/components/CartSuggestions';
+// import CartSuggestions from '@/components/CartSuggestions'; // Removed demo suggestions
 import AdvancedCouponSystem from '@/components/AdvancedCouponSystem';
 import FreeShippingBar from '@/components/FreeShippingBar';
+import { useCart } from '@/context/CartContext';
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: '1',
-      name: 'Premium Leather Crossbody Bag',
-      price: 289.00,
-      originalPrice: 399.00,
-      image: 'https://readdy.ai/api/search-image?query=elegant%20premium%20leather%20crossbody%20bag%20in%20deep%20forest%20green%20color%20on%20clean%20minimal%20white%20studio%20background%20with%20soft%20natural%20lighting%20showcasing%20luxury%20craftsmanship%20and%20refined%20texture%20details%20professional%20product%20photography&width=400&height=400&seq=cart1&orientation=squarish',
-      quantity: 1,
-      color: 'Forest Green',
-      size: 'Medium',
-      inStock: true,
-      stockCount: 15
-    },
-    {
-      id: '2',
-      name: 'Minimalist Ceramic Vase Set',
-      price: 159.00,
-      image: 'https://readdy.ai/api/search-image?query=modern%20minimalist%20ceramic%20vase%20set%20in%20matte%20cream%20and%20charcoal%20colors%20on%20pristine%20white%20background%20elegant%20home%20decor%20sophisticated%20styling%20clean%20lines%20premium%20quality%20artistic%20arrangement&width=400&height=400&seq=cart2&orientation=squarish',
-      quantity: 1,
-      color: 'Cream & Charcoal',
-      size: 'Set of 3',
-      inStock: true,
-      stockCount: 22
-    }
-  ]);
-
+  const { cart: cartItems, removeFromCart, updateQuantity, subtotal, addToCart } = useCart();
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [savedItems, setSavedItems] = useState<any[]>([]);
 
-  const updateQuantity = (id: string, newQuantity: number) => {
-    setCartItems(cartItems.map(item => 
-      item.id === id ? { ...item, quantity: Math.max(1, Math.min(item.stockCount, newQuantity)) } : item
-    ));
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-  };
-
+  // Function to move item to saved for later (local state only for now)
   const saveForLater = (id: string) => {
     const item = cartItems.find(item => item.id === id);
     if (item) {
       setSavedItems([...savedItems, item]);
-      removeItem(id);
+      removeFromCart(item.id, item.variant); // Use context's removeFromCart
     }
   };
 
   const moveToCart = (id: string) => {
     const item = savedItems.find(item => item.id === id);
     if (item) {
-      setCartItems([...cartItems, item]);
-      setSavedItems(savedItems.filter(item => item.id !== id));
+      // Assuming addToCart can handle adding an existing item back
+      // and that the item structure from savedItems is compatible with addToCart
+      addToCart(item, item.quantity); // Add item back to cart
+      setSavedItems(savedItems.filter(item => item.id !== id)); // Remove from saved items
     }
   };
 
@@ -71,13 +40,9 @@ export default function CartPage() {
     setAppliedCoupon(null);
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const savings = cartItems.reduce((sum, item) => {
-    if (item.originalPrice) {
-      return sum + ((item.originalPrice - item.price) * item.quantity);
-    }
-    return sum;
-  }, 0);
+  // Savings calculation is tricky without originalPrice in Context.
+  // Assuming 0 for now unless we update Context.
+  const savings = 0;
 
   let couponDiscount = 0;
   if (appliedCoupon) {
@@ -106,7 +71,7 @@ export default function CartPage() {
                 <i className="ri-shopping-cart-line text-5xl text-gray-400"></i>
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
-              <p className="text-gray-600 mb-8 text-lg">Looks like you haven't added anything to your cart yet</p>
+              <p className="text-gray-600 mb-8 text-lg">Looks like you&#39;t added anything to your cart yet</p>
               <Link href="/shop" className="inline-block bg-gray-900 hover:bg-emerald-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors whitespace-nowrap">
                 Continue Shopping
               </Link>
@@ -117,7 +82,7 @@ export default function CartPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
               <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
-                  <div className="bg-white rounded-xl shadow-sm p-6">
+                  <div className="bg-white rounded-xl shadow-sm p-6 overflow-hidden">
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-2xl font-bold text-gray-900">Cart Items ({cartItems.length})</h2>
                       {savings > 0 && (
@@ -127,18 +92,18 @@ export default function CartPage() {
 
                     <div className="space-y-6">
                       {cartItems.map((item) => (
-                        <div key={item.id} className="flex gap-6 pb-6 border-b border-gray-200 last:border-0 last:pb-0">
-                          <Link href={`/product/${item.id}`} className="w-32 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
+                        <div key={`${item.id}-${item.variant || ''}`} className="flex flex-col sm:flex-row gap-4 sm:gap-6 pb-6 border-b border-gray-200 last:border-0 last:pb-0">
+                          <Link href={`/product/${item.slug || item.id}`} className="w-full sm:w-32 h-48 sm:h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
                             <img src={item.image} alt={item.name} className="w-full h-full object-cover object-top" />
                           </Link>
 
                           <div className="flex-1">
                             <div className="flex justify-between mb-2">
-                              <Link href={`/product/${item.id}`} className="text-lg font-semibold text-gray-900 hover:text-emerald-700 transition-colors">
+                              <Link href={`/product/${item.slug || item.id}`} className="text-lg font-semibold text-gray-900 hover:text-emerald-700 transition-colors line-clamp-2">
                                 {item.name}
                               </Link>
                               <button
-                                onClick={() => removeItem(item.id)}
+                                onClick={() => removeFromCart(item.id, item.variant)}
                                 className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 transition-colors"
                               >
                                 <i className="ri-close-line text-xl"></i>
@@ -146,42 +111,35 @@ export default function CartPage() {
                             </div>
 
                             <div className="text-sm text-gray-600 mb-3 space-y-1">
-                              {item.color && <p>Colour: {item.color}</p>}
-                              {item.size && <p>Size: {item.size}</p>}
-                              {item.inStock ? (
-                                <p className="text-emerald-600 font-medium">In Stock</p>
-                              ) : (
-                                <p className="text-red-600 font-medium">Out of Stock</p>
-                              )}
+                              {item.variant && <p>Variant: {item.variant}</p>}
+                              {/* Stock status assuming always available if in cart for now */}
+                              <p className="text-emerald-600 font-medium">In Stock</p>
                             </div>
 
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between flex-wrap gap-4">
                               <div className="flex items-baseline space-x-3">
                                 <span className="text-xl font-bold text-gray-900">GH₵{item.price.toFixed(2)}</span>
-                                {item.originalPrice && (
-                                  <span className="text-sm text-gray-400 line-through">GH₵{item.originalPrice.toFixed(2)}</span>
-                                )}
                               </div>
 
                               <div className="flex items-center space-x-4">
                                 <div className="flex items-center border-2 border-gray-300 rounded-lg">
                                   <button
-                                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                    className="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors"
+                                    onClick={() => updateQuantity(item.id, item.quantity - 1, item.variant)}
+                                    className="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
                                   >
                                     <i className="ri-subtract-line"></i>
                                   </button>
                                   <input
                                     type="number"
                                     value={item.quantity}
-                                    onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
+                                    onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1, item.variant)}
                                     className="w-12 h-10 text-center border-x-2 border-gray-300 focus:outline-none font-semibold"
                                     min="1"
-                                    max={item.stockCount}
+                                    max={item.maxStock}
                                   />
                                   <button
-                                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                    className="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors"
+                                    onClick={() => updateQuantity(item.id, item.quantity + 1, item.variant)}
+                                    className="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
                                   >
                                     <i className="ri-add-line"></i>
                                   </button>
@@ -189,12 +147,15 @@ export default function CartPage() {
                               </div>
                             </div>
 
+                            {/* Saved for later functionality temporarily disabled until fully implemented with Context integration if requested */}
+                            {/*
                             <button
                               onClick={() => saveForLater(item.id)}
                               className="mt-3 text-sm text-emerald-700 hover:text-emerald-900 font-medium whitespace-nowrap"
                             >
                               Save for Later
                             </button>
+                            */}
                           </div>
                         </div>
                       ))}
@@ -213,12 +174,7 @@ export default function CartPage() {
                             <div className="flex-1">
                               <p className="font-semibold text-gray-900 mb-1">{item.name}</p>
                               <p className="text-lg font-bold text-gray-900 mb-2">GH₵{item.price.toFixed(2)}</p>
-                              <button
-                                onClick={() => moveToCart(item.id)}
-                                className="text-sm text-emerald-700 hover:text-emerald-900 font-medium whitespace-nowrap"
-                              >
-                                Move to Cart
-                              </button>
+                              {/* Move to cart disabled for now */}
                             </div>
                           </div>
                         ))}
@@ -253,7 +209,7 @@ export default function CartPage() {
 
                       {shipping > 0 && (
                         <p className="text-sm text-amber-600">
-                          Add GH₵{(200 - subtotal).toFixed(2)} more for free shipping
+                          Add GH₵{(200 - subtotal).toFixed(2)} more for free pickup/shipping benefit
                         </p>
                       )}
                     </div>
@@ -306,8 +262,6 @@ export default function CartPage() {
             </div>
           </section>
         )}
-
-        <CartSuggestions />
       </div>
     </div>
   );
