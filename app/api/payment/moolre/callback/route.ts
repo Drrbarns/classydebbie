@@ -17,12 +17,17 @@ export async function POST(req: Request) {
         const {
             status,
             externalref, // This is our orderNumber
+            orderRef, // Alternate key?
+            external_reference, // Alternate key?
             reference,   // Moolre's reference
         } = body;
 
-        if (!externalref) {
-            console.error('Missing externalref (Order Number) in callback');
-            return NextResponse.json({ success: false, message: 'Invalid callback data' }, { status: 400 });
+        // Determine the correct merchant order reference
+        const merchantOrderRef = externalref || orderRef || external_reference;
+
+        if (!merchantOrderRef) {
+            console.error('Missing externalref (Order Number) in callback. Body:', body);
+            return NextResponse.json({ success: false, message: 'Invalid callback data: Missing order reference' }, { status: 400 });
         }
 
         // Verify payment success (flexible match)
@@ -30,12 +35,12 @@ export async function POST(req: Request) {
         const isSuccess = status === 'success' || status === 'completed' || status === 1;
 
         if (isSuccess) {
-            console.log(`Processing successful payment for Order ${externalref}, Method: Moolre`);
+            console.log(`Processing successful payment for Order ${merchantOrderRef}, Method: Moolre`);
 
             // Use RPC to Update Order Status (Works with Anon Key via Security Definer)
             const { data: orderJson, error: updateError } = await supabase
                 .rpc('mark_order_paid', {
-                    order_ref: externalref,
+                    order_ref: merchantOrderRef,
                     moolre_ref: reference
                 });
 
@@ -45,7 +50,7 @@ export async function POST(req: Request) {
             }
 
             if (!orderJson) {
-                console.error('Order not found or update returned null:', externalref);
+                console.error('Order not found or update returned null:', merchantOrderRef);
                 return NextResponse.json({ success: false, message: 'Order not found' }, { status: 404 });
             }
 
@@ -62,7 +67,7 @@ export async function POST(req: Request) {
 
         } else {
             // Payment failed or pending
-            console.log(`Payment failed/pending for order ${externalref}, status: ${status}`);
+            console.log(`Payment failed/pending for order ${merchantOrderRef}, status: ${status}`);
 
             await supabase
                 .from('orders')
@@ -73,7 +78,7 @@ export async function POST(req: Request) {
                         failure_reason: body.message || 'Payment failed'
                     }
                 })
-                .eq('order_number', externalref);
+                .eq('order_number', merchantOrderRef);
 
             return NextResponse.json({ success: false, message: 'Payment reported as not successful' });
         }
