@@ -165,14 +165,14 @@ function AccountContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-2xl font-bold shadow-inner border-2 border-white">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 md:mb-8">
+            <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
+              <div className="w-12 h-12 md:w-16 md:h-16 flex-shrink-0 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-xl md:text-2xl font-bold shadow-inner border-2 border-white">
                 {profileData.firstName?.[0] || user?.email?.[0]?.toUpperCase()}
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 line-clamp-1">{profileData.firstName ? `Hello, ${profileData.firstName}!` : 'Welcome Back'}</h1>
-                <p className="text-gray-500 text-sm font-medium">{user?.email}</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 truncate pr-2">{profileData.firstName ? `Hello, ${profileData.firstName}!` : 'Welcome Back'}</h1>
+                <p className="text-gray-500 text-sm font-medium truncate">{user?.email}</p>
               </div>
             </div>
             <button
@@ -199,8 +199,8 @@ function AccountContent() {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-left group ${activeTab === tab.id
-                          ? 'bg-emerald-50 text-emerald-700 shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'bg-emerald-50 text-emerald-700 shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         }`}
                     >
                       <i className={`${tab.icon} text-xl transition-colors ${activeTab === tab.id ? 'text-emerald-700' : 'text-gray-400 group-hover:text-gray-600'}`}></i>
@@ -224,8 +224,8 @@ function AccountContent() {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-medium whitespace-nowrap transition-all border shadow-sm ${activeTab === tab.id
-                        ? 'bg-emerald-700 text-white border-emerald-700 ring-2 ring-emerald-100'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                      ? 'bg-emerald-700 text-white border-emerald-700 ring-2 ring-emerald-100'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
                       }`}
                   >
                     <i className={tab.icon}></i>
