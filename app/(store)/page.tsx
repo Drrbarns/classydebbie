@@ -222,9 +222,15 @@ export default function HomePage() {
       {/* Categories Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Shop by Category</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">Explore our carefully curated collections</p>
+          <div className="flex items-end justify-between mb-12">
+            <div>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">Shop by Category</h2>
+              <p className="text-lg text-gray-600 max-w-2xl">Explore our carefully curated collections</p>
+            </div>
+            <Link href="/categories" className="hidden sm:inline-flex items-center text-emerald-700 hover:text-emerald-900 font-semibold whitespace-nowrap cursor-pointer">
+              View All
+              <i className="ri-arrow-right-line ml-2"></i>
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -250,6 +256,12 @@ export default function HomePage() {
                 </div>
               </Link>
             ))}
+          </div>
+
+          <div className="mt-8 text-center sm:hidden">
+            <Link href="/categories" className="inline-flex items-center justify-center w-full px-6 py-3 border-2 border-gray-200 rounded-lg text-gray-900 font-semibold hover:border-emerald-700 hover:text-emerald-700 transition-colors">
+              View All Categories
+            </Link>
           </div>
         </div>
       </section>
