@@ -223,7 +223,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 overflow-hidden">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
               <Link href="/admin/orders" className="text-emerald-700 hover:text-emerald-800 font-medium text-sm whitespace-nowrap cursor-pointer">
@@ -231,7 +231,7 @@ export default function AdminDashboard() {
               </Link>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
               {recentOrders.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No recent orders.</p>
               ) : (
@@ -300,7 +300,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 overflow-hidden">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-gray-900">Products</h2>
             <Link href="/admin/products" className="text-emerald-700 hover:text-emerald-800 font-medium text-sm whitespace-nowrap cursor-pointer">
