@@ -73,6 +73,23 @@ export default function AdminLayout({
     fetchModules();
   }, []);
 
+  // Screen size check for initial state
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        // Only set to false if it's currently true? 
+        // Actually, let's just default to open on desktop, closed on mobile on mount only
+      }
+    };
+
+    // Set initial state based on width
+    if (window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
+    }
+
+    // Optional: Auto-close on resize to mobile? For now, leave as is.
+  }, []);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/admin/login');
@@ -175,7 +192,24 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <aside className={`fixed top-0 left-0 z-40 h-screen transition-transform bg-white border-r border-gray-200 ${isSidebarOpen ? 'w-64' : 'w-0'}`}>
+
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden glass-overlay"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar - Mobile: Transform / Desktop: Width transition */}
+      <aside
+        className={`fixed top-0 left-0 z-40 h-screen bg-white border-r border-gray-200 transition-all duration-300
+          w-64
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+          ${isSidebarOpen ? 'lg:w-64' : 'lg:w-0 lg:overflow-hidden'}
+          lg:translate-x-0
+        `}
+      >
         <div className="h-full px-4 py-6 overflow-y-auto">
           <Link href="/admin" className="flex items-center mb-8 px-2 cursor-pointer">
             <span className="text-xl font-['Pacifico'] text-emerald-700">Sarah Lawson</span>
@@ -189,6 +223,7 @@ export default function AdminLayout({
                 <Link
                   key={item.path}
                   href={item.path}
+                  onClick={() => window.innerWidth < 1024 && setIsSidebarOpen(false)} // Close on mobile click
                   className={`flex items-center justify-between px-4 py-3 rounded-lg transition-colors cursor-pointer ${isActive
                     ? 'bg-emerald-50 text-emerald-700 font-semibold'
                     : 'text-gray-700 hover:bg-gray-50'
@@ -212,6 +247,7 @@ export default function AdminLayout({
             <Link
               href="/"
               target="_blank"
+              onClick={() => window.innerWidth < 1024 && setIsSidebarOpen(false)}
               className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
             >
               <i className="ri-external-link-line text-xl w-5 h-5 flex items-center justify-center"></i>
@@ -221,9 +257,10 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      <div className={`transition-all ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>
+      {/* Main Content */}
+      <div className={`transition-all duration-300 ml-0 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-0'}`}>
         <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-          <div className="px-6 py-4 flex items-center justify-between">
+          <div className="px-4 py-4 lg:px-6 flex items-center justify-between">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
@@ -231,7 +268,7 @@ export default function AdminLayout({
               <i className={`${isSidebarOpen ? 'ri-menu-fold-line' : 'ri-menu-unfold-line'} text-xl`}></i>
             </button>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 lg:space-x-4">
               <button className="relative w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
                 <i className="ri-notification-3-line text-xl"></i>
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
@@ -240,20 +277,20 @@ export default function AdminLayout({
               <div className="relative user-menu-container">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                  className="flex items-center space-x-2 lg:space-x-3 px-2 lg:px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                 >
-                  <div className="w-9 h-9 flex items-center justify-center bg-emerald-100 text-emerald-700 rounded-full font-semibold">
+                  <div className="w-8 h-8 lg:w-9 lg:h-9 flex items-center justify-center bg-emerald-100 text-emerald-700 rounded-full font-semibold">
                     {user?.email?.charAt(0).toUpperCase() || 'A'}
                   </div>
-                  <div className="text-left">
+                  <div className="text-left hidden md:block">
                     <p className="text-sm font-semibold text-gray-900">Admin</p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
+                    <p className="text-xs text-gray-500 max-w-[100px] truncate">{user?.email}</p>
                   </div>
                   <i className="ri-arrow-down-s-line text-gray-600"></i>
                 </button>
 
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                  <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-20">
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 transition-colors border-t border-gray-200 text-left cursor-pointer"
@@ -268,7 +305,7 @@ export default function AdminLayout({
           </div>
         </header>
 
-        <main className="p-6">
+        <main className="p-4 lg:p-6">
           {children}
         </main>
       </div>
