@@ -93,15 +93,32 @@ export default function AnalyticsPage() {
         conversionGrowth: 0
       });
 
-      // Process Sales Chart Data (Group by Date)
-      const groupedByDate: Record<string, any> = {};
+      // Process Sales Chart Data (Group by Date with Zero-Filling)
+      const salesMap: Record<string, any> = {};
+
+      // Initialize map with all dates in range
+      const d = new Date(startDate);
+      const today = new Date();
+      while (d <= today) {
+        const dateKey = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        salesMap[dateKey] = {
+          date: dateKey,
+          sales: 0,
+          orders: 0,
+          fullDate: d.getTime() // Helper for sorting
+        };
+        d.setDate(d.getDate() + 1);
+      }
+
       orders?.forEach(o => {
-        const date = new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        if (!groupedByDate[date]) groupedByDate[date] = { date, sales: 0, orders: 0, customers: 0 };
-        groupedByDate[date].sales += o.total || 0;
-        groupedByDate[date].orders += 1;
+        const dateKey = new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        if (salesMap[dateKey]) {
+          salesMap[dateKey].sales += o.total || 0;
+          salesMap[dateKey].orders += 1;
+        }
       });
-      setSalesData(Object.values(groupedByDate));
+
+      setSalesData(Object.values(salesMap));
 
       // Process Category Revenue
       const catMap: Record<string, any> = {};
