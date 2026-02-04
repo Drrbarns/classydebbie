@@ -32,37 +32,27 @@ export async function POST(req: Request) {
         if (isSuccess) {
             console.log(`Processing successful payment for Order ${externalref}, Method: Moolre`);
 
-            // Use Service Role to Update Order Status (Bypass RLS)
-            const { data: order, error: updateError } = await supabase
-                .from('orders')
-                .update({
-                    payment_status: 'paid',
-                    status: 'processing',
-                    metadata: {
-                        moolre_reference: reference,
-                        payment_verified_at: new Date().toISOString()
-                    }
-                })
-                .eq('order_number', externalref)
-                .select() // Select updated row to pass to notification
-                .single();
+            // Use RPC to Update Order Status (Works with Anon Key via Security Definer)
+            const { data: orderJson, error: updateError } = await supabase
+                .rpc('mark_order_paid', {
+                    order_ref: externalref,
+                    moolre_ref: reference
+                });
 
             if (updateError) {
-                console.error('Failed to update order in DB:', updateError);
-                // Return 500 to tell Moolre to retry? Or 200 to stop logic? 
-                // Usually 500 so they retry.
+                console.error('Failed to update order via RPC:', updateError);
                 return NextResponse.json({ success: false, message: 'Database update failed' }, { status: 500 });
             }
 
-            if (!order) {
-                console.error('Order not found even after update query:', externalref);
+            if (!orderJson) {
+                console.error('Order not found or update returned null:', externalref);
                 return NextResponse.json({ success: false, message: 'Order not found' }, { status: 404 });
             }
 
-            // Send notification directly (Await to ensure completion in Serverless)
+            // Send notification directly
             try {
                 console.log('Triggering Order Confirmation Notification...');
-                await sendOrderConfirmation(order);
+                await sendOrderConfirmation(orderJson); // RPC returns JSONB which matches shape
                 console.log('Notification trigger completed.');
             } catch (notifyError) {
                 console.error('Notification sent failed (Non-blocking):', notifyError);
