@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useCMS } from '@/context/CMSContext';
 import { supabase } from '@/lib/supabase';
+import PageHero from '@/components/PageHero';
 
 export default function ContactPage() {
   const { getSetting } = useCMS();
@@ -131,16 +132,10 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="bg-gradient-to-br from-emerald-50 via-white to-amber-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-5xl font-bold text-gray-900 mb-6">{heroTitle}</h1>
-            <p className="text-xl text-gray-600 leading-relaxed">
-              {heroSubtitle} {heroContent}
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        title="Get In Touch"
+        subtitle="Have a question or need assistance? Our friendly team is here to help."
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid lg:grid-cols-4 gap-6 mb-16">

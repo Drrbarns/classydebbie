@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import ProductCard from '@/components/ProductCard';
+import PageHero from '@/components/PageHero';
 
 export default function WishlistPage() {
   const [wishlistItems, setWishlistItems] = useState([
@@ -62,16 +63,17 @@ export default function WishlistPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
+      <PageHero title="My Wishlist" />
+
       <section className="py-8 bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <nav className="flex items-center space-x-2 text-sm mb-6">
-            <Link href="/" className="text-gray-600 hover:text-emerald-700 transition-colors">Home</Link>
-            <i className="ri-arrow-right-s-line text-gray-400"></i>
-            <span className="text-gray-900 font-medium">Wishlist</span>
-          </nav>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">My Wishlist</h1>
+              <nav className="flex items-center space-x-2 text-sm mb-2">
+                <Link href="/" className="text-gray-600 hover:text-emerald-700 transition-colors">Home</Link>
+                <i className="ri-arrow-right-s-line text-gray-400"></i>
+                <span className="text-gray-900 font-medium">Wishlist</span>
+              </nav>
               <p className="text-gray-600">
                 {wishlistItems.length} {wishlistItems.length === 1 ? 'item' : 'items'} saved
               </p>

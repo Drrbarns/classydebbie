@@ -7,6 +7,7 @@ import CartCountdown from '@/components/CartCountdown';
 import AdvancedCouponSystem from '@/components/AdvancedCouponSystem';
 // import FreeShippingBar from '@/components/FreeShippingBar';
 import { useCart } from '@/context/CartContext';
+import PageHero from '@/components/PageHero';
 
 export default function CartPage() {
   const { cart: cartItems, removeFromCart, updateQuantity, subtotal, addToCart } = useCart();
@@ -57,9 +58,9 @@ export default function CartPage() {
   const total = subtotal - couponDiscount + shipping;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+    <div className="min-h-screen bg-gray-50">
+      <PageHero title="Shopping Cart" />
+      <div className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <CartCountdown />
         {/* <FreeShippingBar currentAmount={subtotal} threshold={200} /> */}

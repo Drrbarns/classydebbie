@@ -21,7 +21,7 @@ export default function HomePage() {
       primaryButtonLink: '/shop',
       secondaryButtonText: 'Learn More',
       secondaryButtonLink: '/about',
-      backgroundImage: 'https://bskojprmfxugvkycvetc.supabase.co/storage/v1/object/public/media/uploads/hero-1769992745062-Vitamin_C_glow.png'
+      backgroundImage: '/sarah-lawson.jpeg'
     },
     sections: {
       newArrivals: {

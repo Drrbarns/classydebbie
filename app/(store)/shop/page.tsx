@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
 import { supabase } from '@/lib/supabase';
+import PageHero from '@/components/PageHero';
 
 function ShopContent() {
   const searchParams = useSearchParams();
@@ -148,23 +149,24 @@ function ShopContent() {
 
   return (
     <main className="min-h-screen bg-white">
-      <section className="bg-gray-50 py-12 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">Shop All Products</h1>
-              <p className="text-gray-600">Discover our curated collection of premium goods</p>
-            </div>
-            <button
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="lg:hidden flex items-center space-x-2 bg-gray-900 text-white px-6 py-3 rounded-lg font-medium whitespace-nowrap"
-            >
-              <i className="ri-filter-3-line text-lg"></i>
-              <span>Filters</span>
-            </button>
-          </div>
+      <PageHero
+        title="Shop All Products"
+        subtitle="Discover our curated collection of premium goods"
+      />
+
+      {/* Mobile Filter Toggle */}
+      <div className="lg:hidden bg-white border-b border-gray-200 py-4 px-4 sticky top-[72px] z-20">
+        <div className="flex justify-between items-center">
+          <button
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className="flex items-center space-x-2 text-gray-900 font-medium"
+          >
+            <i className="ri-filter-3-line text-xl"></i>
+            <span>Filters & Sort</span>
+          </button>
+          <span className="text-sm text-gray-500">{totalProducts} Products</span>
         </div>
-      </section>
+      </div>
 
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">

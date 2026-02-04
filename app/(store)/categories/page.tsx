@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import PageHero from '@/components/PageHero';
 
 export const revalidate = 0; // Ensure fresh data on every visit
 
@@ -41,16 +42,10 @@ export default async function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="bg-gradient-to-br from-emerald-50 via-white to-amber-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-5xl font-bold text-gray-900 mb-6">Shop by Category</h1>
-            <p className="text-xl text-gray-600 leading-relaxed">
-              Explore our curated collections and find exactly what you're looking for
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        title="Shop by Category"
+        subtitle="Explore our curated collections and find exactly what you're looking for"
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {categories.length > 0 ? (

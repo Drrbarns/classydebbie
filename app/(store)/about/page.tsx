@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useCMS } from '@/context/CMSContext';
+import PageHero from '@/components/PageHero';
 
 export default function AboutPage() {
   const { getSetting } = useCMS();
@@ -35,21 +36,10 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <div className="relative bg-emerald-900 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          {/* Pattern or Background Image */}
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            More Than Just An Influencer
-          </h1>
-          <p className="text-xl md:text-2xl text-emerald-100 max-w-3xl mx-auto leading-relaxed">
-            Welcome to Sarah Lawson Imports. Where social media meets smart business, and premium quality meets unbeatable prices.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        title="More Than Just An Influencer"
+        subtitle="Welcome to Sarah Lawson Imports. Where social media meets smart business, and premium quality meets unbeatable prices."
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="flex border-b border-gray-200 mb-12 justify-center">
