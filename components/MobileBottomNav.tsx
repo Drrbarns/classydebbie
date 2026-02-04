@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  const [cartCount, setCartCount] = useState(2);
-  const [wishlistCount, setWishlistCount] = useState(5);
+  const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
 
   const isActive = (path: string) => pathname === path;
 
@@ -16,9 +17,8 @@ export default function MobileBottomNav() {
       <div className="grid grid-cols-5 h-16">
         <Link
           href="/"
-          className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
-            isActive('/') ? 'text-emerald-700' : 'text-gray-600'
-          }`}
+          className={`flex flex-col items-center justify-center space-y-1 transition-colors ${isActive('/') ? 'text-emerald-700' : 'text-gray-600'
+            }`}
         >
           <div className="w-6 h-6 flex items-center justify-center">
             <i className={`${isActive('/') ? 'ri-home-5-fill' : 'ri-home-5-line'} text-xl`}></i>
@@ -28,9 +28,8 @@ export default function MobileBottomNav() {
 
         <Link
           href="/shop"
-          className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
-            isActive('/shop') ? 'text-emerald-700' : 'text-gray-600'
-          }`}
+          className={`flex flex-col items-center justify-center space-y-1 transition-colors ${isActive('/shop') ? 'text-emerald-700' : 'text-gray-600'
+            }`}
         >
           <div className="w-6 h-6 flex items-center justify-center">
             <i className={`${isActive('/shop') ? 'ri-store-3-fill' : 'ri-store-3-line'} text-xl`}></i>
@@ -40,9 +39,8 @@ export default function MobileBottomNav() {
 
         <Link
           href="/cart"
-          className={`flex flex-col items-center justify-center space-y-1 transition-colors relative ${
-            isActive('/cart') ? 'text-emerald-700' : 'text-gray-600'
-          }`}
+          className={`flex flex-col items-center justify-center space-y-1 transition-colors relative ${isActive('/cart') ? 'text-emerald-700' : 'text-gray-600'
+            }`}
         >
           <div className="w-6 h-6 flex items-center justify-center relative">
             <i className={`${isActive('/cart') ? 'ri-shopping-cart-fill' : 'ri-shopping-cart-line'} text-xl`}></i>
@@ -57,9 +55,8 @@ export default function MobileBottomNav() {
 
         <Link
           href="/wishlist"
-          className={`flex flex-col items-center justify-center space-y-1 transition-colors relative ${
-            isActive('/wishlist') ? 'text-emerald-700' : 'text-gray-600'
-          }`}
+          className={`flex flex-col items-center justify-center space-y-1 transition-colors relative ${isActive('/wishlist') ? 'text-emerald-700' : 'text-gray-600'
+            }`}
         >
           <div className="w-6 h-6 flex items-center justify-center relative">
             <i className={`${isActive('/wishlist') ? 'ri-heart-3-fill' : 'ri-heart-3-line'} text-xl`}></i>
@@ -74,9 +71,8 @@ export default function MobileBottomNav() {
 
         <Link
           href="/account"
-          className={`flex flex-col items-center justify-center space-y-1 transition-colors ${
-            isActive('/account') ? 'text-emerald-700' : 'text-gray-600'
-          }`}
+          className={`flex flex-col items-center justify-center space-y-1 transition-colors ${isActive('/account') ? 'text-emerald-700' : 'text-gray-600'
+            }`}
         >
           <div className="w-6 h-6 flex items-center justify-center">
             <i className={`${isActive('/account') ? 'ri-user-3-fill' : 'ri-user-3-line'} text-xl`}></i>

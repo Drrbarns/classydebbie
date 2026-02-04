@@ -1,61 +1,29 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import ProductCard from '@/components/ProductCard';
+import { useCart } from '@/context/CartContext';
 import PageHero from '@/components/PageHero';
+import { useWishlist } from '@/context/WishlistContext';
+import ProductCard from '@/components/ProductCard';
 
 export default function WishlistPage() {
-  const [wishlistItems, setWishlistItems] = useState([
-    {
-      id: '1',
-      name: 'Premium Leather Crossbody Bag',
-      price: 289.00,
-      originalPrice: 399.00,
-      image: 'https://readdy.ai/api/search-image?query=elegant%20premium%20leather%20crossbody%20bag%20in%20deep%20forest%20green%20color%20on%20clean%20minimal%20white%20studio%20background%20with%20soft%20natural%20lighting%20showcasing%20luxury%20craftsmanship%20and%20refined%20texture%20details%20professional%20product%20photography&width=800&height=800&seq=wish1&orientation=squarish',
-      rating: 5,
-      reviewCount: 124,
-      badge: 'Best Seller',
-      inStock: true
-    },
-    {
-      id: '5',
-      name: 'Designer Brass Table Lamp',
-      price: 349.00,
-      image: 'https://readdy.ai/api/search-image?query=contemporary%20designer%20brass%20table%20lamp%20with%20elegant%20silhouette%20on%20pure%20white%20background%20modern%20luxury%20lighting%20fixture%20sophisticated%20minimalist%20design%20premium%20quality%20metalwork%20studio%20photography&width=800&height=800&seq=wish2&orientation=squarish',
-      rating: 5,
-      reviewCount: 98,
-      badge: 'Limited',
-      inStock: true
-    },
-    {
-      id: '6',
-      name: 'Merino Wool Blend Scarf',
-      price: 119.00,
-      originalPrice: 159.00,
-      image: 'https://readdy.ai/api/search-image?query=premium%20merino%20wool%20blend%20scarf%20in%20deep%20forest%20green%20color%20elegantly%20draped%20on%20white%20background%20luxury%20fashion%20accessory%20soft%20texture%20sophisticated%20styling%20high%20end%20product%20photography&width=800&height=800&seq=wish3&orientation=squarish',
-      rating: 5,
-      reviewCount: 143,
-      inStock: true
-    },
-    {
-      id: '11',
-      name: 'Handwoven Jute Area Rug',
-      price: 399.00,
-      originalPrice: 499.00,
-      image: 'https://readdy.ai/api/search-image?query=natural%20handwoven%20jute%20area%20rug%20in%20neutral%20cream%20color%20on%20white%20background%20texture%20detail%20premium%20home%20textile%20sophisticated%20craftsmanship%20product%20photography&width=800&height=800&seq=wish4&orientation=squarish',
-      rating: 4,
-      reviewCount: 87,
-      inStock: false
-    }
-  ]);
-
-  const removeFromWishlist = (id: string) => {
-    setWishlistItems(wishlistItems.filter(item => item.id !== id));
-  };
+  const { wishlist: wishlistItems, removeFromWishlist } = useWishlist();
+  const { addToCart } = useCart();
 
   const addAllToCart = () => {
     const inStockItems = wishlistItems.filter(item => item.inStock);
+    inStockItems.forEach(item => {
+      // Convert WishlistItem to CartItem if necessary, or assume compatibility
+      addToCart({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        quantity: 1,
+        slug: item.slug || item.id, // Fallback
+        maxStock: 99 // Default
+      });
+    });
     if (inStockItems.length > 0) {
       alert(`Added ${inStockItems.length} items to cart`);
     }

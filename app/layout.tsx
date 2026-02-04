@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -32,9 +33,11 @@ export default function RootLayout({
           Skip to main content
         </a>
         <CartProvider>
-          <div id="main-content">
-            {children}
-          </div>
+          <WishlistProvider>
+            <div id="main-content">
+              {children}
+            </div>
+          </WishlistProvider>
         </CartProvider>
       </body>
     </html>
