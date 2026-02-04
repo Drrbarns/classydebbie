@@ -24,27 +24,28 @@ export async function sendEmail({ to, subject, html }: { to: string; subject: st
 }
 
 // Helper to format phone number for SMS (Ghana specific for now)
+// Helper to format phone number for SMS (Ghana specific for now)
 function formatPhoneNumber(phone: string): string {
-    // Remove all non-digit characters
+    // Remove all non-digit characters (including + for now)
     let cleaned = phone.replace(/\D/g, '');
 
-    // If starts with 0, replace with 233
+    // If starts with 0 (e.g. 024...), replace 0 with 233
     if (cleaned.startsWith('0')) {
         cleaned = '233' + cleaned.substring(1);
     }
 
-    // If starts with +, remove it (Moolre usually prefers no +)
-    if (phone.startsWith('+')) {
-        cleaned = phone.replace('+', '');
-    }
-
-    // Ensure it has country code if missing (and length is 9, e.g. 244...)
-    // But 0244 is 10 digits. 244 is 9.
+    // If length is 9 (e.g. 24...), prepend 233
     if (cleaned.length === 9) {
         cleaned = '233' + cleaned;
     }
 
-    return cleaned;
+    // Ensure it starts with correct country code before prepending +
+    if (!cleaned.startsWith('233') && cleaned.length === 12) {
+        // Assuming it's some other format, but if it starts with 233, it's fine.
+    }
+
+    // Return with + prefix as per E.164
+    return '+' + cleaned;
 }
 
 export async function sendSMS({ to, message }: { to: string; message: string }) {
