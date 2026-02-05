@@ -16,7 +16,7 @@ export default function HomePage() {
   const config = {
     hero: {
       headline: 'Mannequins, Kitchen Essentials, Electronics & Dresses — All In One Store',
-      subheadline: 'Sarah Lawson Imports brings you China-sourced products with verified quality and unbeatable pricing perfect for homes, small businesses, and resellers.',
+      subheadline: 'Verified quality China-sourced products at unbeatable prices. Perfect for homes, businesses, and resellers.',
       primaryButtonText: 'Shop Collections',
       primaryButtonLink: '/shop',
       secondaryButtonText: 'Our Story',
@@ -185,7 +185,7 @@ export default function HomePage() {
                 <span className="h-px w-8 bg-white/70 lg:hidden"></span>
               </div>
 
-              <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl text-white lg:text-gray-900 leading-[1.05] mb-6 drop-shadow-lg lg:drop-shadow-none">
+              <h1 className="font-serif text-4xl sm:text-5xl lg:text-7xl text-white lg:text-gray-900 leading-[1.1] mb-4 lg:mb-6 drop-shadow-lg lg:drop-shadow-none">
                 {config.hero.headline}
               </h1>
 
