@@ -190,6 +190,11 @@ export default function AdminLayout({
     return enabledModules.includes(item.moduleId);
   });
 
+  // Special layout for Login Page
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
 
