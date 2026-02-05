@@ -203,14 +203,16 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
         })
       });
 
+      const result = await response.json();
+      
       if (!response.ok) {
-        throw new Error('Failed to send notification');
+        throw new Error(result.error || 'Failed to send notification');
       }
 
       alert('Notification sent successfully! (Email + SMS if phone available)');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error resending notification:', err);
-      alert('Failed to resend notification');
+      alert(`Failed to resend notification: ${err.message || 'Unknown error'}`);
     } finally {
       setResendingNotification(false);
     }

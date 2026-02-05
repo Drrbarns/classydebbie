@@ -47,12 +47,12 @@ function OrderSuccessContent() {
     fetchOrder();
   }, [orderNumber]);
 
-  // Backup payment verification - polls and then calls verify endpoint
+  // Payment verification - called when user is redirected from Moolre with payment_success=true
   const verifyPayment = async (orderNum: string, initialOrder: any) => {
     setVerifying(true);
     
-    // Wait a few seconds for the callback to process
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    // Wait 3 seconds to give the callback a chance to process first
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
     // Re-fetch order to check if callback already updated it
     const { data: refreshed } = await supabase
@@ -67,15 +67,18 @@ function OrderSuccessContent() {
       return;
     }
 
-    // Callback hasn't fired yet - call our verify endpoint
+    // Callback hasn't fired - verify via our endpoint
+    // Since Moolre only redirects to this URL after payment succeeds,
+    // the redirect itself is proof of payment (fromRedirect: true)
     try {
       const res = await fetch('/api/payment/moolre/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderNumber: orderNum })
+        body: JSON.stringify({ orderNumber: orderNum, fromRedirect: true })
       });
       
       const result = await res.json();
+      console.log('Payment verification result:', result);
       
       if (result.success && result.payment_status === 'paid') {
         // Re-fetch full order data

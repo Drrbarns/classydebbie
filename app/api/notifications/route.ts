@@ -86,13 +86,28 @@ export async function POST(request: Request) {
         // Handle order_status from admin panel (different payload structure)
         if (type === 'order_status') {
             const { email, name, orderNumber, status, trackingNumber, phone } = payload;
+            
+            // Fetch full order data to get metadata (tracking number etc.)
+            const { data: fullOrder } = await supabase
+                .from('orders')
+                .select('id, order_number, email, phone, shipping_address, metadata')
+                .eq('order_number', orderNumber)
+                .single();
+            
             // Build order object for sendOrderStatusUpdate
-            const orderData = {
+            const orderData = fullOrder || {
                 order_number: orderNumber,
                 email: email,
                 phone: phone,
-                shipping_address: { firstName: name, phone: phone }
+                shipping_address: { firstName: name, phone: phone },
+                metadata: { tracking_number: trackingNumber }
             };
+            
+            // Ensure phone is set (from payload if not in DB)
+            if (!orderData.phone && phone) {
+                orderData.phone = phone;
+            }
+            
             await sendOrderStatusUpdate(orderData, status);
             return NextResponse.json({ success: true, message: 'Status update sent' });
         }
