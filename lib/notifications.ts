@@ -58,10 +58,11 @@ function formatPhoneNumber(phone: string): string {
 export async function sendSMS({ to, message }: { to: string; message: string }) {
     // Moolre SMS API only requires X-API-VASKEY header for authentication
     // See: https://docs.moolre.com/#/send-sms
-    const smsVasKey = process.env.MOOLRE_SMS_API_KEY;
+    // Allow MOOLRE_SMS_API_KEY or fall back to MOOLRE_API_KEY
+    const smsVasKey = process.env.MOOLRE_SMS_API_KEY || process.env.MOOLRE_API_KEY;
 
     if (!smsVasKey) {
-        console.warn('[SMS] Missing MOOLRE_SMS_API_KEY');
+        console.warn('[SMS] Missing MOOLRE_SMS_API_KEY or MOOLRE_API_KEY');
         return null;
     }
 
@@ -100,10 +101,26 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
 }
 
 export async function sendOrderConfirmation(order: any) {
-    const { id, email, phone: orderPhone, shipping_address, total, created_at, order_number } = order;
+    const { id, email, phone: orderPhone, shipping_address, total, created_at, order_number, metadata } = order;
 
-    // Try to get name from full_name, then firstName, then fallback
-    const name = shipping_address?.full_name || shipping_address?.firstName || 'Customer';
+    // Build customer name from available sources
+    const getName = () => {
+        // Try shipping_address first
+        if (shipping_address?.full_name) return shipping_address.full_name;
+        if (shipping_address?.firstName) {
+            return shipping_address.lastName 
+                ? `${shipping_address.firstName} ${shipping_address.lastName}` 
+                : shipping_address.firstName;
+        }
+        // Fall back to metadata
+        if (metadata?.first_name) {
+            return metadata.last_name 
+                ? `${metadata.first_name} ${metadata.last_name}` 
+                : metadata.first_name;
+        }
+        return 'Customer';
+    };
+    const name = getName();
 
     // Prefer top-level phone, then shipping address phone
     const phone = orderPhone || shipping_address?.phone;
@@ -152,10 +169,24 @@ export async function sendOrderConfirmation(order: any) {
 }
 
 export async function sendOrderStatusUpdate(order: any, newStatus: string) {
-    const { id, email, phone: orderPhone, shipping_address, order_number } = order;
+    const { id, email, phone: orderPhone, shipping_address, order_number, metadata } = order;
 
-    // Consistent name/phone extraction
-    const name = shipping_address?.full_name || shipping_address?.firstName || 'Customer';
+    // Build customer name from available sources
+    const getName = () => {
+        if (shipping_address?.full_name) return shipping_address.full_name;
+        if (shipping_address?.firstName) {
+            return shipping_address.lastName 
+                ? `${shipping_address.firstName} ${shipping_address.lastName}` 
+                : shipping_address.firstName;
+        }
+        if (metadata?.first_name) {
+            return metadata.last_name 
+                ? `${metadata.first_name} ${metadata.last_name}` 
+                : metadata.first_name;
+        }
+        return 'Customer';
+    };
+    const name = getName();
     const phone = orderPhone || shipping_address?.phone;
 
     console.log(`[Notification] Status update for Order #${order_number} to ${newStatus}`);
