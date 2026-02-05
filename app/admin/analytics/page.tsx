@@ -69,11 +69,20 @@ export default function AnalyticsPage() {
       let validItems: any[] = [];
       if (orders && orders.length > 0) {
         const orderIds = orders.map(o => o.id);
-        const { data: fetchedItems } = await supabase
+        const { data: fetchedItems, error: itemFetchError } = await supabase
           .from('order_items')
-          .select('quantity, price, products(name, categories(name))')
+          .select(`
+            quantity, 
+            unit_price, 
+            total_price,
+            product_id,
+            products!inner(name, category_id, categories(name))
+          `)
           .in('order_id', orderIds);
 
+        if (itemFetchError) {
+          console.error('Error fetching order items:', itemFetchError);
+        }
         if (fetchedItems) validItems = fetchedItems;
       }
 
@@ -125,7 +134,9 @@ export default function AnalyticsPage() {
       validItems.forEach(item => {
         const catName = item.products?.categories?.name || 'Uncategorized';
         if (!catMap[catName]) catMap[catName] = { name: catName, value: 0 };
-        catMap[catName].value += (item.price * item.quantity);
+        // Use total_price if available, otherwise calculate from unit_price * quantity
+        const itemRevenue = item.total_price || (item.unit_price * item.quantity) || 0;
+        catMap[catName].value += itemRevenue;
       });
       // Convert to array for Recharts Pie
       const catArray = Object.values(catMap).map((c: any) => ({ name: c.name, value: c.value }));
@@ -136,7 +147,8 @@ export default function AnalyticsPage() {
       validItems.forEach(item => {
         const pName = item.products?.name || 'Unknown';
         if (!prodMap[pName]) prodMap[pName] = { name: pName, revenue: 0, units: 0 };
-        prodMap[pName].revenue += (item.price * item.quantity);
+        const itemRevenue = item.total_price || (item.unit_price * item.quantity) || 0;
+        prodMap[pName].revenue += itemRevenue;
         prodMap[pName].units += item.quantity;
       });
       const topProdArray = Object.values(prodMap).sort((a: any, b: any) => b.revenue - a.revenue).slice(0, 5);
