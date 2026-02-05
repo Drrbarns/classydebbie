@@ -227,39 +227,41 @@ export default function HomePage() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-end justify-between mb-12">
             <div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">Shop by Category</h2>
-              <p className="text-lg text-gray-600 max-w-2xl">Explore our carefully curated collections</p>
+              <h2 className="text-3xl lg:text-4xl font-serif font-bold text-gray-900 mb-2">Shop by Category</h2>
+              <p className="text-lg text-gray-600 max-w-2xl font-light">Explore our carefully curated collections</p>
             </div>
-            <Link href="/categories" className="hidden sm:inline-flex items-center text-emerald-700 hover:text-emerald-900 font-semibold whitespace-nowrap cursor-pointer">
+            <Link href="/categories" className="hidden sm:inline-flex items-center text-emerald-800 hover:text-emerald-950 font-medium whitespace-nowrap cursor-pointer transition-colors">
               View All
               <i className="ri-arrow-right-line ml-2"></i>
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
             {categories.map((category, index) => (
               <Link
                 key={index}
                 href={`/shop?category=${category.slug}`}
-                className="group relative aspect-square rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-shadow cursor-pointer"
+                className="group relative aspect-[4/5] lg:aspect-square rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer"
               >
                 <img
                   src={category.image}
                   alt={category.name}
-                  className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-1000"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = 'https://via.placeholder.com/600?text=' + encodeURIComponent(category.name);
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                  <h3 className="text-xl font-bold mb-1">{category.name}</h3>
-                  <p className="text-sm text-white/90">{category.count}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent group-hover:via-black/20 transition-colors"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                  <h3 className="text-xl font-serif font-bold mb-1 tracking-wide">{category.name}</h3>
+                  <div className="h-0 group-hover:h-6 transition-all duration-300 overflow-hidden">
+                    <p className="text-sm text-white/90 font-light tracking-wider uppercase opacity-0 group-hover:opacity-100 transition-opacity delay-100">View Collection</p>
+                  </div>
                 </div>
               </Link>
             ))}
@@ -275,14 +277,14 @@ export default function HomePage() {
 
       {/* New Arrivals / Best Sellers Section */}
       {config.sections?.newArrivals?.enabled && (
-        <section className="py-20 bg-gray-50" data-product-shop>
+        <section className="py-20 bg-stone-50" data-product-shop>
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex items-end justify-between mb-12">
               <div>
-                <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">{config.sections.newArrivals.title}</h2>
-                <p className="text-lg text-gray-600">{config.sections.newArrivals.subtitle}</p>
+                <h2 className="text-3xl lg:text-4xl font-serif font-bold text-gray-900 mb-2">{config.sections.newArrivals.title}</h2>
+                <p className="text-lg text-gray-600 font-light">{config.sections.newArrivals.subtitle}</p>
               </div>
-              <Link href="/shop" className="hidden sm:inline-flex items-center text-emerald-700 hover:text-emerald-900 font-semibold whitespace-nowrap cursor-pointer">
+              <Link href="/shop" className="hidden sm:inline-flex items-center text-emerald-800 hover:text-emerald-950 font-medium whitespace-nowrap cursor-pointer transition-colors">
                 View All
                 <i className="ri-arrow-right-line ml-2"></i>
               </Link>
@@ -301,7 +303,7 @@ export default function HomePage() {
                 ))}
               </div>
             ) : featuredProducts.length > 0 ? (
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8 gap-y-10 lg:gap-y-12">
                 {featuredProducts.map((product) => (
                   <ProductCard key={product.id} {...product} />
                 ))}
