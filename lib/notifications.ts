@@ -103,6 +103,8 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
 export async function sendOrderConfirmation(order: any) {
     const { id, email, phone: orderPhone, shipping_address, total, created_at, order_number, metadata } = order;
 
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/+$/, '');
+
     // Build customer name from available sources
     const getName = () => {
         // Try shipping_address first
@@ -125,7 +127,11 @@ export async function sendOrderConfirmation(order: any) {
     // Prefer top-level phone, then shipping address phone
     const phone = orderPhone || shipping_address?.phone;
 
-    console.log(`[Notification] Preparing for Order #${order_number} | Phone: ${phone ? 'Present' : 'Missing'}`);
+    // Get tracking number from metadata
+    const trackingNumber = metadata?.tracking_number || '';
+    const trackingUrl = `${baseUrl}/order-tracking?order=${order_number || id}`;
+
+    console.log(`[Notification] Preparing for Order #${order_number} | Phone: ${phone ? 'Present' : 'Missing'} | Tracking: ${trackingNumber || 'None'}`);
 
     // 1. Email to Customer
     const customerEmailHtml = `
@@ -133,7 +139,10 @@ export async function sendOrderConfirmation(order: any) {
     <p>Hi ${name},</p>
     <p>Thank you for your order! We've received it and are getting it ready.</p>
     <p><strong>Order ID:</strong> ${order_number || id}</p>
-    <p><strong>Total:</strong> GH₵${total.toFixed(2)}</p>
+    <p><strong>Tracking Number:</strong> ${trackingNumber || 'Generating...'}</p>
+    <p><strong>Total:</strong> GH₵${Number(total).toFixed(2)}</p>
+    <br/>
+    <p>Track your order here: <a href="${trackingUrl}">${trackingUrl}</a></p>
     <br/>
     <p>We will notify you when your order ships.</p>
   `;
@@ -148,9 +157,10 @@ export async function sendOrderConfirmation(order: any) {
     const adminEmailHtml = `
     <h1>New Order Received</h1>
     <p><strong>Order ID:</strong> ${order_number || id}</p>
+    <p><strong>Tracking:</strong> ${trackingNumber}</p>
     <p><strong>Customer:</strong> ${name} (${email})</p>
-    <p><strong>Total:</strong> GH₵${total.toFixed(2)}</p>
-    <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin/orders/${id}">View Order</a></p>
+    <p><strong>Total:</strong> GH₵${Number(total).toFixed(2)}</p>
+    <p><a href="${baseUrl}/admin/orders/${id}">View Order</a></p>
   `;
 
     await sendEmail({
@@ -161,15 +171,21 @@ export async function sendOrderConfirmation(order: any) {
 
     // 3. SMS to Customer (if phone exists)
     if (phone) {
+        const smsMessage = trackingNumber
+            ? `Hi ${name}, your order #${order_number || id} is confirmed! Tracking: ${trackingNumber}. Track here: ${trackingUrl}`
+            : `Hi ${name}, your order #${order_number || id} at Sarah Lawson Imports is confirmed! Track here: ${trackingUrl}`;
+        
         await sendSMS({
             to: phone,
-            message: `Hi ${name}, thanks for your order #${order_number || id} at Sarah Lawson Imports! We will update you when it ships.`
+            message: smsMessage
         });
     }
 }
 
 export async function sendOrderStatusUpdate(order: any, newStatus: string) {
     const { id, email, phone: orderPhone, shipping_address, order_number, metadata } = order;
+
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
     // Build customer name from available sources
     const getName = () => {
@@ -188,30 +204,47 @@ export async function sendOrderStatusUpdate(order: any, newStatus: string) {
     };
     const name = getName();
     const phone = orderPhone || shipping_address?.phone;
+    const trackingNumber = metadata?.tracking_number || '';
+    const trackingUrl = `${baseUrl}/order-tracking?order=${order_number || id}`;
 
-    console.log(`[Notification] Status update for Order #${order_number} to ${newStatus}`);
+    console.log(`[Notification] Status update for Order #${order_number} to ${newStatus} | Tracking: ${trackingNumber}`);
 
     const subject = `Order Update #${order_number || id}`;
     let message = `Your order #${order_number || id} status has been updated to ${newStatus}.`;
+    let smsMessage = message;
 
     if (newStatus === 'shipped') {
         message = `Good news! Your order #${order_number || id} has been shipped and is on its way.`;
+        smsMessage = trackingNumber
+            ? `Good news ${name}! Order #${order_number || id} has shipped. Tracking: ${trackingNumber}. Track: ${trackingUrl}`
+            : `Good news ${name}! Order #${order_number || id} has shipped. Track: ${trackingUrl}`;
     } else if (newStatus === 'delivered') {
         message = `Your order #${order_number || id} has been delivered. Enjoy!`;
+        smsMessage = `Hi ${name}, your order #${order_number || id} has been delivered. Enjoy your purchase!`;
+    } else if (newStatus === 'processing') {
+        smsMessage = trackingNumber
+            ? `Hi ${name}, your order #${order_number || id} is being processed. Tracking: ${trackingNumber}. Track: ${trackingUrl}`
+            : `Hi ${name}, your order #${order_number || id} is being processed. Track: ${trackingUrl}`;
+    } else {
+        smsMessage = `Hi ${name}, order #${order_number || id} status: ${newStatus}. Track: ${trackingUrl}`;
     }
 
-    // Email
+    // Email with tracking info
+    const trackingHtml = trackingNumber 
+        ? `<p><strong>Tracking Number:</strong> ${trackingNumber}</p>` 
+        : '';
+    
     await sendEmail({
         to: email,
         subject: subject,
-        html: `<h1>Order Update</h1><p>Hi ${name},</p><p>${message}</p>`
+        html: `<h1>Order Update</h1><p>Hi ${name},</p><p>${message}</p>${trackingHtml}<p><a href="${trackingUrl}">Track Your Order</a></p>`
     });
 
     // SMS
     if (phone) {
         await sendSMS({
             to: phone,
-            message: message
+            message: smsMessage
         });
     }
 }

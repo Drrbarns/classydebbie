@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
 function OrderTrackingContent() {
   const searchParams = useSearchParams();
@@ -10,91 +11,179 @@ function OrderTrackingContent() {
   
   const [orderNumber, setOrderNumber] = useState(urlOrderNumber);
   const [email, setEmail] = useState('');
-  const [isTracking, setIsTracking] = useState(!!urlOrderNumber);
+  const [isTracking, setIsTracking] = useState(false);
+  const [order, setOrder] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Auto-track if order number is in the URL
+  useEffect(() => {
+    if (urlOrderNumber) {
+      fetchOrder(urlOrderNumber);
+    }
+  }, [urlOrderNumber]);
+
+  const fetchOrder = async (orderNum: string) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          order_items (
+            id,
+            product_name,
+            variant_name,
+            quantity,
+            unit_price,
+            metadata,
+            products (
+              product_images (url)
+            )
+          )
+        `)
+        .eq('order_number', orderNum)
+        .single();
+
+      if (fetchError || !data) {
+        setError('Order not found. Please check your order number and try again.');
+        setIsTracking(false);
+        return;
+      }
+
+      // If email was provided, verify it matches
+      if (email && data.email?.toLowerCase() !== email.toLowerCase()) {
+        setError('The email address does not match this order.');
+        setIsTracking(false);
+        return;
+      }
+
+      setOrder(data);
+      setIsTracking(true);
+    } catch (err) {
+      console.error('Error fetching order:', err);
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleTrack = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!orderNumber || !email) {
-      setError('Please fill in all fields');
+    if (!orderNumber) {
+      setError('Please enter your order number');
       return;
     }
 
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Please enter a valid email');
-      return;
-    }
-
-    setIsTracking(true);
+    fetchOrder(orderNumber);
   };
 
-  const trackingSteps = [
-    {
-      status: 'completed',
-      title: 'Order Placed',
-      description: 'Your order has been confirmed',
-      date: '15 Jan 2024, 10:30 AM',
-      icon: 'ri-checkbox-circle-line'
-    },
-    {
-      status: 'completed',
-      title: 'Processing',
-      description: 'Your order is being prepared',
-      date: '15 Jan 2024, 2:15 PM',
-      icon: 'ri-box-3-line'
-    },
-    {
-      status: 'active',
-      title: 'Shipped',
-      description: 'Your order is on the way',
-      date: '16 Jan 2024, 9:00 AM',
-      icon: 'ri-truck-line'
-    },
-    {
-      status: 'pending',
-      title: 'Out for Delivery',
-      description: 'Your order is out for delivery',
-      date: 'Pending',
-      icon: 'ri-map-pin-line'
-    },
-    {
-      status: 'pending',
-      title: 'Delivered',
-      description: 'Your order has been delivered',
-      date: 'Pending',
-      icon: 'ri-home-smile-line'
-    }
-  ];
+  // Build tracking timeline from real order data
+  const getTrackingSteps = () => {
+    if (!order) return [];
 
-  if (!isTracking) {
+    const status = order.status || 'pending';
+    const paymentStatus = order.payment_status || 'pending';
+
+    const statusOrder = ['pending', 'processing', 'shipped', 'delivered'];
+    const currentIndex = statusOrder.indexOf(status);
+
+    const steps = [
+      {
+        key: 'placed',
+        title: 'Order Placed',
+        description: 'Your order has been confirmed',
+        date: new Date(order.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        icon: 'ri-checkbox-circle-line',
+        status: 'completed' as const
+      },
+      {
+        key: 'payment',
+        title: 'Payment',
+        description: paymentStatus === 'paid' ? 'Payment confirmed' : 'Awaiting payment',
+        date: paymentStatus === 'paid' 
+          ? (order.metadata?.payment_verified_at 
+            ? new Date(order.metadata.payment_verified_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+            : 'Confirmed')
+          : 'Pending',
+        icon: 'ri-bank-card-line',
+        status: paymentStatus === 'paid' ? 'completed' as const : 'pending' as const
+      },
+      {
+        key: 'processing',
+        title: 'Processing',
+        description: 'Your order is being prepared',
+        date: currentIndex >= 1 ? 'In progress' : 'Pending',
+        icon: 'ri-box-3-line',
+        status: currentIndex >= 1 ? 'completed' as const : currentIndex === 0 && paymentStatus === 'paid' ? 'active' as const : 'pending' as const
+      },
+      {
+        key: 'shipped',
+        title: 'Shipped',
+        description: 'Your order is on the way',
+        date: currentIndex >= 2 ? 'Dispatched' : 'Pending',
+        icon: 'ri-truck-line',
+        status: currentIndex >= 2 ? 'completed' as const : currentIndex === 1 ? 'active' as const : 'pending' as const
+      },
+      {
+        key: 'delivered',
+        title: 'Delivered',
+        description: 'Your order has been delivered',
+        date: currentIndex >= 3 ? 'Delivered' : 'Pending',
+        icon: 'ri-home-smile-line',
+        status: currentIndex >= 3 ? 'completed' as const : currentIndex === 2 ? 'active' as const : 'pending' as const
+      }
+    ];
+
+    return steps;
+  };
+
+  const getStatusBadge = () => {
+    if (!order) return { label: 'Unknown', color: 'bg-gray-100 text-gray-800' };
+    
+    const statusMap: Record<string, { label: string; color: string }> = {
+      'pending': { label: 'Pending', color: 'bg-amber-100 text-amber-800' },
+      'processing': { label: 'Processing', color: 'bg-blue-100 text-blue-800' },
+      'shipped': { label: 'In Transit', color: 'bg-purple-100 text-purple-800' },
+      'delivered': { label: 'Delivered', color: 'bg-emerald-100 text-emerald-800' },
+      'cancelled': { label: 'Cancelled', color: 'bg-red-100 text-red-800' }
+    };
+
+    return statusMap[order.status] || { label: order.status, color: 'bg-gray-100 text-gray-800' };
+  };
+
+  // Search form
+  if (!isTracking || !order) {
     return (
       <main className="min-h-screen bg-gray-50 py-12 px-4">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Track Your Order</h1>
-            <p className="text-gray-600">Enter your order details to track your shipment</p>
+            <p className="text-gray-600">Enter your order number or tracking number to track your shipment</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-8">
             <form onSubmit={handleTrack} className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Order Number
+                  Order Number or Tracking Number
                 </label>
                 <input
                   type="text"
                   value={orderNumber}
                   onChange={(e) => setOrderNumber(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  placeholder="ORD-2024-001"
+                  placeholder="e.g. ORD-1770328211911-915 or SLI-ABC123"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Email Address
+                  Email Address <span className="text-gray-400 font-normal">(optional - for verification)</span>
                 </label>
                 <input
                   type="email"
@@ -113,9 +202,15 @@ function OrderTrackingContent() {
 
               <button
                 type="submit"
-                className="w-full bg-emerald-700 hover:bg-emerald-800 text-white py-4 rounded-lg font-semibold transition-colors whitespace-nowrap"
+                disabled={loading}
+                className="w-full bg-emerald-700 hover:bg-emerald-800 text-white py-4 rounded-lg font-semibold transition-colors whitespace-nowrap disabled:opacity-50"
               >
-                Track Order
+                {loading ? (
+                  <span className="flex items-center justify-center">
+                    <i className="ri-loader-4-line animate-spin mr-2"></i>
+                    Searching...
+                  </span>
+                ) : 'Track Order'}
               </button>
             </form>
 
@@ -125,7 +220,7 @@ function OrderTrackingContent() {
                 <div>
                   <p className="text-sm font-semibold text-blue-900">Need Help?</p>
                   <p className="text-sm text-blue-700 mt-1">
-                    You can find your order number in the confirmation email we sent you.
+                    You can find your order number and tracking number in the SMS or email we sent you after your order was confirmed.
                   </p>
                 </div>
               </div>
@@ -143,24 +238,41 @@ function OrderTrackingContent() {
     );
   }
 
+  // Order tracking results
+  const trackingSteps = getTrackingSteps();
+  const statusBadge = getStatusBadge();
+  const trackingNumber = order.metadata?.tracking_number || '';
+  const shippingAddress = order.shipping_address || {};
+  const estimatedDelivery = new Date(new Date(order.created_at).getTime() + 7 * 24 * 60 * 60 * 1000)
+    .toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
   return (
     <main className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <Link href="/order-tracking" onClick={() => setIsTracking(false)} className="text-gray-600 hover:text-gray-900 font-medium inline-flex items-center whitespace-nowrap">
+          <button 
+            onClick={() => { setIsTracking(false); setOrder(null); setOrderNumber(''); setEmail(''); }}
+            className="text-gray-600 hover:text-gray-900 font-medium inline-flex items-center whitespace-nowrap cursor-pointer"
+          >
             <i className="ri-arrow-left-line mr-2"></i>
             Track Another Order
-          </Link>
+          </button>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-8 mb-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Order {orderNumber}</h1>
-              <p className="text-gray-600 mt-1">Estimated delivery: 20 Jan 2024</p>
+              <h1 className="text-2xl font-bold text-gray-900">{order.order_number}</h1>
+              {trackingNumber && (
+                <p className="text-gray-600 mt-1">
+                  <span className="font-medium">Tracking:</span>{' '}
+                  <span className="font-mono bg-gray-100 px-2 py-0.5 rounded text-sm">{trackingNumber}</span>
+                </p>
+              )}
+              <p className="text-gray-500 text-sm mt-1">Estimated delivery: {estimatedDelivery}</p>
             </div>
-            <div className="px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full font-semibold whitespace-nowrap">
-              In Transit
+            <div className={`px-4 py-2 rounded-full font-semibold whitespace-nowrap ${statusBadge.color}`}>
+              {statusBadge.label}
             </div>
           </div>
 
@@ -172,7 +284,9 @@ function OrderTrackingContent() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Shipping To</p>
-                  <p className="font-semibold text-gray-900">Accra, Ghana</p>
+                  <p className="font-semibold text-gray-900">
+                    {shippingAddress.city || shippingAddress.region || 'Ghana'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -180,11 +294,11 @@ function OrderTrackingContent() {
             <div className="p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 flex items-center justify-center bg-emerald-100 rounded-full">
-                  <i className="ri-truck-line text-xl text-emerald-700"></i>
+                  <i className="ri-money-cny-circle-line text-xl text-emerald-700"></i>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Carrier</p>
-                  <p className="font-semibold text-gray-900">Express Delivery</p>
+                  <p className="text-sm text-gray-600">Total</p>
+                  <p className="font-semibold text-gray-900">GH₵ {Number(order.total).toFixed(2)}</p>
                 </div>
               </div>
             </div>
@@ -196,15 +310,18 @@ function OrderTrackingContent() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Items</p>
-                  <p className="font-semibold text-gray-900">2 Products</p>
+                  <p className="font-semibold text-gray-900">
+                    {order.order_items?.length || 0} Product{(order.order_items?.length || 0) !== 1 ? 's' : ''}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Tracking Timeline */}
           <div className="relative">
             {trackingSteps.map((step, index) => (
-              <div key={index} className="flex items-start mb-8 last:mb-0">
+              <div key={step.key} className="flex items-start mb-8 last:mb-0">
                 <div className="relative flex flex-col items-center mr-6">
                   <div className={`w-12 h-12 flex items-center justify-center rounded-full font-bold transition-colors ${
                     step.status === 'completed'
@@ -243,38 +360,49 @@ function OrderTrackingContent() {
           </div>
         </div>
 
+        {/* Order Items */}
         <div className="bg-white rounded-xl shadow-sm p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Order Items</h2>
           <div className="space-y-4">
-            <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-              <div className="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                <img
-                  src="https://readdy.ai/api/search-image?query=Premium%20wireless%20headphones%20with%20sleek%20black%20design%20and%20cushioned%20ear%20cups%20on%20clean%20white%20background%2C%20product%20photography%20style%2C%20professional%20lighting%2C%20high%20quality%2C%20minimalist%20aesthetic&width=400&height=400&seq=track1&orientation=squarish"
-                  alt="Product"
-                  className="w-full h-full object-cover"
-                />
+            {order.order_items?.map((item: any) => (
+              <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                <div className="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
+                  {item.products?.product_images?.[0]?.url || item.metadata?.image ? (
+                    <img
+                      src={item.products?.product_images?.[0]?.url || item.metadata?.image}
+                      alt={item.product_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <i className="ri-image-line text-2xl text-gray-300"></i>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900">{item.product_name}</h3>
+                  <p className="text-sm text-gray-600 mt-1">Quantity: {item.quantity}</p>
+                  {item.variant_name && (
+                    <p className="text-xs text-gray-500">{item.variant_name}</p>
+                  )}
+                </div>
+                <p className="font-bold text-emerald-700">GH₵ {Number(item.unit_price).toFixed(2)}</p>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">Premium Wireless Headphones</h3>
-                <p className="text-sm text-gray-600 mt-1">Quantity: 1</p>
-              </div>
-              <p className="font-bold text-emerald-700">GH₵ 450.00</p>
-            </div>
+            ))}
+          </div>
+        </div>
 
-            <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-              <div className="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                <img
-                  src="https://readdy.ai/api/search-image?query=Modern%20smart%20fitness%20watch%20with%20black%20band%20and%20digital%20display%20showing%20health%20metrics%20on%20clean%20white%20background%2C%20product%20photography%20style%2C%20professional%20lighting%2C%20high%20quality%2C%20minimalist%20aesthetic&width=400&height=400&seq=track2&orientation=squarish"
-                  alt="Product"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">Smart Fitness Watch</h3>
-                <p className="text-sm text-gray-600 mt-1">Quantity: 1</p>
-              </div>
-              <p className="font-bold text-emerald-700">GH₵ 320.00</p>
-            </div>
+        <div className="mt-8 text-center">
+          <p className="text-gray-600 mb-4">Need help with your order?</p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link href="/contact" className="text-emerald-700 hover:text-emerald-900 font-semibold whitespace-nowrap">
+              <i className="ri-customer-service-line mr-1"></i>
+              Contact Support
+            </Link>
+            <Link href="/returns" className="text-emerald-700 hover:text-emerald-900 font-semibold whitespace-nowrap">
+              <i className="ri-arrow-left-right-line mr-1"></i>
+              Returns Policy
+            </Link>
           </div>
         </div>
       </div>
