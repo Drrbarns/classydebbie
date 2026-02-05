@@ -62,6 +62,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
           rating: productData.rating_avg || 0,
           reviewCount: 0, // Placeholder
           stockCount: productData.quantity,
+          moq: productData.moq || 1, // Minimum Order Quantity
           colors: [], // Placeholder until specific attributes implementation
           sizes: productData.product_variants?.map((v: any) => v.name) || [],
           features: ['Premium Quality', 'Authentic Design'], // Placeholder or extract from description/metadata
@@ -76,6 +77,11 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
         }
 
         setProduct(transformedProduct);
+
+        // Set initial quantity to MOQ
+        if (transformedProduct.moq > 1) {
+          setQuantity(transformedProduct.moq);
+        }
 
         // Default select first size if available
         if (transformedProduct.sizes.length > 0) {
@@ -299,18 +305,18 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center border-2 border-gray-300 rounded-lg">
                       <button
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        onClick={() => setQuantity(Math.max(product.moq || 1, quantity - 1))}
                         className="w-12 h-12 flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
-                        disabled={product.stockCount === 0}
+                        disabled={product.stockCount === 0 || quantity <= (product.moq || 1)}
                       >
                         <i className="ri-subtract-line text-xl"></i>
                       </button>
                       <input
                         type="number"
                         value={quantity}
-                        onChange={(e) => setQuantity(Math.max(1, Math.min(product.stockCount, parseInt(e.target.value) || 1)))}
+                        onChange={(e) => setQuantity(Math.max(product.moq || 1, Math.min(product.stockCount, parseInt(e.target.value) || (product.moq || 1))))}
                         className="w-16 h-12 text-center border-x-2 border-gray-300 focus:outline-none text-lg font-semibold"
-                        min="1"
+                        min={product.moq || 1}
                         max={product.stockCount}
                         disabled={product.stockCount === 0}
                       />
@@ -322,12 +328,20 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         <i className="ri-add-line text-xl"></i>
                       </button>
                     </div>
-                    {product.stockCount > 0 && product.stockCount <= 10 && (
-                      <span className="text-amber-600 font-medium">Only {product.stockCount} left in stock</span>
-                    )}
-                    {product.stockCount === 0 && (
-                      <span className="text-red-600 font-medium">Out of Stock</span>
-                    )}
+                    <div className="flex flex-col">
+                      {product.moq > 1 && (
+                        <span className="text-emerald-700 font-medium text-sm">
+                          <i className="ri-information-line mr-1"></i>
+                          Min. order: {product.moq} units
+                        </span>
+                      )}
+                      {product.stockCount > 0 && product.stockCount <= 10 && (
+                        <span className="text-amber-600 font-medium text-sm">Only {product.stockCount} left in stock</span>
+                      )}
+                      {product.stockCount === 0 && (
+                        <span className="text-red-600 font-medium">Out of Stock</span>
+                      )}
+                    </div>
                   </div>
                 </div>
 

@@ -21,12 +21,21 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     const [comparePrice, setComparePrice] = useState(initialData?.compare_at_price || '');
     const [sku, setSku] = useState(initialData?.sku || '');
     const [stock, setStock] = useState(initialData?.quantity || '');
+    const [moq, setMoq] = useState(initialData?.moq || '1');
     const [lowStockThreshold, setLowStockThreshold] = useState(initialData?.metadata?.low_stock_threshold || '5');
     const [description, setDescription] = useState(initialData?.description || '');
     const [status, setStatus] = useState(initialData?.status || 'Active');
     const [featured, setFeatured] = useState(initialData?.featured || false);
     const [isPreorder, setIsPreorder] = useState(initialData?.metadata?.is_preorder || false);
     const [activeTab, setActiveTab] = useState('general');
+
+    // Auto-generate SKU function
+    const generateSku = () => {
+        const prefix = 'SLI'; // Sarah Lawson Imports
+        const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
+        const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+        return `${prefix}-${timestamp}-${random}`;
+    };
 
     // Variants currently simple local state
     const [variants, setVariants] = useState<any[]>(initialData?.product_variants || []);
@@ -69,6 +78,13 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             setUrlSlug(productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
         }
     }, [productName, isEditMode, urlSlug]);
+
+    // Auto-generate SKU for new products
+    useEffect(() => {
+        if (!isEditMode && !sku) {
+            setSku(generateSku());
+        }
+    }, [isEditMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         try {
@@ -134,8 +150,9 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                 category_id: categoryId || null,
                 price: parseFloat(price) || 0,
                 compare_at_price: comparePrice ? parseFloat(comparePrice) : null,
-                sku: sku || null,
+                sku: sku || generateSku(), // Auto-generate if empty
                 quantity: parseInt(stock) || 0,
+                moq: parseInt(moq) || 1,
                 status: status.toLowerCase(),
                 featured,
                 seo_title: seoTitle,
@@ -445,15 +462,27 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-900 mb-2">
-                                            SKU *
+                                            SKU (Auto-generated)
                                         </label>
-                                        <input
-                                            type="text"
-                                            value={sku}
-                                            onChange={(e) => setSku(e.target.value)}
-                                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-mono"
-                                            placeholder="PROD-SKU-001"
-                                        />
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={sku}
+                                                onChange={(e) => setSku(e.target.value)}
+                                                className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-mono bg-gray-50"
+                                                placeholder="Auto-generated"
+                                                readOnly
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setSku(generateSku())}
+                                                className="px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-colors cursor-pointer"
+                                                title="Generate new SKU"
+                                            >
+                                                <i className="ri-refresh-line text-lg"></i>
+                                            </button>
+                                        </div>
+                                        <p className="text-sm text-gray-500 mt-1">SKU is auto-generated. Click refresh to generate a new one.</p>
                                     </div>
 
                                     <div>
@@ -470,17 +499,34 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     </div>
                                 </div>
 
-                                <div className="mt-6">
-                                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                                        Low Stock Threshold
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={lowStockThreshold}
-                                        onChange={(e) => setLowStockThreshold(e.target.value)}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                                    />
-                                    <p className="text-sm text-gray-500 mt-2">Get notified when stock falls below this number</p>
+                                <div className="grid md:grid-cols-2 gap-6 mt-6">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-900 mb-2">
+                                            Minimum Order Quantity (MOQ)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={moq}
+                                            onChange={(e) => setMoq(e.target.value)}
+                                            min="1"
+                                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                                            placeholder="1"
+                                        />
+                                        <p className="text-sm text-gray-500 mt-1">Minimum quantity customers must order</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-900 mb-2">
+                                            Low Stock Threshold
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={lowStockThreshold}
+                                            onChange={(e) => setLowStockThreshold(e.target.value)}
+                                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                                        />
+                                        <p className="text-sm text-gray-500 mt-1">Get notified when stock falls below this number</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
