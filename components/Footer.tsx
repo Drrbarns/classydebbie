@@ -49,7 +49,7 @@ export default function Footer() {
   const siteName = getSetting('site_name') || 'Sarah Lawson Imports';
   const siteTagline = getSetting('site_tagline') || 'Premium Quality Products For Less.';
   const contactEmail = getSetting('contact_email') || '';
-  const contactPhone = getSetting('contact_phone') || '';
+  const contactPhone = getSetting('contact_phone') || '0546014734';
   const socialFacebook = getSetting('social_facebook') || '';
   const socialInstagram = getSetting('social_instagram') || '';
   const socialTwitter = getSetting('social_twitter') || '';

@@ -77,7 +77,7 @@ export default function ContactPage() {
 
   // Get contact details from CMS settings
   const contactEmail = getSetting('contact_email') || 'support@standardstore.com';
-  const contactPhone = getSetting('contact_phone') || '+233 XX XXX XXXX';
+  const contactPhone = getSetting('contact_phone') || '0546014734';
   const contactAddress = getSetting('contact_address') || 'Accra, Ghana';
 
   const heroTitle = pageContent?.title || 'Get In Touch';
