@@ -32,14 +32,37 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
 
-    // Load cart from localStorage on mount
+    // Load cart from localStorage on mount, with migration for legacy items
     useEffect(() => {
         const savedCart = localStorage.getItem('cart');
         if (savedCart) {
             try {
-                setCart(JSON.parse(savedCart));
+                const parsed: CartItem[] = JSON.parse(savedCart);
+                // Migrate legacy cart items: if `id` is not a UUID, it's likely a slug
+                const isValidUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+                const migratedCart = parsed.filter(item => {
+                    if (!item.id || !item.name || !item.price) return false; // Remove corrupted items
+                    if (!isValidUUID(item.id)) {
+                        // Legacy item with slug as id - ensure slug is set, then clear
+                        // These items will be resolved at checkout via the slug fallback
+                        // But best to remove them so users re-add with correct UUIDs
+                        console.warn(`Removing legacy cart item with non-UUID id: ${item.id}`);
+                        return false;
+                    }
+                    // Ensure slug field exists
+                    if (!item.slug) {
+                        item.slug = item.id;
+                    }
+                    return true;
+                });
+                setCart(migratedCart);
+                // If items were removed, update localStorage immediately
+                if (migratedCart.length !== parsed.length) {
+                    localStorage.setItem('cart', JSON.stringify(migratedCart));
+                }
             } catch (e) {
                 console.error('Failed to parse cart:', e);
+                localStorage.removeItem('cart');
             }
         }
         setIsInitialized(true);

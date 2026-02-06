@@ -8,9 +8,11 @@ import ProductReviews from '@/components/ProductReviews';
 import { StructuredData, generateProductSchema, generateBreadcrumbSchema } from '@/components/SEOHead';
 import { notFound } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function ProductDetailClient({ slug }: { slug: string }) {
   const [product, setProduct] = useState<any>(null);
+  usePageTitle(product?.name || 'Product');
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');

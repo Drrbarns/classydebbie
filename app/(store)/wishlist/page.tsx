@@ -5,8 +5,10 @@ import { useCart } from '@/context/CartContext';
 import PageHero from '@/components/PageHero';
 import { useWishlist } from '@/context/WishlistContext';
 import ProductCard from '@/components/ProductCard';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function WishlistPage() {
+  usePageTitle('Wishlist');
   const { wishlist: wishlistItems, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
 

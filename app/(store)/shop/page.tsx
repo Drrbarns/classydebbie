@@ -2,11 +2,13 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import ProductCard from '@/components/ProductCard';
 import { supabase } from '@/lib/supabase';
 import PageHero from '@/components/PageHero';
 
 function ShopContent() {
+  usePageTitle('Shop All Products');
   const searchParams = useSearchParams();
 
   // State

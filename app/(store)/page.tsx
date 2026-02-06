@@ -6,8 +6,10 @@ import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import ProductCard from '@/components/ProductCard';
 import AnimatedSection, { AnimatedGrid } from '@/components/AnimatedSection';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function Home() {
+  usePageTitle('');
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

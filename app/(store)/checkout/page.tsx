@@ -5,11 +5,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import CheckoutSteps from '@/components/CheckoutSteps';
 import OrderSummary from '@/components/OrderSummary';
-// import OrderBumpUpsell from '@/components/OrderBumpUpsell';
 import { useCart } from '@/context/CartContext';
 import { supabase } from '@/lib/supabase';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function CheckoutPage() {
+  usePageTitle('Checkout');
   const router = useRouter();
   const { cart, subtotal: cartSubtotal, clearCart } = useCart();
 
@@ -597,61 +598,7 @@ export default function CheckoutPage() {
               </>
             )}
 
-            {currentStep === 3 && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Payment Method</h2>
-                <div className="space-y-4">
-                  {/* Moolre Payment - Only active payment method */}
-                  <div className="flex items-center justify-between p-4 border-2 border-emerald-700 bg-emerald-50 rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-5 h-5 rounded-full border-2 border-emerald-700 flex items-center justify-center">
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-700"></div>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">Pay With Mobile Money</p>
-                        <p className="text-sm text-gray-600">Mobile money & card payments</p>
-                      </div>
-                    </div>
-                    <i className="ri-smartphone-line text-2xl text-emerald-700"></i>
-                  </div>
-
-
-                </div>
-
-                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-start space-x-3">
-                    <i className="ri-information-line text-xl text-blue-700 mt-0.5"></i>
-                    <div>
-                      <p className="text-sm font-semibold text-blue-900">Secure Payment</p>
-                      <p className="text-sm text-blue-700 mt-1">
-                        Your payment information is encrypted and secure. We never store your card details.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col-reverse md:flex-row gap-4 mt-6">
-                  <button
-                    onClick={() => setCurrentStep(2)}
-                    className="flex-1 border-2 border-gray-300 hover:border-gray-400 text-gray-700 py-4 rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={handlePlaceOrder}
-                    disabled={isLoading}
-                    className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white py-4 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer flex items-center justify-center"
-                  >
-                    {isLoading ? (
-                      <>
-                        <i className="ri-loader-4-line animate-spin mr-2"></i>
-                        Processing...
-                      </>
-                    ) : 'Place Order'}
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* Step 3 removed - payment now initiates directly from step 2 */}
           </div>
 
           <div className="lg:col-span-1">

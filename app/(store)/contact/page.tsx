@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { useCMS } from '@/context/CMSContext';
 import { supabase } from '@/lib/supabase';
 import PageHero from '@/components/PageHero';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function ContactPage() {
+  usePageTitle('Contact Us');
   const { getSetting } = useCMS();
   const [pageContent, setPageContent] = useState<any>(null);
   const [formData, setFormData] = useState({

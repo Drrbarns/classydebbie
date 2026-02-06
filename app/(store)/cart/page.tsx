@@ -3,13 +3,13 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import CartCountdown from '@/components/CartCountdown';
-// import CartSuggestions from '@/components/CartSuggestions'; // Removed demo suggestions
 import AdvancedCouponSystem from '@/components/AdvancedCouponSystem';
-// import FreeShippingBar from '@/components/FreeShippingBar';
 import { useCart } from '@/context/CartContext';
 import PageHero from '@/components/PageHero';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function CartPage() {
+  usePageTitle('Shopping Cart');
   const { cart: cartItems, removeFromCart, updateQuantity, subtotal, addToCart } = useCart();
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [savedItems, setSavedItems] = useState<any[]>([]);

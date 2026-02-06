@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useCMS } from '@/context/CMSContext';
 import PageHero from '@/components/PageHero';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function AboutPage() {
+  usePageTitle('Our Story');
   const { getSetting } = useCMS();
   const [activeTab, setActiveTab] = useState('story');
 
