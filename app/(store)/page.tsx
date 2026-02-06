@@ -281,36 +281,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Join Community Section */}
-      <section className="py-20 bg-emerald-900 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <AnimatedSection>
-            <div className="w-16 h-16 bg-emerald-800/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <i className="ri-mail-star-line text-3xl text-emerald-300"></i>
-            </div>
-            <h2 className="font-serif text-3xl md:text-4xl mb-4">Join Our Community</h2>
-            <p className="text-emerald-200 mb-8 max-w-md mx-auto leading-relaxed">
-              Get exclusive access to new arrivals, secret sales, and sourcing stories from Sarah.
-            </p>
-            
-            <form className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
-              <input 
-                type="email" 
-                placeholder="Enter your email address" 
-                className="flex-1 px-6 py-4 rounded-full bg-white/10 border border-white/20 text-white placeholder-emerald-200 focus:outline-none focus:ring-2 focus:ring-white/50"
-                required
-              />
-              <button className="bg-white text-emerald-900 px-8 py-4 rounded-full font-bold hover:bg-emerald-50 transition-colors shadow-lg">
-                Subscribe
-              </button>
-            </form>
-            
-            <p className="text-emerald-300/70 text-sm mt-4">
-              We respect your privacy. Unsubscribe at any time.
-            </p>
-          </AnimatedSection>
-        </div>
-      </section>
 
       {/* Trust Features */}
       <section className="py-16 bg-white border-t border-gray-100">
