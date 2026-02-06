@@ -138,7 +138,8 @@ function ShopContent() {
 
         if (data) {
           const formattedProducts = data.map(p => ({
-            id: p.slug, // Use slug for navigation
+            id: p.id,           // Product UUID for cart/orders
+            slug: p.slug,       // Slug for navigation
             name: p.name,
             price: p.price,
             originalPrice: p.compare_at_price,
@@ -147,6 +148,7 @@ function ShopContent() {
             reviewCount: 0, // Need to implement reviews relation
             badge: p.compare_at_price > p.price ? 'Sale' : undefined, // Simple badge logic
             inStock: p.quantity > 0,
+            maxStock: p.quantity || 50,
             category: p.categories?.name
           }));
           setProducts(formattedProducts);

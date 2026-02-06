@@ -265,7 +265,8 @@ export default function Home() {
               {featuredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
-                  id={product.slug || product.id}
+                  id={product.id}
+                  slug={product.slug}
                   name={product.name}
                   price={product.price}
                   originalPrice={product.compare_at_price}
@@ -274,6 +275,7 @@ export default function Home() {
                   reviewCount={product.review_count || 0}
                   badge={product.featured ? 'Featured' : undefined}
                   inStock={product.quantity > 0}
+                  maxStock={product.quantity || 50}
                 />
               ))}
             </AnimatedGrid>

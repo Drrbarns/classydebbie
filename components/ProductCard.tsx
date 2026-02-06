@@ -5,7 +5,8 @@ import LazyImage from './LazyImage';
 import { useCart } from '@/context/CartContext';
 
 interface ProductCardProps {
-  id: string;
+  id: string;        // Product UUID
+  slug: string;      // Product slug for URLs
   name: string;
   price: number;
   originalPrice?: number;
@@ -14,10 +15,12 @@ interface ProductCardProps {
   reviewCount?: number;
   badge?: string;
   inStock?: boolean;
+  maxStock?: number;
 }
 
 export default function ProductCard({
   id,
+  slug,
   name,
   price,
   originalPrice,
@@ -25,14 +28,15 @@ export default function ProductCard({
   rating = 5,
   reviewCount = 0,
   badge,
-  inStock = true
+  inStock = true,
+  maxStock = 50
 }: ProductCardProps) {
   const { addToCart } = useCart();
   const discount = originalPrice ? Math.round((1 - price / originalPrice) * 100) : 0;
 
   return (
     <div className="group bg-transparent rounded-lg h-full flex flex-col hover-lift">
-      <Link href={`/product/${id}`} className="relative block aspect-[3/4] overflow-hidden rounded-xl bg-gray-100 mb-4 shadow-sm group-hover:shadow-xl transition-all duration-300">
+      <Link href={`/product/${slug}`} className="relative block aspect-[3/4] overflow-hidden rounded-xl bg-gray-100 mb-4 shadow-sm group-hover:shadow-xl transition-all duration-300">
         <LazyImage
           src={image}
           alt={name}
@@ -65,7 +69,7 @@ export default function ProductCard({
             <button
               onClick={(e) => {
                 e.preventDefault();
-                addToCart({ id, name, price, image, quantity: 1, slug: id, maxStock: 50 });
+                addToCart({ id, name, price, image, quantity: 1, slug, maxStock });
               }}
               className="w-full bg-white text-gray-900 hover:bg-gray-900 hover:text-white py-3 rounded-lg font-medium shadow-lg transition-colors flex items-center justify-center space-x-2 text-sm"
             >
@@ -77,7 +81,7 @@ export default function ProductCard({
       </Link>
 
       <div className="flex flex-col flex-grow">
-        <Link href={`/product/${id}`}>
+        <Link href={`/product/${slug}`}>
           <h3 className="font-serif text-lg leading-tight text-gray-900 mb-1 group-hover:text-emerald-800 transition-colors line-clamp-2">
             {name}
           </h3>
@@ -99,7 +103,7 @@ export default function ProductCard({
           <button
             onClick={(e) => {
               e.preventDefault();
-              addToCart({ id, name, price, image, quantity: 1, slug: id, maxStock: 50 });
+              addToCart({ id, name, price, image, quantity: 1, slug, maxStock });
             }}
             disabled={!inStock}
             className="w-full border border-gray-200 text-gray-900 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 active:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

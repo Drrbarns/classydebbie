@@ -100,11 +100,14 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
           if (related) {
             setRelatedProducts(related.map(p => ({
               id: p.id,
+              slug: p.slug,
               name: p.name,
               price: p.price,
               image: p.product_images?.[0]?.url || 'https://via.placeholder.com/800?text=No+Image',
               rating: p.rating_avg || 0,
-              reviewCount: 0
+              reviewCount: 0,
+              inStock: p.quantity > 0,
+              maxStock: p.quantity || 50
             })));
           }
         }
