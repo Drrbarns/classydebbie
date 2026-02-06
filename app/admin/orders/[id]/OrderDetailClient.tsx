@@ -416,11 +416,15 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Shipping Address</h2>
               <div className="text-gray-700 space-y-1">
-                <p>{shippingAddress.address_line1}</p>
-                {shippingAddress.address_line2 && <p>{shippingAddress.address_line2}</p>}
-                <p>{shippingAddress.city}, {shippingAddress.state}</p>
-                <p>{shippingAddress.postal_code}</p>
-                <p className="font-semibold">{shippingAddress.country}</p>
+                {/* Support both old field names (address_line1) and new (address) */}
+                <p>{shippingAddress.address || shippingAddress.address_line1}</p>
+                {(shippingAddress.address_line2) && <p>{shippingAddress.address_line2}</p>}
+                <p>
+                  {shippingAddress.city}
+                  {(shippingAddress.region || shippingAddress.state) && `, ${shippingAddress.region || shippingAddress.state}`}
+                </p>
+                {shippingAddress.postal_code && <p>{shippingAddress.postal_code}</p>}
+                {shippingAddress.country && <p className="font-semibold">{shippingAddress.country}</p>}
               </div>
             </div>
 
