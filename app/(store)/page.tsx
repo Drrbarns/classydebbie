@@ -156,11 +156,11 @@ export default function Home() {
                 <span className="h-px w-8 bg-white/70 lg:hidden"></span>
               </div>
 
-              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-7xl text-white lg:text-gray-900 leading-[1.1] mb-4 lg:mb-6 drop-shadow-lg lg:drop-shadow-none animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[3.2rem] xl:text-5xl text-white lg:text-gray-900 leading-[1.15] mb-4 lg:mb-6 drop-shadow-lg lg:drop-shadow-none animate-fade-in-up max-w-xl" style={{ animationDelay: '0.2s' }}>
                 {config.hero.headline}
               </h1>
 
-              <p className="text-lg text-white/90 lg:text-gray-600 leading-relaxed max-w-lg mx-auto lg:mx-0 font-light mb-8 lg:mb-10 drop-shadow-md lg:drop-shadow-none animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <p className="text-lg text-white/90 lg:text-gray-600 leading-relaxed max-w-md mx-auto lg:mx-0 font-light mb-8 lg:mb-10 drop-shadow-md lg:drop-shadow-none animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 {config.hero.subheadline}
               </p>
 
