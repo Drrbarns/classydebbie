@@ -25,6 +25,10 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
   const [adminNotes, setAdminNotes] = useState('');
   const [statusUpdating, setStatusUpdating] = useState(false);
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   useEffect(() => {
     fetchOrderDetails();
   }, [orderId]);
@@ -252,7 +256,122 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto p-6">
+      {/* Print Styles */}
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .print-section, .print-section * {
+            visibility: visible;
+          }
+          .print-section {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 20px;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
+
+      {/* Printable Order Slip */}
+      <div className="print-section hidden print:block bg-white p-8">
+        <div className="border-2 border-gray-800 p-6">
+          {/* Header */}
+          <div className="flex justify-between items-start border-b-2 border-gray-800 pb-4 mb-4">
+            <div>
+              <h1 className="text-2xl font-bold">Sarah Lawson Imports</h1>
+              <p className="text-sm text-gray-600">Order Packing Slip</p>
+            </div>
+            <div className="text-right">
+              <p className="font-bold text-lg">{order?.order_number}</p>
+              <p className="text-sm">{order ? new Date(order.created_at).toLocaleDateString() : ''}</p>
+            </div>
+          </div>
+
+          {/* Ship To */}
+          <div className="mb-6">
+            <h2 className="font-bold text-lg mb-2 bg-gray-200 px-2 py-1">SHIP TO:</h2>
+            <div className="pl-2">
+              <p className="font-bold text-lg">{customerName}</p>
+              <p>{shippingAddress.phone || order?.phone}</p>
+              <p>{shippingAddress.address || shippingAddress.address_line1}</p>
+              <p>{shippingAddress.city}{(shippingAddress.region || shippingAddress.state) && `, ${shippingAddress.region || shippingAddress.state}`}</p>
+            </div>
+          </div>
+
+          {/* Order Items */}
+          <div className="mb-6">
+            <h2 className="font-bold text-lg mb-2 bg-gray-200 px-2 py-1">ORDER ITEMS:</h2>
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-400">
+                  <th className="text-left py-2 px-2">Product</th>
+                  <th className="text-left py-2 px-2">Variant</th>
+                  <th className="text-center py-2 px-2">Qty</th>
+                  <th className="text-right py-2 px-2">Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order?.order_items?.map((item: any) => (
+                  <tr key={item.id} className="border-b border-gray-200">
+                    <td className="py-2 px-2 font-medium">{item.product_name}</td>
+                    <td className="py-2 px-2 text-sm">{item.variant_name || '-'}</td>
+                    <td className="py-2 px-2 text-center font-bold">{item.quantity}</td>
+                    <td className="py-2 px-2 text-right">GH₵ {item.unit_price?.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Order Summary */}
+          <div className="flex justify-between mb-6">
+            <div>
+              <p><span className="font-semibold">Shipping Method:</span> {order?.shipping_method || 'Standard'}</p>
+              <p><span className="font-semibold">Payment:</span> {order?.payment_method} ({order?.payment_status})</p>
+              {trackingNumber && <p><span className="font-semibold">Tracking #:</span> {trackingNumber}</p>}
+            </div>
+            <div className="text-right">
+              <p>Subtotal: GH₵ {order?.subtotal?.toFixed(2)}</p>
+              <p>Shipping: GH₵ {order?.shipping_total?.toFixed(2)}</p>
+              <p className="font-bold text-lg border-t border-gray-400 pt-1 mt-1">Total: GH₵ {order?.total?.toFixed(2)}</p>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="border-t-2 border-gray-800 pt-4 text-center text-sm text-gray-600">
+            <p>Thank you for shopping with Sarah Lawson Imports!</p>
+            <p>Questions? Contact us at support@sarahlawsonimports.com</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto p-6 no-print">
+        {/* Page Header with Print Button */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <Link href="/admin/orders" className="text-gray-600 hover:text-gray-900">
+              <i className="ri-arrow-left-line text-2xl"></i>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{order?.order_number}</h1>
+              <p className="text-sm text-gray-600">Order placed on {order ? new Date(order.created_at).toLocaleDateString() : ''}</p>
+            </div>
+          </div>
+          <button
+            onClick={handlePrint}
+            className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            <i className="ri-printer-line text-lg"></i>
+            <span>Print Order</span>
+          </button>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             {fraudAnalysis.riskLevel !== 'low' && (
@@ -498,6 +617,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
