@@ -48,7 +48,7 @@ export default function Home() {
         const { data: productsData, error: productsError } = await supabase
           .from('products')
           .select('*, product_variants(*), product_images(*)')
-          .ilike('status', 'active')
+          .eq('status', 'active')
           .limit(8);
 
         if (productsError) throw productsError;
