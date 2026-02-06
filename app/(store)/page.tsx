@@ -54,10 +54,11 @@ export default function Home() {
         if (productsError) throw productsError;
         setFeaturedProducts(productsData || []);
 
-        // Fetch categories
+        // Fetch featured categories only
         const { data: categoriesData, error: categoriesError } = await supabase
           .from('categories')
           .select('id, name, slug, image_url')
+          .eq('featured', true)
           .order('name');
 
         if (categoriesError) throw categoriesError;
