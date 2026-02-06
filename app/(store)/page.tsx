@@ -77,7 +77,7 @@ export default function Home() {
 
   const getHeroImage = () => {
     if (config.hero.backgroundImage) return config.hero.backgroundImage;
-    return "https://readdy.ai/api/search-image?query=elegant%20minimalist%20lifestyle%20flat%20lay%20composition%20featuring%20premium%20home%20decor%20items%20leather%20bag%20ceramic%20vases%20natural%20textiles%20on%20cream%20background%20with%20beautiful%20shadows%20sophisticated%20styling%20luxury%20product%20photography&width=1200&height=1400&seq=hero1&orientation=portrait";
+    return "/sarah-lawson.jpeg";
   };
 
   const renderBanners = () => {
