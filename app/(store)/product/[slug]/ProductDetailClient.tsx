@@ -109,7 +109,8 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
               rating: p.rating_avg || 0,
               reviewCount: 0,
               inStock: p.quantity > 0,
-              maxStock: p.quantity || 50
+              maxStock: p.quantity || 50,
+              moq: p.moq || 1
             })));
           }
         }

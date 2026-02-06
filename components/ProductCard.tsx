@@ -16,6 +16,7 @@ interface ProductCardProps {
   badge?: string;
   inStock?: boolean;
   maxStock?: number;
+  moq?: number;      // Minimum Order Quantity
 }
 
 export default function ProductCard({
@@ -29,7 +30,8 @@ export default function ProductCard({
   reviewCount = 0,
   badge,
   inStock = true,
-  maxStock = 50
+  maxStock = 50,
+  moq = 1
 }: ProductCardProps) {
   const { addToCart } = useCart();
   const discount = originalPrice ? Math.round((1 - price / originalPrice) * 100) : 0;
@@ -69,12 +71,12 @@ export default function ProductCard({
             <button
               onClick={(e) => {
                 e.preventDefault();
-                addToCart({ id, name, price, image, quantity: 1, slug, maxStock });
+                addToCart({ id, name, price, image, quantity: moq, slug, maxStock, moq });
               }}
               className="w-full bg-white text-gray-900 hover:bg-gray-900 hover:text-white py-3 rounded-lg font-medium shadow-lg transition-colors flex items-center justify-center space-x-2 text-sm"
             >
               <i className="ri-shopping-cart-2-line"></i>
-              <span>Quick Add</span>
+              <span>{moq > 1 ? `Add ${moq} to Cart` : 'Quick Add'}</span>
             </button>
           </div>
         )}
@@ -103,12 +105,12 @@ export default function ProductCard({
           <button
             onClick={(e) => {
               e.preventDefault();
-              addToCart({ id, name, price, image, quantity: 1, slug, maxStock });
+              addToCart({ id, name, price, image, quantity: moq, slug, maxStock, moq });
             }}
             disabled={!inStock}
             className="w-full border border-gray-200 text-gray-900 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 active:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Add to Cart
+            {moq > 1 ? `Add ${moq} to Cart` : 'Add to Cart'}
           </button>
         </div>
       </div>

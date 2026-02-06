@@ -151,6 +151,7 @@ function ShopContent() {
             badge: p.compare_at_price > p.price ? 'Sale' : undefined, // Simple badge logic
             inStock: p.quantity > 0,
             maxStock: p.quantity || 50,
+            moq: p.moq || 1,
             category: p.categories?.name
           }));
           setProducts(formattedProducts);

@@ -278,6 +278,7 @@ export default function Home() {
                   badge={product.featured ? 'Featured' : undefined}
                   inStock={product.quantity > 0}
                   maxStock={product.quantity || 50}
+                  moq={product.moq || 1}
                 />
               ))}
             </AnimatedGrid>
