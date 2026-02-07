@@ -81,13 +81,19 @@ export async function POST(req: Request) {
         const data = body.data || {};
         
         // Order reference: check body.data.externalref first, then top-level fallbacks
-        const merchantOrderRef = 
+        const rawExternalRef = 
             data.externalref || 
             data.external_reference ||
             data.orderRef ||
             body.externalref || 
             body.orderRef || 
             body.external_reference;
+
+        // Strip retry suffix (e.g., "ORD-123-R1770000000" -> "ORD-123")
+        // Also check metadata for the original order number
+        const merchantOrderRef = rawExternalRef 
+            ? rawExternalRef.replace(/-R\d+$/, '') 
+            : (data.metadata?.original_order_number || body.metadata?.original_order_number);
 
         // Moolre's transaction reference
         const moolreReference = 

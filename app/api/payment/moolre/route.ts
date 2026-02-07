@@ -37,19 +37,24 @@ export async function POST(req: Request) {
         // Remove trailing slash to prevent double-slash in URLs (e.g. //api/...)
         const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || requestUrl.origin).replace(/\/+$/, '');
 
+        // Generate a unique external reference for Moolre
+        // Append a retry suffix so re-payments don't clash with previous attempts
+        const uniqueRef = `${orderId}-R${Date.now()}`;
+
         // Moolre Payload
         const payload = {
             type: 1,
             amount: amount.toString(), // Ensure string
             email: process.env.MOOLRE_MERCHANT_EMAIL || 'admin@standardecom.com', // Business email
-            externalref: orderId,
+            externalref: uniqueRef,
             callback: `${baseUrl}/api/payment/moolre/callback`,
             redirect: `${baseUrl}/order-success?order=${orderId}&payment_success=true`,
             reusable: "0",
             currency: "GHS",
             accountnumber: process.env.MOOLRE_ACCOUNT_NUMBER,
             metadata: {
-                customer_email: customerEmail
+                customer_email: customerEmail,
+                original_order_number: orderId
             }
         };
 
