@@ -38,7 +38,13 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     };
 
     // Variants currently simple local state
-    const [variants, setVariants] = useState<any[]>(initialData?.product_variants || []);
+    // Map DB 'quantity' field to 'stock' for form usage
+    const [variants, setVariants] = useState<any[]>(
+        (initialData?.product_variants || []).map((v: any) => ({
+            ...v,
+            stock: v.stock ?? v.quantity ?? 0
+        }))
+    );
 
     // Images
     const [images, setImages] = useState<any[]>(initialData?.product_images || []);
@@ -143,6 +149,12 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         try {
             setLoading(true);
 
+            // If product has variants, auto-sync main stock = sum of variant stocks
+            const hasVariants = variants.length > 0;
+            const variantStockTotal = hasVariants
+                ? variants.reduce((sum, v) => sum + (parseInt(v.stock) || 0), 0)
+                : parseInt(stock) || 0;
+
             const productData = {
                 name: productName,
                 slug: urlSlug || productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
@@ -151,7 +163,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                 price: parseFloat(price) || 0,
                 compare_at_price: comparePrice ? parseFloat(comparePrice) : null,
                 sku: sku || generateSku(), // Auto-generate if empty
-                quantity: parseInt(stock) || 0,
+                quantity: hasVariants ? variantStockTotal : (parseInt(stock) || 0),
                 moq: parseInt(moq) || 1,
                 status: status.toLowerCase(),
                 featured,
@@ -491,13 +503,28 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                         <label className="block text-sm font-semibold text-gray-900 mb-2">
                                             Stock Quantity *
                                         </label>
-                                        <input
-                                            type="number"
-                                            value={stock}
-                                            onChange={(e) => setStock(e.target.value)}
-                                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                                            placeholder="0"
-                                        />
+                                        {variants.length > 0 ? (
+                                            <div>
+                                                <input
+                                                    type="number"
+                                                    value={variants.reduce((sum: number, v: any) => sum + (parseInt(v.stock) || 0), 0)}
+                                                    readOnly
+                                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                                                />
+                                                <p className="text-sm text-amber-600 mt-1 flex items-center">
+                                                    <i className="ri-information-line mr-1"></i>
+                                                    Stock is managed per variant. Edit stock in the Variants tab.
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <input
+                                                type="number"
+                                                value={stock}
+                                                onChange={(e) => setStock(e.target.value)}
+                                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                                                placeholder="0"
+                                            />
+                                        )}
                                     </div>
                                 </div>
 

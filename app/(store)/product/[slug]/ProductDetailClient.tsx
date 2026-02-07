@@ -106,6 +106,8 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
               const variants = p.product_variants || [];
               const hasVariants = variants.length > 0;
               const minVariantPrice = hasVariants ? Math.min(...variants.map((v: any) => v.price || p.price)) : undefined;
+              const totalVariantStock = hasVariants ? variants.reduce((sum: number, v: any) => sum + (v.quantity || 0), 0) : 0;
+              const effectiveStock = hasVariants ? totalVariantStock : p.quantity;
               return {
                 id: p.id,
                 slug: p.slug,
@@ -114,8 +116,8 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 image: p.product_images?.[0]?.url || 'https://via.placeholder.com/800?text=No+Image',
                 rating: p.rating_avg || 0,
                 reviewCount: 0,
-                inStock: p.quantity > 0,
-                maxStock: p.quantity || 50,
+                inStock: effectiveStock > 0,
+                maxStock: effectiveStock || 50,
                 moq: p.moq || 1,
                 hasVariants,
                 minVariantPrice
