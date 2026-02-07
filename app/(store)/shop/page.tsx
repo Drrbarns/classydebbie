@@ -62,7 +62,8 @@ function ShopContent() {
           .select(`
             *,
             categories!inner(name, slug),
-            product_images!product_id(url, position)
+            product_images!product_id(url, position),
+            product_variants(id, name, price, stock)
           `, { count: 'exact' })
           .order('position', { foreignTable: 'product_images', ascending: true });
 
@@ -139,21 +140,28 @@ function ShopContent() {
         if (error) throw error;
 
         if (data) {
-          const formattedProducts = data.map(p => ({
-            id: p.id,           // Product UUID for cart/orders
-            slug: p.slug,       // Slug for navigation
-            name: p.name,
-            price: p.price,
-            originalPrice: p.compare_at_price,
-            image: p.product_images?.[0]?.url || 'https://via.placeholder.com/800x800?text=No+Image',
-            rating: p.rating_avg || 0,
-            reviewCount: 0, // Need to implement reviews relation
-            badge: p.compare_at_price > p.price ? 'Sale' : undefined, // Simple badge logic
-            inStock: p.quantity > 0,
-            maxStock: p.quantity || 50,
-            moq: p.moq || 1,
-            category: p.categories?.name
-          }));
+          const formattedProducts = data.map(p => {
+            const variants = p.product_variants || [];
+            const hasVariants = variants.length > 0;
+            const minVariantPrice = hasVariants ? Math.min(...variants.map((v: any) => v.price || p.price)) : undefined;
+            return {
+              id: p.id,           // Product UUID for cart/orders
+              slug: p.slug,       // Slug for navigation
+              name: p.name,
+              price: p.price,
+              originalPrice: p.compare_at_price,
+              image: p.product_images?.[0]?.url || 'https://via.placeholder.com/800x800?text=No+Image',
+              rating: p.rating_avg || 0,
+              reviewCount: 0, // Need to implement reviews relation
+              badge: p.compare_at_price > p.price ? 'Sale' : undefined, // Simple badge logic
+              inStock: p.quantity > 0,
+              maxStock: p.quantity || 50,
+              moq: p.moq || 1,
+              category: p.categories?.name,
+              hasVariants,
+              minVariantPrice
+            };
+          });
           setProducts(formattedProducts);
           setTotalProducts(count || 0);
         }

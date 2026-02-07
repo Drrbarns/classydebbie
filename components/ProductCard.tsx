@@ -5,8 +5,8 @@ import LazyImage from './LazyImage';
 import { useCart } from '@/context/CartContext';
 
 interface ProductCardProps {
-  id: string;        // Product UUID
-  slug: string;      // Product slug for URLs
+  id: string;
+  slug: string;
   name: string;
   price: number;
   originalPrice?: number;
@@ -16,7 +16,9 @@ interface ProductCardProps {
   badge?: string;
   inStock?: boolean;
   maxStock?: number;
-  moq?: number;      // Minimum Order Quantity
+  moq?: number;
+  hasVariants?: boolean;
+  minVariantPrice?: number;
 }
 
 export default function ProductCard({
@@ -31,10 +33,15 @@ export default function ProductCard({
   badge,
   inStock = true,
   maxStock = 50,
-  moq = 1
+  moq = 1,
+  hasVariants = false,
+  minVariantPrice
 }: ProductCardProps) {
   const { addToCart } = useCart();
-  const discount = originalPrice ? Math.round((1 - price / originalPrice) * 100) : 0;
+  const displayPrice = hasVariants && minVariantPrice ? minVariantPrice : price;
+  const discount = originalPrice ? Math.round((1 - displayPrice / originalPrice) * 100) : 0;
+
+  const formatPrice = (val: number) => `GH\u20B5${val.toFixed(2)}`;
 
   return (
     <div className="group bg-transparent rounded-lg h-full flex flex-col hover-lift">
@@ -45,7 +52,6 @@ export default function ProductCard({
           className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
         />
 
-        {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {badge && (
             <span className="bg-white/90 backdrop-blur text-gray-900 border border-gray-100 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-md shadow-sm">
@@ -65,19 +71,25 @@ export default function ProductCard({
           </div>
         )}
 
-        {/* Quick Add Overlay (Desktop) */}
         {inStock && (
           <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 hidden lg:block">
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                addToCart({ id, name, price, image, quantity: moq, slug, maxStock, moq });
-              }}
-              className="w-full bg-white text-gray-900 hover:bg-gray-900 hover:text-white py-3 rounded-lg font-medium shadow-lg transition-colors flex items-center justify-center space-x-2 text-sm"
-            >
-              <i className="ri-shopping-cart-2-line"></i>
-              <span>{moq > 1 ? `Add ${moq} to Cart` : 'Quick Add'}</span>
-            </button>
+            {hasVariants ? (
+              <span className="w-full bg-white text-gray-900 hover:bg-gray-900 hover:text-white py-3 rounded-lg font-medium shadow-lg transition-colors flex items-center justify-center space-x-2 text-sm">
+                <i className="ri-list-check"></i>
+                <span>Select Options</span>
+              </span>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  addToCart({ id, name, price, image, quantity: moq, slug, maxStock, moq });
+                }}
+                className="w-full bg-white text-gray-900 hover:bg-gray-900 hover:text-white py-3 rounded-lg font-medium shadow-lg transition-colors flex items-center justify-center space-x-2 text-sm"
+              >
+                <i className="ri-shopping-cart-2-line"></i>
+                <span>{moq > 1 ? `Add ${moq} to Cart` : 'Quick Add'}</span>
+              </button>
+            )}
           </div>
         )}
       </Link>
@@ -90,28 +102,37 @@ export default function ProductCard({
         </Link>
 
         <div className="flex items-baseline space-x-2 mb-2">
-          <span className="text-gray-900 font-semibold">GH₵{price.toFixed(2)}</span>
+          {hasVariants && minVariantPrice ? (
+            <span className="text-gray-900 font-semibold">From {formatPrice(minVariantPrice)}</span>
+          ) : (
+            <span className="text-gray-900 font-semibold">{formatPrice(price)}</span>
+          )}
           {originalPrice && (
-            <span className="text-sm text-gray-400 line-through">GH₵{originalPrice.toFixed(2)}</span>
+            <span className="text-sm text-gray-400 line-through">{formatPrice(originalPrice)}</span>
           )}
         </div>
 
-        {/* Mobile: Always visible Cart Button (or just icon?) */}
-        {/* Let's keep it clean on mobile, maybe just a text link or small button if space permits. 
-            Actually, modern fashion sites often just link to product. 
-            User asked for "better". Let's add a clean mobile button.
-        */}
         <div className="mt-auto pt-2 lg:hidden">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              addToCart({ id, name, price, image, quantity: moq, slug, maxStock, moq });
-            }}
-            disabled={!inStock}
-            className="w-full border border-gray-200 text-gray-900 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 active:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {moq > 1 ? `Add ${moq} to Cart` : 'Add to Cart'}
-          </button>
+          {hasVariants ? (
+            <Link
+              href={`/product/${slug}`}
+              className="w-full border border-gray-200 text-gray-900 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 active:bg-gray-100 transition-colors flex items-center justify-center space-x-1"
+            >
+              <i className="ri-list-check text-sm"></i>
+              <span>Select Options</span>
+            </Link>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                addToCart({ id, name, price, image, quantity: moq, slug, maxStock, moq });
+              }}
+              disabled={!inStock}
+              className="w-full border border-gray-200 text-gray-900 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 active:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {moq > 1 ? `Add ${moq} to Cart` : 'Add to Cart'}
+            </button>
+          )}
         </div>
       </div>
     </div>

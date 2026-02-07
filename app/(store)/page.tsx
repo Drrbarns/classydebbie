@@ -264,23 +264,30 @@ export default function Home() {
             </div>
           ) : (
             <AnimatedGrid className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-              {featuredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  slug={product.slug}
-                  name={product.name}
-                  price={product.price}
-                  originalPrice={product.compare_at_price}
-                  image={product.product_images?.[0]?.url || 'https://via.placeholder.com/400x500'}
-                  rating={product.rating || 5}
-                  reviewCount={product.review_count || 0}
-                  badge={product.featured ? 'Featured' : undefined}
-                  inStock={product.quantity > 0}
-                  maxStock={product.quantity || 50}
-                  moq={product.moq || 1}
-                />
-              ))}
+              {featuredProducts.map((product) => {
+                const variants = product.product_variants || [];
+                const hasVariants = variants.length > 0;
+                const minVariantPrice = hasVariants ? Math.min(...variants.map((v: any) => v.price || product.price)) : undefined;
+                return (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    slug={product.slug}
+                    name={product.name}
+                    price={product.price}
+                    originalPrice={product.compare_at_price}
+                    image={product.product_images?.[0]?.url || 'https://via.placeholder.com/400x500'}
+                    rating={product.rating || 5}
+                    reviewCount={product.review_count || 0}
+                    badge={product.featured ? 'Featured' : undefined}
+                    inStock={product.quantity > 0}
+                    maxStock={product.quantity || 50}
+                    moq={product.moq || 1}
+                    hasVariants={hasVariants}
+                    minVariantPrice={minVariantPrice}
+                  />
+                );
+              })}
             </AnimatedGrid>
           )}
 
