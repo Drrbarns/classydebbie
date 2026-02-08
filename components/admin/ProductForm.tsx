@@ -38,11 +38,12 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     };
 
     // Variants currently simple local state
-    // Map DB 'quantity' field to 'stock' for form usage
+    // Map DB 'quantity' field to 'stock' for form usage, and option2 to 'color'
     const [variants, setVariants] = useState<any[]>(
         (initialData?.product_variants || []).map((v: any) => ({
             ...v,
-            stock: v.stock ?? v.quantity ?? 0
+            stock: v.stock ?? v.quantity ?? 0,
+            color: v.color ?? v.option2 ?? ''
         }))
     );
 
@@ -131,6 +132,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             sku: '',
             price: price, // Default to main price
             stock: 0,
+            color: '',
             isNew: true
         }]);
     };
@@ -235,8 +237,8 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                         sku: v.sku || null,
                         price: parseFloat(v.price) || 0,
                         quantity: parseInt(v.stock) || 0,
-                        // simplified map:
-                        option1: v.name
+                        option1: v.name,
+                        option2: v.color?.trim() || null
                     }));
                     const { error: varError } = await supabase.from('product_variants').insert(variantInserts);
                     if (varError) throw varError;
@@ -583,6 +585,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                         <thead className="bg-gray-50 border-b border-gray-200">
                                             <tr>
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Variant Name</th>
+                                                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Color</th>
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">SKU</th>
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Price</th>
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Stock</th>
@@ -597,7 +600,16 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                                             type="text"
                                                             value={variant.name || ''}
                                                             onChange={(e) => handleVariantChange(idx, 'name', e.target.value)}
-                                                            placeholder="e.g. Red, Large"
+                                                            placeholder="e.g. 100ml, Large"
+                                                            className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm"
+                                                        />
+                                                    </td>
+                                                    <td className="py-4 px-4">
+                                                        <input
+                                                            type="text"
+                                                            value={variant.color || ''}
+                                                            onChange={(e) => handleVariantChange(idx, 'color', e.target.value)}
+                                                            placeholder="e.g. Red, Blue"
                                                             className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm"
                                                         />
                                                     </td>
@@ -622,7 +634,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                                     <td className="py-4 px-4">
                                                         <input
                                                             type="number"
-                                                            value={variant.stock || 0} // Access stock directly, mapped later to quantity
+                                                            value={variant.stock || 0}
                                                             onChange={(e) => handleVariantChange(idx, 'stock', e.target.value)}
                                                             className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm"
                                                         />
@@ -639,6 +651,10 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                             ))}
                                         </tbody>
                                     </table>
+                                    <p className="text-xs text-gray-500 mt-3 px-4">
+                                        <i className="ri-information-line mr-1"></i>
+                                        <strong>Name</strong> is for size/type (e.g. 100ml, Large). <strong>Color</strong> is optional — customers will see color options as separate selectors on the product page.
+                                    </p>
                                 </div>
                             ) : (
                                 <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
