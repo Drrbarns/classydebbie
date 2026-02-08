@@ -141,7 +141,19 @@ export default function AdminOrdersPage() {
   };
 
   const getCustomerName = (order: Order) => {
+    // Try shipping address names first (most reliable — entered at checkout)
+    if (order.shipping_address?.firstName || order.shipping_address?.lastName) {
+      const first = order.shipping_address.firstName?.trim() || '';
+      const last = order.shipping_address.lastName?.trim() || '';
+      return `${first} ${last}`.trim();
+    }
     if (order.shipping_address?.full_name) return order.shipping_address.full_name;
+    // Try metadata names
+    if (order.metadata?.first_name || order.metadata?.last_name) {
+      const first = order.metadata.first_name?.trim() || '';
+      const last = order.metadata.last_name?.trim() || '';
+      return `${first} ${last}`.trim();
+    }
     if (order.profiles?.full_name) return order.profiles.full_name;
     if (order.email) {
       const name = order.email.split('@')[0];

@@ -137,22 +137,28 @@ export default function AdminDashboard() {
         // 3. Fetch Recent Orders (only paid orders)
         const { data: recentOrdersData } = await supabase
           .from('orders')
-          .select('id, order_number, user_id, email, created_at, total, status')
+          .select('id, order_number, user_id, email, created_at, total, status, shipping_address')
           .eq('payment_status', 'paid')
           .order('created_at', { ascending: false })
           .limit(5);
 
         if (recentOrdersData) {
-          const formattedRecent = recentOrdersData.map(o => ({
-            id: o.id, // Use UUID for link
-            displayId: o.order_number, // Display friendly ID
-            customer: o.email.split('@')[0], // Fallback name
-            email: o.email,
-            date: new Date(o.created_at).toLocaleDateString(),
-            total: o.total,
-            status: o.status,
-            items: 1 // We didn't join items for count to save query, can assume 1+
-          }));
+          const formattedRecent = recentOrdersData.map(o => {
+            const addr = o.shipping_address || {};
+            const customerName = (addr.firstName && addr.lastName)
+              ? `${addr.firstName.trim()} ${addr.lastName.trim()}`
+              : addr.full_name || addr.firstName || o.email.split('@')[0];
+            return {
+              id: o.id,
+              displayId: o.order_number,
+              customer: customerName,
+              email: o.email,
+              date: new Date(o.created_at).toLocaleDateString(),
+              total: o.total,
+              status: o.status,
+              items: 1
+            };
+          });
           setRecentOrders(formattedRecent);
         }
 

@@ -201,7 +201,9 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
       const authToken = session?.access_token;
       
       const shippingAddress = order.shipping_address || {};
-      const customerName = shippingAddress.full_name || shippingAddress.firstName || order.email?.split('@')[0] || 'Customer';
+      const customerName = (shippingAddress.firstName && shippingAddress.lastName)
+        ? `${shippingAddress.firstName.trim()} ${shippingAddress.lastName.trim()}`
+        : shippingAddress.full_name || shippingAddress.firstName || order.email?.split('@')[0] || 'Customer';
       
       const response = await fetch('/api/notifications', {
         method: 'POST',
@@ -252,7 +254,9 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
 
   const currentStatus = order.status || 'pending';
   const shippingAddress = order.shipping_address || {};
-  const customerName = shippingAddress.full_name || order.email.split('@')[0];
+  const customerName = (shippingAddress.firstName && shippingAddress.lastName)
+    ? `${shippingAddress.firstName.trim()} ${shippingAddress.lastName.trim()}`
+    : shippingAddress.full_name || shippingAddress.firstName || order.email?.split('@')[0] || 'Customer';
 
   // Derive timeline from status (simplified logic as we don't have full history table joined here yet)
   const timeline = [
