@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { cachedQuery, invalidateCache } from '@/lib/query-cache';
 import { useRecaptcha } from '@/hooks/useRecaptcha';
 
 interface Review {
@@ -46,13 +47,17 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
   const fetchReviews = async () => {
     try {
-      // Fetch approved reviews
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('*')
-        .eq('product_id', productId)
-        .eq('status', 'approved') // Only show approved
-        .order('created_at', { ascending: false });
+      // Fetch approved reviews (cached for 5 minutes)
+      const { data, error } = await cachedQuery<{ data: any; error: any }>(
+        `reviews:${productId}`,
+        (() => supabase
+          .from('reviews')
+          .select('*')
+          .eq('product_id', productId)
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false })) as any,
+        5 * 60 * 1000
+      );
 
       if (error) throw error;
 
@@ -130,6 +135,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       alert('Review submitted successfully!');
       setShowReviewForm(false);
       setReviewForm({ rating: 5, title: '', content: '' });
+      invalidateCache(`reviews:${productId}`); // Clear cache so fresh data is fetched
       fetchReviews(); // Refresh list
 
     } catch (err: any) {

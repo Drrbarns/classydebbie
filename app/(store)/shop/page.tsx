@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import ProductCard from '@/components/ProductCard';
 import { supabase } from '@/lib/supabase';
+import { cachedQuery } from '@/lib/query-cache';
 import PageHero from '@/components/PageHero';
 
 function ShopContent() {
@@ -37,16 +38,17 @@ function ShopContent() {
     // Search is handled in the fetch function via searchParams directly or we could add a state for it
   }, [searchParams]);
 
-  // Fetch Categories
+  // Fetch Categories from cached API
   useEffect(() => {
     async function fetchCategories() {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*');
-
-      if (data) {
-        // Store raw data for hierarchy logic
-        setCategories(data);
+      try {
+        const res = await fetch('/api/storefront/categories');
+        if (res.ok) {
+          const data = await res.json();
+          if (data) setCategories(data);
+        }
+      } catch (err) {
+        console.error('Error fetching categories:', err);
       }
     }
     fetchCategories();
@@ -57,85 +59,84 @@ function ShopContent() {
     async function fetchProducts() {
       setLoading(true);
       try {
-        let query = supabase
-          .from('products')
-          .select(`
-            *,
-            categories!inner(name, slug),
-            product_images!product_id(url, position),
-            product_variants(id, name, price, quantity)
-          `, { count: 'exact' })
-          .order('position', { foreignTable: 'product_images', ascending: true });
-
         const search = searchParams.get('search');
 
-        // Search
-        if (search) {
-          query = query.ilike('name', `%${search}%`);
-        }
+        // Build cache key from all filter params
+        const cacheKey = `shop:${selectedCategory}:${search || ''}:${priceRange.join('-')}:${selectedRating}:${sortBy}:${page}`;
 
-        // Category Filter with Subcategories
-        if (selectedCategory !== 'all') {
-          // Find the selected category object to check if it's a parent
-          const categoryObj = categories.find(c => c.slug === selectedCategory);
+        const { data, count, error } = await cachedQuery<{ data: any; count: any; error: any }>(
+          cacheKey,
+          async () => {
+            let query = supabase
+              .from('products')
+              .select(`
+                *,
+                categories!inner(name, slug),
+                product_images!product_id(url, position),
+                product_variants(id, name, price, quantity)
+              `, { count: 'exact' })
+              .order('position', { foreignTable: 'product_images', ascending: true });
 
-          if (categoryObj) {
-            // Include self
-            const targetSlugs = [selectedCategory];
+            // Search
+            if (search) {
+              query = query.ilike('name', `%${search}%`);
+            }
 
-            // Should we look for children? Yes, if it is a parent.
-            // (Even if it is a child, checking for its children doesn't hurt, though 3 levels deep needs recursion)
-            // Assuming 1 level of nesting for now:
-            const childSlugs = categories
-              .filter(c => c.parent_id === categoryObj.id)
-              .map(c => c.slug);
+            // Category Filter with Subcategories
+            if (selectedCategory !== 'all') {
+              const categoryObj = categories.find(c => c.slug === selectedCategory);
 
-            targetSlugs.push(...childSlugs);
+              if (categoryObj) {
+                const targetSlugs = [selectedCategory];
+                const childSlugs = categories
+                  .filter(c => c.parent_id === categoryObj.id)
+                  .map(c => c.slug);
+                targetSlugs.push(...childSlugs);
+                query = query.in('categories.slug', targetSlugs);
+              } else {
+                query = query.eq('categories.slug', selectedCategory);
+              }
+            }
 
-            query = query.in('categories.slug', targetSlugs);
-          } else {
-            // Fallback if state not synced yet, just try exact match
-            query = query.eq('categories.slug', selectedCategory);
-          }
-        }
+            // Price Filter
+            if (priceRange[1] < 5000) {
+              query = query.gte('price', priceRange[0]).lte('price', priceRange[1]);
+            }
 
-        // Price Filter
-        if (priceRange[1] < 5000) { // Only apply if not max default
-          query = query.gte('price', priceRange[0]).lte('price', priceRange[1]);
-        }
+            // Rating Filter
+            if (selectedRating > 0) {
+              query = query.gte('rating_avg', selectedRating);
+            }
 
-        // Rating Filter
-        if (selectedRating > 0) {
-          query = query.gte('rating_avg', selectedRating);
-        }
+            // Sorting
+            switch (sortBy) {
+              case 'price-low':
+                query = query.order('price', { ascending: true });
+                break;
+              case 'price-high':
+                query = query.order('price', { ascending: false });
+                break;
+              case 'rating':
+                query = query.order('rating_avg', { ascending: false });
+                break;
+              case 'new':
+                query = query.order('created_at', { ascending: false });
+                break;
+              case 'popular':
+              default:
+                query = query.order('created_at', { ascending: false });
+                break;
+            }
 
-        // Sorting
-        switch (sortBy) {
-          case 'price-low':
-            query = query.order('price', { ascending: true });
-            break;
-          case 'price-high':
-            query = query.order('price', { ascending: false });
-            break;
-          case 'rating':
-            query = query.order('rating_avg', { ascending: false });
-            break;
-          case 'new':
-            query = query.order('created_at', { ascending: false });
-            break;
-          case 'popular':
-          default:
-            // Default sort, maybe by views or sales if available, else created_at
-            query = query.order('created_at', { ascending: false });
-            break;
-        }
+            // Pagination
+            const from = (page - 1) * productsPerPage;
+            const to = from + productsPerPage - 1;
+            query = query.range(from, to);
 
-        // Pagination
-        const from = (page - 1) * productsPerPage;
-        const to = from + productsPerPage - 1;
-        query = query.range(from, to);
-
-        const { data, count, error } = await query;
+            return query as any;
+          },
+          2 * 60 * 1000 // Cache for 2 minutes
+        );
 
         if (error) throw error;
 

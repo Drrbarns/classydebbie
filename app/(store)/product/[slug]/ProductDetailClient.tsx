@@ -47,7 +47,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
       try {
         setLoading(true);
         // Fetch main product (cached for 2 minutes)
-        const { data: productData, error } = await cachedQuery(
+        const { data: productData, error } = await cachedQuery<{ data: any; error: any }>(
           `product:${slug}`,
           async () => {
             let query = supabase
@@ -67,7 +67,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
               query = query.eq('slug', slug);
             }
 
-            return query.single();
+            return query.single() as any;
           },
           2 * 60 * 1000 // 2 minutes
         );
@@ -134,14 +134,14 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
         // Fetch related products (cached for 5 minutes)
         if (productData.category_id) {
-          const { data: related } = await cachedQuery(
+          const { data: related } = await cachedQuery<{ data: any; error: any }>(
             `related:${productData.category_id}:${productData.id}`,
-            () => supabase
+            (() => supabase
               .from('products')
               .select('*, product_images(url, position), product_variants(id, name, price, quantity)')
               .eq('category_id', productData.category_id)
               .neq('id', productData.id)
-              .limit(4),
+              .limit(4)) as any,
             5 * 60 * 1000
           );
 
