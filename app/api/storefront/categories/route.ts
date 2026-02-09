@@ -23,7 +23,8 @@ export async function GET() {
     try {
         const { data, error } = await supabase
             .from('categories')
-            .select('id, name, slug, image, parent_id, is_featured')
+            .select('id, name, slug, image_url, parent_id, metadata')
+            .eq('status', 'active')
             .order('name');
 
         if (error) {

@@ -58,9 +58,9 @@ export default function Home() {
 
         if (categoriesRes.ok) {
           const categoriesData = await categoriesRes.json();
-          // Filter featured categories client-side
+          // Filter featured categories client-side (featured stored in metadata JSONB)
           const featuredCategories = (categoriesData || []).filter(
-            (cat: any) => cat.is_featured === true
+            (cat: any) => cat.metadata?.featured === true
           );
           setCategories(featuredCategories);
         }

@@ -40,8 +40,11 @@ export async function GET(request: Request) {
             `)
             .order('created_at', { ascending: false });
 
+        // Always filter active products
+        query = query.eq('status', 'active');
+
         if (featured) {
-            query = query.eq('is_featured', true).limit(limit);
+            query = query.eq('featured', true).limit(limit);
         } else if (category) {
             // Filter by category slug or name
             query = query.limit(limit);
