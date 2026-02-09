@@ -3,7 +3,8 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { usePageTitle } from '@/hooks/usePageTitle';
-import ProductCard from '@/components/ProductCard';
+import ProductCard, { type ColorVariant } from '@/components/ProductCard';
+import { getColorHex } from '@/components/ProductCard';
 import { supabase } from '@/lib/supabase';
 import { cachedQuery } from '@/lib/query-cache';
 import PageHero from '@/components/PageHero';
@@ -73,7 +74,7 @@ function ShopContent() {
                 *,
                 categories!inner(name, slug),
                 product_images!product_id(url, position),
-                product_variants(id, name, price, quantity)
+                product_variants(id, name, price, quantity, option1, option2, image_url)
               `, { count: 'exact' })
               .order('position', { foreignTable: 'product_images', ascending: true });
 
@@ -147,6 +148,20 @@ function ShopContent() {
             const minVariantPrice = hasVariants ? Math.min(...variants.map((v: any) => v.price || p.price)) : undefined;
             const totalVariantStock = hasVariants ? variants.reduce((sum: number, v: any) => sum + (v.quantity || 0), 0) : 0;
             const effectiveStock = hasVariants ? totalVariantStock : p.quantity;
+            // Extract unique colors from option2
+            const colorVariants: ColorVariant[] = [];
+            const seenColors = new Set<string>();
+            for (const v of variants) {
+              const colorName = v.option2;
+              if (colorName && !seenColors.has(colorName.toLowerCase().trim())) {
+                const hex = getColorHex(colorName);
+                if (hex) {
+                  seenColors.add(colorName.toLowerCase().trim());
+                  colorVariants.push({ name: colorName.trim(), hex });
+                }
+              }
+            }
+
             return {
               id: p.id,           // Product UUID for cart/orders
               slug: p.slug,       // Slug for navigation
@@ -162,7 +177,8 @@ function ShopContent() {
               moq: p.moq || 1,
               category: p.categories?.name,
               hasVariants,
-              minVariantPrice
+              minVariantPrice,
+              colorVariants
             };
           });
           setProducts(formattedProducts);

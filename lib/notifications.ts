@@ -163,6 +163,13 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
             })
         });
 
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('[SMS] Non-JSON response:', text.slice(0, 200));
+            return { status: 0, error: text.slice(0, 200) };
+        }
+
         const result = await response.json();
         console.log('[SMS] Result:', result.status === 1 ? 'Success' : 'Failed', '| Code:', result.code);
         if (result.status !== 1) {

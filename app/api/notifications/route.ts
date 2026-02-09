@@ -130,31 +130,43 @@ export async function POST(request: Request) {
         if (type === 'campaign') {
             const { recipients, subject, message, channels } = payload;
 
-            // recipients is array of { email, phone, name }
+            // Deduplicate phone numbers and emails server-side as safety net
+            const seenPhones = new Set<string>();
+            const seenEmails = new Set<string>();
             const results = { email: 0, sms: 0, errors: 0 };
 
             for (const recipient of recipients) {
                 try {
+                    // Send email (skip duplicates)
                     if (channels.email && recipient.email) {
-                        const brandedHtml = emailLayout(`
+                        const emailKey = recipient.email.toLowerCase().trim();
+                        if (!seenEmails.has(emailKey)) {
+                            seenEmails.add(emailKey);
+                            const brandedHtml = emailLayout(`
 <h2 style="margin:0 0 16px;color:#111827;font-size:22px;text-align:center;">${subject}</h2>
 <p style="color:#374151;font-size:14px;line-height:1.7;margin:16px 0;">Hi ${recipient.name || 'Valued Customer'},</p>
 <p style="color:#374151;font-size:14px;line-height:1.7;margin:0 0 16px;">${message.replace(/\n/g, '</p><p style="color:#374151;font-size:14px;line-height:1.7;margin:0 0 16px;">')}</p>
 `, subject);
-                        await sendEmail({
-                            to: recipient.email,
-                            subject: subject,
-                            html: brandedHtml
-                        });
-                        results.email++;
+                            await sendEmail({
+                                to: recipient.email,
+                                subject: subject,
+                                html: brandedHtml
+                            });
+                            results.email++;
+                        }
                     }
 
+                    // Send SMS (skip duplicates)
                     if (channels.sms && recipient.phone) {
-                        await sendSMS({
-                            to: recipient.phone,
-                            message: message
-                        });
-                        results.sms++;
+                        const phoneKey = recipient.phone.replace(/[\s\-\(\)\.]+/g, '');
+                        if (!seenPhones.has(phoneKey)) {
+                            seenPhones.add(phoneKey);
+                            await sendSMS({
+                                to: recipient.phone,
+                                message: message
+                            });
+                            results.sms++;
+                        }
                     }
                 } catch (err: any) {
                     console.error(`[Campaign] Failed for ${recipient.email || recipient.phone}:`, err.message);

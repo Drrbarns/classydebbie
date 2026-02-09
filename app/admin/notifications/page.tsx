@@ -28,22 +28,45 @@ export default function NotificationsPage() {
                 throw new Error('You must be logged in as admin to send campaigns');
             }
 
-            // 2. Fetch Recipients from the customers table (has actual phone numbers)
-            let recipients: any[] = [];
+            // 2. Fetch Recipients from the customers table (includes secondary contacts)
             const { data: customers, error: fetchError } = await supabase
                 .from('customers')
-                .select('email, phone, full_name');
+                .select('email, phone, full_name, secondary_phone, secondary_email');
 
             if (fetchError) throw fetchError;
 
-            recipients = (customers || [])
-                .map(c => ({ email: c.email, phone: c.phone, name: c.full_name }))
-                .filter(r => {
-                    // Filter based on selected channels
-                    if (form.channels.sms && !form.channels.email) return r.phone;
-                    if (form.channels.email && !form.channels.sms) return r.email;
-                    return r.email || r.phone;
-                });
+            // Build recipients with deduplication
+            const seenPhones = new Set<string>();
+            const seenEmails = new Set<string>();
+
+            const normalizePhone = (p: string) => p.replace(/[\s\-\(\)\.]+/g, '').replace(/^00/, '+');
+
+            const recipients: any[] = [];
+            for (const c of (customers || [])) {
+                const phones = [c.phone, c.secondary_phone].filter(Boolean).map((p: string) => normalizePhone(p));
+                const emails = [c.email, c.secondary_email].filter(Boolean).map((e: string) => e.toLowerCase().trim());
+
+                // Pick first unique phone for this customer
+                const uniquePhone = phones.find(p => !seenPhones.has(p)) || null;
+                if (uniquePhone) seenPhones.add(uniquePhone);
+
+                // Pick first unique email for this customer
+                const uniqueEmail = emails.find(e => !seenEmails.has(e)) || null;
+                if (uniqueEmail) seenEmails.add(uniqueEmail);
+
+                // Also mark all their contact info as seen to avoid duplicates from other customers
+                phones.forEach(p => seenPhones.add(p));
+                emails.forEach(e => seenEmails.add(e));
+
+                const recipient = { email: uniqueEmail, phone: uniquePhone, name: c.full_name };
+
+                // Filter based on selected channels
+                if (form.channels.sms && !form.channels.email && !recipient.phone) continue;
+                if (form.channels.email && !form.channels.sms && !recipient.email) continue;
+                if (!recipient.email && !recipient.phone) continue;
+
+                recipients.push(recipient);
+            }
 
             if (recipients.length === 0) throw new Error('No recipients found with valid contact info');
 
@@ -51,7 +74,7 @@ export default function NotificationsPage() {
             const smsCount = recipients.filter(r => r.phone).length;
             const emailCount = recipients.filter(r => r.email).length;
             const summary = [];
-            if (form.channels.sms) summary.push(`${smsCount} SMS`);
+            if (form.channels.sms) summary.push(`${smsCount} SMS (deduplicated)`);
             if (form.channels.email) summary.push(`${emailCount} emails`);
 
             if (!window.confirm(`This will send ${summary.join(' and ')} to your customers. Continue?`)) {
@@ -59,28 +82,59 @@ export default function NotificationsPage() {
                 return;
             }
 
-            // 3. Call API with auth token
-            const res = await fetch('/api/notifications', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session.access_token}`
-                },
-                body: JSON.stringify({
-                    type: 'campaign',
-                    payload: {
-                        recipients,
-                        subject: form.subject,
-                        message: form.message,
-                        channels: form.channels,
-                    }
-                })
-            });
+            // 3. Send in batches to avoid API timeout
+            const BATCH_SIZE = 50;
+            let totalEmail = 0;
+            let totalSms = 0;
+            let totalErrors = 0;
 
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Failed to send');
+            for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
+                const batch = recipients.slice(i, i + BATCH_SIZE);
 
-            setSuccess(`Campaign sent successfully! ${data.message || ''}`);
+                const res = await fetch('/api/notifications', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({
+                        type: 'campaign',
+                        payload: {
+                            recipients: batch,
+                            subject: form.subject,
+                            message: form.message,
+                            channels: form.channels,
+                        }
+                    })
+                });
+
+                // Handle non-JSON responses (e.g. timeouts, server errors)
+                let data;
+                const contentType = res.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    data = await res.json();
+                } else {
+                    const text = await res.text();
+                    throw new Error(`Server error (batch ${Math.floor(i / BATCH_SIZE) + 1}): ${text.slice(0, 100)}`);
+                }
+
+                if (!res.ok) throw new Error(data.error || 'Failed to send');
+
+                // Parse results from response
+                const msg = data.message || '';
+                const emailMatch = msg.match(/(\d+) emails/);
+                const smsMatch = msg.match(/(\d+) SMS/);
+                const errorMatch = msg.match(/(\d+) failed/);
+                if (emailMatch) totalEmail += parseInt(emailMatch[1]);
+                if (smsMatch) totalSms += parseInt(smsMatch[1]);
+                if (errorMatch) totalErrors += parseInt(errorMatch[1]);
+            }
+
+            const resultParts = [];
+            if (totalEmail > 0) resultParts.push(`${totalEmail} emails`);
+            if (totalSms > 0) resultParts.push(`${totalSms} SMS`);
+            const errorNote = totalErrors > 0 ? ` (${totalErrors} failed)` : '';
+            setSuccess(`Campaign sent successfully! ${resultParts.join(', ')} sent.${errorNote}`);
             setForm(prev => ({ ...prev, subject: '', message: '' }));
         } catch (err: any) {
             setError(err.message);

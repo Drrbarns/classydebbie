@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import ProductCard from '@/components/ProductCard';
+import { supabase } from '@/lib/supabase';
+import ProductCard, { type ColorVariant, getColorHex } from '@/components/ProductCard';
 import AnimatedSection, { AnimatedGrid } from '@/components/AnimatedSection';
 import { usePageTitle } from '@/hooks/usePageTitle';
 
@@ -45,25 +46,32 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch from cached API routes instead of Supabase directly
-        const [productsRes, categoriesRes] = await Promise.all([
-          fetch('/api/storefront/products?featured=true&limit=8'),
-          fetch('/api/storefront/categories')
-        ]);
+        // Fetch featured products directly from Supabase
+        const { data: productsData, error: productsError } = await supabase
+          .from('products')
+          .select('*, product_variants(*), product_images(*)')
+          .eq('status', 'active')
+          .eq('featured', true)
+          .order('created_at', { ascending: false })
+          .limit(8);
 
-        if (productsRes.ok) {
-          const productsData = await productsRes.json();
-          setFeaturedProducts(productsData || []);
-        }
+        if (productsError) throw productsError;
+        setFeaturedProducts(productsData || []);
 
-        if (categoriesRes.ok) {
-          const categoriesData = await categoriesRes.json();
-          // Filter featured categories client-side (featured stored in metadata JSONB)
-          const featuredCategories = (categoriesData || []).filter(
-            (cat: any) => cat.metadata?.featured === true
-          );
-          setCategories(featuredCategories);
-        }
+        // Fetch featured categories (featured is stored in metadata JSONB)
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('categories')
+          .select('id, name, slug, image_url, metadata')
+          .eq('status', 'active')
+          .order('name');
+
+        if (categoriesError) throw categoriesError;
+
+        // Filter by metadata.featured = true on client side
+        const featuredCategories = (categoriesData || []).filter(
+          (cat: any) => cat.metadata?.featured === true
+        );
+        setCategories(featuredCategories);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -276,6 +284,21 @@ export default function Home() {
                 const minVariantPrice = hasVariants ? Math.min(...variants.map((v: any) => v.price || product.price)) : undefined;
                 const totalVariantStock = hasVariants ? variants.reduce((sum: number, v: any) => sum + (v.quantity || 0), 0) : 0;
                 const effectiveStock = hasVariants ? totalVariantStock : product.quantity;
+
+                // Extract unique colors from option2
+                const colorVariants: ColorVariant[] = [];
+                const seenColors = new Set<string>();
+                for (const v of variants) {
+                  const colorName = (v as any).option2;
+                  if (colorName && !seenColors.has(colorName.toLowerCase().trim())) {
+                    const hex = getColorHex(colorName);
+                    if (hex) {
+                      seenColors.add(colorName.toLowerCase().trim());
+                      colorVariants.push({ name: colorName.trim(), hex });
+                    }
+                  }
+                }
+
                 return (
                   <ProductCard
                     key={product.id}
@@ -285,7 +308,7 @@ export default function Home() {
                     price={product.price}
                     originalPrice={product.compare_at_price}
                     image={product.product_images?.[0]?.url || 'https://via.placeholder.com/400x500'}
-                    rating={product.rating || 5}
+                    rating={product.rating_avg || 5}
                     reviewCount={product.review_count || 0}
                     badge={product.featured ? 'Featured' : undefined}
                     inStock={effectiveStock > 0}
@@ -293,6 +316,7 @@ export default function Home() {
                     moq={product.moq || 1}
                     hasVariants={hasVariants}
                     minVariantPrice={minVariantPrice}
+                    colorVariants={colorVariants}
                   />
                 );
               })}
