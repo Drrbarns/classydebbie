@@ -43,13 +43,22 @@ export default function POSPage() {
     const [processing, setProcessing] = useState(false);
     const [completedOrder, setCompletedOrder] = useState<any>(null);
     const [checkoutError, setCheckoutError] = useState<string | null>(null);
+    const [deliveryMethod, setDeliveryMethod] = useState<'pickup' | 'doorstep'>('pickup');
     const [guestDetails, setGuestDetails] = useState({
         firstName: '',
         lastName: '',
         email: '',
         phone: '',
-        address: ''
+        address: '',
+        city: '',
+        region: ''
     });
+
+    const ghanaRegions = [
+        'Greater Accra', 'Ashanti', 'Western', 'Central', 'Eastern',
+        'Northern', 'Volta', 'Upper East', 'Upper West', 'Brong-Ahafo',
+        'Ahafo', 'Bono', 'Bono East', 'North East', 'Savannah', 'Oti', 'Western North'
+    ];
 
     useEffect(() => {
         fetchData();
@@ -195,6 +204,13 @@ export default function POSPage() {
             if (!hasName && !hasContact) return 'Please enter customer name or contact info';
         }
 
+        // Require address for doorstep delivery
+        if (deliveryMethod === 'doorstep') {
+            if (!guestDetails.address.trim()) return 'Delivery address is required';
+            if (!guestDetails.city.trim()) return 'City is required for delivery';
+            if (!guestDetails.region) return 'Region is required for delivery';
+        }
+
         return null;
     };
 
@@ -223,6 +239,9 @@ export default function POSPage() {
                 lastName: selectedCustomer.full_name?.split(' ').slice(1).join(' ') || '',
                 email: selectedCustomer.email,
                 phone: selectedCustomer.phone || '',
+                address: guestDetails.address,
+                city: guestDetails.city,
+                region: guestDetails.region,
                 pos_sale: true
             } : {
                 firstName: guestDetails.firstName,
@@ -230,6 +249,8 @@ export default function POSPage() {
                 email: guestDetails.email,
                 phone: guestDetails.phone,
                 address: guestDetails.address,
+                city: guestDetails.city,
+                region: guestDetails.region,
                 pos_sale: true
             };
 
@@ -249,7 +270,7 @@ export default function POSPage() {
                     shipping_total: 0,
                     discount_total: 0,
                     total: grandTotal,
-                    shipping_method: 'pos_pickup',
+                    shipping_method: deliveryMethod,
                     payment_method: paymentMethod === 'momo' ? 'moolre' : paymentMethod,
                     shipping_address: addressData,
                     billing_address: addressData,
@@ -393,12 +414,15 @@ export default function POSPage() {
         setCustomerSearch('');
         setCheckoutError(null);
         setPaymentMethod('cash');
+        setDeliveryMethod('pickup');
         setGuestDetails({
             firstName: '',
             lastName: '',
             email: '',
             phone: '',
-            address: ''
+            address: '',
+            city: '',
+            region: ''
         });
     };
 
@@ -762,6 +786,75 @@ export default function POSPage() {
                                                         className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm ${paymentMethod === 'momo' && !guestDetails.phone ? 'border-amber-400 bg-amber-50' : 'border-gray-300'
                                                             }`}
                                                     />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Delivery Method */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Delivery Method</label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button
+                                                onClick={() => setDeliveryMethod('pickup')}
+                                                className={`p-3 rounded-lg border transition-all flex items-center space-x-3 ${deliveryMethod === 'pickup'
+                                                    ? 'border-emerald-600 bg-emerald-50 ring-1 ring-emerald-600'
+                                                    : 'border-gray-200 hover:border-gray-300'
+                                                    }`}
+                                            >
+                                                <i className={`ri-store-2-line text-xl ${deliveryMethod === 'pickup' ? 'text-emerald-700' : 'text-gray-400'}`}></i>
+                                                <div className="text-left">
+                                                    <p className={`text-sm font-semibold ${deliveryMethod === 'pickup' ? 'text-emerald-800' : 'text-gray-700'}`}>Store Pickup</p>
+                                                    <p className="text-xs text-gray-500">Customer picks up</p>
+                                                </div>
+                                            </button>
+                                            <button
+                                                onClick={() => setDeliveryMethod('doorstep')}
+                                                className={`p-3 rounded-lg border transition-all flex items-center space-x-3 ${deliveryMethod === 'doorstep'
+                                                    ? 'border-emerald-600 bg-emerald-50 ring-1 ring-emerald-600'
+                                                    : 'border-gray-200 hover:border-gray-300'
+                                                    }`}
+                                            >
+                                                <i className={`ri-truck-line text-xl ${deliveryMethod === 'doorstep' ? 'text-emerald-700' : 'text-gray-400'}`}></i>
+                                                <div className="text-left">
+                                                    <p className={`text-sm font-semibold ${deliveryMethod === 'doorstep' ? 'text-emerald-800' : 'text-gray-700'}`}>Doorstep Delivery</p>
+                                                    <p className="text-xs text-gray-500">Deliver to address</p>
+                                                </div>
+                                            </button>
+                                        </div>
+
+                                        {/* Delivery Address (shown for doorstep delivery) */}
+                                        {deliveryMethod === 'doorstep' && (
+                                            <div className="mt-3 bg-blue-50 p-4 rounded-lg border border-blue-200 space-y-3">
+                                                <h4 className="text-sm font-bold text-gray-900 flex items-center">
+                                                    <i className="ri-map-pin-line mr-2 text-blue-600"></i>
+                                                    Delivery Address
+                                                </h4>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Street Address / Location *"
+                                                    value={guestDetails.address}
+                                                    onChange={e => setGuestDetails({ ...guestDetails, address: e.target.value })}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+                                                />
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="City / Town *"
+                                                        value={guestDetails.city}
+                                                        onChange={e => setGuestDetails({ ...guestDetails, city: e.target.value })}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+                                                    />
+                                                    <select
+                                                        value={guestDetails.region}
+                                                        onChange={e => setGuestDetails({ ...guestDetails, region: e.target.value })}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+                                                    >
+                                                        <option value="">Select Region *</option>
+                                                        {ghanaRegions.map(r => (
+                                                            <option key={r} value={r}>{r}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
                                             </div>
                                         )}
