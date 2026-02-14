@@ -59,7 +59,8 @@ export default function Header() {
     <>
       <AnnouncementBar />
 
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white/95 backdrop-blur-lg border-b border-gray-200/60 sticky top-0 z-50 pwa-header">
+        <div className="safe-area-top" />
         <nav aria-label="Main navigation">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
             <div className="flex items-center justify-between">
@@ -188,7 +189,7 @@ export default function Header() {
             </div>
           </div>
         </nav>
-      </header >
+      </header>
 
       {isSearchOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center pt-24">
