@@ -16,22 +16,42 @@ function OrderTrackingContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Auto-track if order number is in the URL
+  // Auto-track if order number AND email are in the URL
+  const urlEmail = searchParams.get('email') || '';
+  
   useEffect(() => {
-    if (urlOrderNumber) {
-      fetchOrder(urlOrderNumber);
+    if (urlOrderNumber && urlEmail) {
+      setEmail(urlEmail);
+      fetchOrder(urlOrderNumber, urlEmail);
     }
-  }, [urlOrderNumber]);
+  }, [urlOrderNumber, urlEmail]);
 
-  const fetchOrder = async (orderNum: string) => {
+  const fetchOrder = async (orderNum: string, verifyEmail?: string) => {
+    const emailToVerify = verifyEmail || email;
+    
+    // SECURITY: Email is required for order tracking to prevent unauthorized access
+    if (!emailToVerify) {
+      setError('Please enter your email address to verify your identity.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
+      // Only select the fields we need — avoid exposing unnecessary data
       const { data, error: fetchError } = await supabase
         .from('orders')
         .select(`
-          *,
+          id,
+          order_number,
+          status,
+          payment_status,
+          total,
+          email,
+          created_at,
+          shipping_address,
+          metadata,
           order_items (
             id,
             product_name,
@@ -53,9 +73,9 @@ function OrderTrackingContent() {
         return;
       }
 
-      // If email was provided, verify it matches
-      if (email && data.email?.toLowerCase() !== email.toLowerCase()) {
-        setError('The email address does not match this order.');
+      // SECURITY: Always verify email matches — this is mandatory
+      if (data.email?.toLowerCase() !== emailToVerify.toLowerCase()) {
+        setError('The email address does not match this order. Please use the email you placed the order with.');
         setIsTracking(false);
         return;
       }
@@ -79,7 +99,12 @@ function OrderTrackingContent() {
       return;
     }
 
-    fetchOrder(orderNumber);
+    if (!email) {
+      setError('Please enter your email address for verification');
+      return;
+    }
+
+    fetchOrder(orderNumber, email);
   };
 
   // Build tracking timeline from real order data
@@ -183,7 +208,7 @@ function OrderTrackingContent() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Email Address <span className="text-gray-400 font-normal">(optional - for verification)</span>
+                  Email Address <span className="text-red-500 font-normal">*</span>
                 </label>
                 <input
                   type="email"

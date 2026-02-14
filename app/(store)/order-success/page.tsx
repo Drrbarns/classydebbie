@@ -68,13 +68,12 @@ function OrderSuccessContent() {
     }
 
     // Callback hasn't fired - verify via our endpoint
-    // Since Moolre only redirects to this URL after payment succeeds,
-    // the redirect itself is proof of payment (fromRedirect: true)
+    // Verify payment via Moolre API — we no longer trust the redirect alone
     try {
       const res = await fetch('/api/payment/moolre/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderNumber: orderNum, fromRedirect: true })
+        body: JSON.stringify({ orderNumber: orderNum })
       });
       
       const result = await res.json();

@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { supabase } from '@/lib/supabase';
+import { escapeHtml } from '@/lib/sanitize';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'missing_api_key');
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@standardecom.com';
@@ -506,6 +507,12 @@ ${emailButton('Pay Now — GH₵' + Number(total).toFixed(2), paymentUrl, '#d977
 export async function sendContactMessage(data: { name: string, email: string, subject: string, message: string }) {
     const { name, email, subject, message } = data;
 
+    // SECURITY: Sanitize all user input before injecting into HTML
+    const safeName = escapeHtml(name);
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message);
+    const safeEmail = escapeHtml(email);
+
     // 1. Acknowledge to User
     await sendEmail({
         to: email,
@@ -517,16 +524,16 @@ export async function sendContactMessage(data: { name: string, email: string, su
   <p style="margin:0;color:#6b7280;font-size:14px;">We'll get back to you soon.</p>
 </div>
 
-<p style="color:#374151;font-size:14px;line-height:1.7;margin:16px 0;">Hi ${name},</p>
-<p style="color:#374151;font-size:14px;line-height:1.7;margin:0 0 16px;">Thank you for reaching out to ${BRAND.name}. We've received your message regarding <strong>"${subject}"</strong> and our team will respond as soon as possible.</p>
+<p style="color:#374151;font-size:14px;line-height:1.7;margin:16px 0;">Hi ${safeName},</p>
+<p style="color:#374151;font-size:14px;line-height:1.7;margin:0 0 16px;">Thank you for reaching out to ${BRAND.name}. We've received your message regarding <strong>"${safeSubject}"</strong> and our team will respond as soon as possible.</p>
 
 <div style="background-color:#f9fafb;border-left:4px solid ${BRAND.color};border-radius:0 8px 8px 0;padding:16px 20px;margin:20px 0;">
   <p style="color:#6b7280;font-size:12px;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.5px;">Your message</p>
-  <p style="color:#374151;font-size:14px;margin:0;line-height:1.6;">${message}</p>
+  <p style="color:#374151;font-size:14px;margin:0;line-height:1.6;">${safeMessage}</p>
 </div>
 
 <p style="color:#6b7280;font-size:13px;margin:16px 0 0;">We typically respond within 24 hours.</p>
-`, `Thanks for contacting us, ${name}`)
+`, `Thanks for contacting us, ${safeName}`)
     });
 
     // 2. Alert Admin
@@ -537,17 +544,17 @@ export async function sendContactMessage(data: { name: string, email: string, su
 <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">&#128233; New Contact Message</h2>
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;border-radius:12px;overflow:hidden;margin:16px 0;">
-  ${emailInfoRow('From', name)}
-  ${emailInfoRow('Email', `<a href="mailto:${email}" style="color:${BRAND.color};">${email}</a>`)}
-  ${emailInfoRow('Subject', subject)}
+  ${emailInfoRow('From', safeName)}
+  ${emailInfoRow('Email', `<a href="mailto:${safeEmail}" style="color:${BRAND.color};">${safeEmail}</a>`)}
+  ${emailInfoRow('Subject', safeSubject)}
 </table>
 
 <div style="background-color:#f9fafb;border-left:4px solid ${BRAND.color};border-radius:0 8px 8px 0;padding:16px 20px;margin:20px 0;">
   <p style="color:#6b7280;font-size:12px;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.5px;">Message</p>
-  <p style="color:#374151;font-size:14px;margin:0;line-height:1.6;">${message}</p>
+  <p style="color:#374151;font-size:14px;margin:0;line-height:1.6;">${safeMessage}</p>
 </div>
 
-${emailButton('Reply to ' + name, `mailto:${email}?subject=Re: ${encodeURIComponent(subject)}`)}
-`, `New contact from ${name}: ${subject}`)
+${emailButton('Reply to ' + safeName, `mailto:${safeEmail}?subject=Re: ${encodeURIComponent(subject)}`)}
+`, `New contact from ${safeName}: ${safeSubject}`)
     });
 }
