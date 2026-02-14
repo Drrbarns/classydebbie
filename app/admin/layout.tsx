@@ -36,6 +36,9 @@ export default function AdminLayout({
         return;
       }
 
+      // Ensure auth cookie is set (in case user already had a session from before)
+      document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax; Secure`;
+
       // Check user role from profiles table
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -52,6 +55,7 @@ export default function AdminLayout({
       // Only allow admin and staff roles
       if (profile.role !== 'admin' && profile.role !== 'staff') {
         console.warn('User does not have admin/staff role');
+        document.cookie = 'sb-access-token=; path=/; max-age=0; SameSite=Lax; Secure';
         await supabase.auth.signOut();
         router.push('/admin/login?error=unauthorized');
         return;
@@ -64,6 +68,19 @@ export default function AdminLayout({
     }
 
     checkAuth();
+
+    // Keep cookie in sync when session refreshes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'TOKEN_REFRESHED' && session) {
+        document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax; Secure`;
+      }
+      if (event === 'SIGNED_OUT') {
+        document.cookie = 'sb-access-token=; path=/; max-age=0; SameSite=Lax; Secure';
+        document.cookie = 'sb-refresh-token=; path=/; max-age=0; SameSite=Lax; Secure';
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [pathname, router]);
 
   useEffect(() => {
@@ -115,6 +132,9 @@ export default function AdminLayout({
   }, []);
 
   const handleLogout = async () => {
+    // Clear auth cookies set during login
+    document.cookie = 'sb-access-token=; path=/; max-age=0; SameSite=Lax; Secure';
+    document.cookie = 'sb-refresh-token=; path=/; max-age=0; SameSite=Lax; Secure';
     await supabase.auth.signOut();
     router.push('/admin/login');
   };

@@ -30,33 +30,39 @@ export async function middleware(request: NextRequest) {
         }
 
         // Server-side auth check: verify the Supabase session cookie/token
-        // Next.js middleware runs on the edge, so we check for the auth cookie
-        const supabaseAuthToken =
-            request.cookies.get('sb-access-token')?.value ||
-            request.cookies.get(`sb-${supabaseUrl?.split('//')[1]?.split('.')[0]}-auth-token`)?.value;
+        // We set 'sb-access-token' explicitly on login, but also check other formats
+        let token: string | undefined;
 
-        // Also check for the auth token in the newer cookie format
-        let sessionToken: string | undefined;
+        // 1. Check our explicitly set cookie (most reliable)
+        token = request.cookies.get('sb-access-token')?.value;
 
-        // Try to find any Supabase auth cookie
-        for (const [name, cookie] of request.cookies) {
-            if (name.startsWith('sb-') && name.endsWith('-auth-token')) {
-                try {
-                    // The cookie value might be a JSON-encoded array [access_token, refresh_token]
-                    const parsed = JSON.parse(cookie.value);
-                    if (Array.isArray(parsed) && parsed[0]) {
-                        sessionToken = parsed[0];
-                    } else if (typeof parsed === 'string') {
-                        sessionToken = parsed;
-                    }
-                } catch {
-                    sessionToken = cookie.value;
-                }
-                break;
-            }
+        // 2. Check Supabase's own cookie format
+        if (!token) {
+            const projectRef = supabaseUrl?.split('//')[1]?.split('.')[0];
+            token = request.cookies.get(`sb-${projectRef}-auth-token`)?.value;
         }
 
-        const token = sessionToken || supabaseAuthToken;
+        // 3. Try to find any Supabase auth cookie (newer formats may encode as JSON)
+        if (!token) {
+            for (const [name, cookie] of request.cookies) {
+                if (name.startsWith('sb-') && (name.endsWith('-auth-token') || name.includes('auth'))) {
+                    try {
+                        const parsed = JSON.parse(cookie.value);
+                        if (Array.isArray(parsed) && parsed[0]) {
+                            token = parsed[0];
+                        } else if (typeof parsed === 'object' && parsed.access_token) {
+                            token = parsed.access_token;
+                        } else if (typeof parsed === 'string') {
+                            token = parsed;
+                        }
+                    } catch {
+                        // Not JSON, use raw value
+                        token = cookie.value;
+                    }
+                    if (token) break;
+                }
+            }
+        }
 
         if (!token) {
             // No auth token found — redirect to login
