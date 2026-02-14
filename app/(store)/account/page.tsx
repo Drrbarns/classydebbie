@@ -161,7 +161,7 @@ function AccountContent() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 py-8 lg:py-12">
+      <div className="min-h-screen bg-gray-50 py-8 lg:py-12 pb-24 lg:pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header */}
@@ -212,7 +212,7 @@ function AccountContent() {
             </div>
 
             {/* Mobile Horizontal Navigation */}
-            <div className="lg:hidden col-span-1 pb-2">
+            <div className="lg:hidden col-span-1 pb-2 -mx-4 px-4">
               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {[
                   { id: 'profile', icon: 'ri-user-settings-line', label: 'Profile' },
@@ -237,7 +237,7 @@ function AccountContent() {
 
             {/* Main Content Area */}
             <div className="lg:col-span-3">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 min-h-[500px]">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8 min-h-[500px]">
                 {activeTab === 'profile' && (
                   <div className="max-w-2xl">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Profile Information</h2>
@@ -251,7 +251,7 @@ function AccountContent() {
                     )}
 
                     <form onSubmit={handleUpdateProfile} className="space-y-6">
-                      <div className="grid md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label className="text-sm font-semibold text-gray-900">First Name</label>
                           <input
@@ -323,7 +323,7 @@ function AccountContent() {
                       )}
 
                       <form onSubmit={handleChangePassword} className="space-y-5">
-                        <div className="grid md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-2">
                             <label className="text-sm font-semibold text-gray-900">New Password</label>
                             <div className="relative">
@@ -368,31 +368,31 @@ function AccountContent() {
                 {activeTab === 'security' && (
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900 mb-6">Security Settings</h2>
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {securityOptions.map((option, index) => (
                         <Link
                           key={index}
                           href={option.link}
                           className="flex items-center justify-between p-5 border border-gray-200 rounded-2xl hover:border-emerald-500 hover:shadow-md transition-all group bg-white"
                         >
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-emerald-100 group-hover:text-emerald-700 transition-colors">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-emerald-100 group-hover:text-emerald-700 transition-colors flex-shrink-0">
                               <i className={`${option.icon} text-xl`}></i>
                             </div>
-                            <div>
-                              <h3 className="font-bold text-gray-900">{option.title}</h3>
-                              <p className="text-sm text-gray-500">{option.description}</p>
+                            <div className="min-w-0">
+                              <h3 className="font-bold text-gray-900 truncate">{option.title}</h3>
+                              <p className="text-sm text-gray-500 truncate">{option.description}</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 flex-shrink-0">
                             {option.status === 'verified' && (
-                              <span className="text-xs font-bold px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full flex items-center gap-1">
-                                <i className="ri-verified-badge-fill"></i> Verified
+                              <span className="text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full flex items-center gap-1">
+                                <i className="ri-verified-badge-fill"></i> <span className="hidden sm:inline">Verified</span>
                               </span>
                             )}
                             {option.status === 'unverified' && (
-                              <span className="text-xs font-bold px-3 py-1 bg-amber-100 text-amber-700 rounded-full flex items-center gap-1">
-                                <i className="ri-error-warning-fill"></i> Verify
+                              <span className="text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 bg-amber-100 text-amber-700 rounded-full flex items-center gap-1">
+                                <i className="ri-error-warning-fill"></i> <span className="hidden sm:inline">Verify</span>
                               </span>
                             )}
                             <i className="ri-arrow-right-line text-gray-300 group-hover:text-emerald-500 transition-colors"></i>

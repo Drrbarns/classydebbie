@@ -130,13 +130,13 @@ export default function OrderHistory() {
         {orders.map((order) => (
           <div key={order.id} className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden">
             <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex flex-wrap items-center gap-6">
-                  <div>
+              <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4 sm:gap-6 w-full sm:w-auto">
+                  <div className="w-full sm:w-auto">
                     <p className="text-xs text-gray-600 mb-1">Order Number</p>
                     <p className="font-bold text-gray-900">{order.orderNumber}</p>
                   </div>
-                  <div>
+                  <div className="w-full sm:w-auto">
                     <p className="text-xs text-gray-600 mb-1">Date</p>
                     <p className="font-semibold text-gray-900">
                       {new Date(order.date).toLocaleDateString('en-GB', {
@@ -146,13 +146,13 @@ export default function OrderHistory() {
                       })}
                     </p>
                   </div>
-                  <div>
+                  <div className="w-full sm:w-auto">
                     <p className="text-xs text-gray-600 mb-1">Total</p>
                     <p className="font-bold text-emerald-700">GH₵{order.total.toFixed(2)}</p>
                   </div>
                 </div>
-                <div>
-                  <span className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap ${getStatusColor(order.status)}`}>
+                <div className="w-full sm:w-auto">
+                  <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap ${getStatusColor(order.status)}`}>
                     {order.status === 'shipped' ? 'Packaged' : order.status.replace('_', ' ').replace(/^\w/, (c: string) => c.toUpperCase())}
                   </span>
                 </div>
@@ -179,31 +179,31 @@ export default function OrderHistory() {
                 ))}
               </div>
 
-              <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-4 border-t border-gray-200">
                 <Link
                   href={`/order-tracking?order=${order.orderNumber}`}
-                  className="px-4 py-2 bg-emerald-700 text-white rounded-lg font-semibold hover:bg-emerald-800 transition-colors whitespace-nowrap"
+                  className="flex-1 sm:flex-none text-center px-4 py-2 bg-emerald-700 text-white rounded-lg font-semibold hover:bg-emerald-800 transition-colors whitespace-nowrap"
                 >
                   <i className="ri-map-pin-line mr-2"></i>
                   Track Order
                 </Link>
                 <button
                   onClick={() => handleReorder(order)}
-                  className="px-4 py-2 border-2 border-gray-300 text-gray-900 rounded-lg font-semibold hover:bg-gray-50 transition-colors whitespace-nowrap"
+                  className="flex-1 sm:flex-none px-4 py-2 border-2 border-gray-300 text-gray-900 rounded-lg font-semibold hover:bg-gray-50 transition-colors whitespace-nowrap"
                 >
                   <i className="ri-refresh-line mr-2"></i>
                   Reorder
                 </button>
                 <button
                   onClick={() => handleDownloadInvoice(order.id)}
-                  className="px-4 py-2 border-2 border-gray-300 text-gray-900 rounded-lg font-semibold hover:bg-gray-50 transition-colors whitespace-nowrap"
+                  className="flex-1 sm:flex-none px-4 py-2 border-2 border-gray-300 text-gray-900 rounded-lg font-semibold hover:bg-gray-50 transition-colors whitespace-nowrap"
                 >
                   <i className="ri-download-line mr-2"></i>
                   Invoice
                 </button>
                 <Link
                   href="/contact"
-                  className="px-4 py-2 border-2 border-gray-300 text-gray-900 rounded-lg font-semibold hover:bg-gray-50 transition-colors whitespace-nowrap"
+                  className="flex-1 sm:flex-none text-center px-4 py-2 border-2 border-gray-300 text-gray-900 rounded-lg font-semibold hover:bg-gray-50 transition-colors whitespace-nowrap"
                 >
                   <i className="ri-customer-service-line mr-2"></i>
                   Get Help

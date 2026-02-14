@@ -49,7 +49,7 @@ export default function AddressBook() {
           <h3 className="text-xl font-bold text-gray-900 mb-4">
             {editingId ? 'Edit Address' : 'New Address'}
           </h3>
-          <form className="grid md:grid-cols-2 gap-4">
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">Full Name</label>
               <input
@@ -112,7 +112,7 @@ export default function AddressBook() {
                 <span className="ml-2 text-sm text-gray-700">Set as default address</span>
               </label>
             </div>
-            <div className="md:col-span-2 flex space-x-3">
+            <div className="md:col-span-2 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
               <button
                 type="submit"
                 className="flex-1 py-3 bg-emerald-700 text-white rounded-lg font-semibold hover:bg-emerald-800 transition-colors whitespace-nowrap"
@@ -134,7 +134,7 @@ export default function AddressBook() {
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {addresses.map((address) => (
           <div
             key={address.id}
@@ -160,7 +160,7 @@ export default function AddressBook() {
               <p>{address.country}</p>
             </div>
 
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
               <button
                 onClick={() => {
                   setEditingId(address.id);
