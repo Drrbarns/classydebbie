@@ -18,101 +18,86 @@ export default async function CategoriesPage() {
     .eq('status', 'active')
     .order('position', { ascending: true });
 
-  // Palette to cycle through for visual variety since DB doesn't have colors
-  const palette = [
-    { color: 'from-blue-500 to-blue-700', icon: 'ri-store-2-line' },
-    { color: 'from-blue-500 to-blue-700', icon: 'ri-shopping-bag-3-line' },
-    { color: 'from-purple-500 to-purple-700', icon: 'ri-t-shirt-line' },
-    { color: 'from-amber-500 to-amber-700', icon: 'ri-home-smile-line' },
-    { color: 'from-rose-500 to-rose-700', icon: 'ri-heart-line' },
-    { color: 'from-indigo-500 to-indigo-700', icon: 'ri-star-smile-line' },
-  ];
-
-  const categories = categoriesData?.map((c, i) => {
-    const style = palette[i % palette.length];
-    return {
-      ...c,
-      image: c.image_url || 'https://via.placeholder.com/600x400?text=Category',
-      color: style.color,
-      icon: style.icon,
-      // Optional: Fetch product count if needed, currently skipping for performance/simplicity
-      productCount: 'Browse',
-    };
-  }) || [];
+  const categories = categoriesData?.map((c) => ({
+    ...c,
+    image: c.image_url || 'https://via.placeholder.com/800x600?text=Category',
+  })) || [];
 
   return (
     <div className="min-h-screen bg-white">
       <PageHero
-        title="Shop by Category"
-        subtitle="Explore our curated collections and find exactly what you're looking for"
+        title="Collections"
+        subtitle="Curated styles for every occasion"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {categories.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {categories.map((category) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[400px]">
+            {categories.map((category, index) => (
               <Link
                 key={category.id}
                 href={`/shop?category=${category.slug}`}
-                className="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl transition-all cursor-pointer"
+                className={`group relative overflow-hidden rounded-3xl cursor-pointer ${
+                  index % 3 === 0 ? 'md:col-span-2 lg:col-span-2' : ''
+                }`}
               >
-                <div className="relative h-48 overflow-hidden">
+                {/* Background Image with Zoom Effect */}
+                <div className="absolute inset-0">
                   <img
                     src={category.image}
                     alt={category.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className={`absolute inset-0 bg-gradient-to-t ${category.color} opacity-0 group-hover:opacity-20 transition-opacity`}></div>
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
                 </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className={`w-12 h-12 bg-gradient-to-br ${category.color} rounded-full flex items-center justify-center`}>
-                      <i className={`${category.icon} text-2xl text-white`}></i>
+
+                {/* Content Overlay */}
+                <div className="absolute inset-0 p-8 flex flex-col justify-end text-white">
+                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    <h3 className="font-serif text-3xl font-bold mb-3">{category.name}</h3>
+                    <p className="text-white/80 text-base mb-6 line-clamp-2 max-w-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                      {category.description || 'Explore our exclusive collection in this category.'}
+                    </p>
+                    
+                    <div className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest border-b border-white/30 pb-1 group-hover:border-white transition-colors">
+                      <span>Shop Collection</span>
+                      <i className="ri-arrow-right-line transition-transform group-hover:translate-x-1"></i>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">{category.name}</h3>
-                      <p className="text-sm text-gray-500">Collection</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed text-sm mb-4 line-clamp-2">
-                    {category.description || 'Explore our exclusive collection in this category.'}
-                  </p>
-                  <div className="flex items-center text-blue-700 font-medium text-sm group-hover:gap-2 transition-all">
-                    <span>Browse Collection</span>
-                    <i className="ri-arrow-right-line ml-2"></i>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 bg-gray-50 rounded-xl">
-            <i className="ri-inbox-line text-5xl text-gray-300 mb-4"></i>
-            <p className="text-xl text-gray-500">No categories found.</p>
+          <div className="text-center py-24 bg-gray-50 rounded-3xl">
+            <i className="ri-layout-masonry-line text-5xl text-gray-300 mb-4"></i>
+            <p className="text-xl text-gray-500 font-serif">No collections found.</p>
           </div>
         )}
       </div>
 
-      <div className="bg-gradient-to-br from-blue-700 to-blue-900 py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">Can't Find What You're Looking For?</h2>
-          <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-            Try our advanced search or contact our team for personalised product recommendations
+      {/* CTA Section */}
+      <div className="py-24 bg-blue-50">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="font-serif text-4xl md:text-5xl font-bold text-blue-900 mb-6">
+            Looking for something specific?
+          </h2>
+          <p className="text-lg text-blue-800/70 mb-10 max-w-2xl mx-auto">
+            Our personal shoppers are here to help you find the perfect piece for any occasion.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href="/shop"
-              className="inline-flex items-center gap-2 bg-white text-blue-700 px-8 py-4 rounded-full font-medium hover:bg-blue-50 transition-colors whitespace-nowrap"
+              className="bg-blue-900 text-white px-8 py-4 rounded-full font-medium hover:bg-blue-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
             >
-              <i className="ri-search-line"></i>
-              Search All Products
+              Browse All Products
             </Link>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-full font-medium hover:bg-blue-500 transition-colors whitespace-nowrap"
+              className="bg-white text-blue-900 border border-blue-200 px-8 py-4 rounded-full font-medium hover:bg-blue-50 transition-all"
             >
-              <i className="ri-customer-service-line"></i>
-              Contact Support
+              Contact Us
             </Link>
           </div>
         </div>

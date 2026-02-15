@@ -50,7 +50,7 @@ export default function Footer() {
             {/* Brand Column */}
             <div className="lg:col-span-1 space-y-6">
               <Link href="/" className="inline-block group">
-                <img src="/logo.svg" alt={siteName} className="h-12 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity" />
+                <img src="/logo.png" alt={siteName} className="h-12 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity" />
               </Link>
               <p className="text-blue-200/60 leading-relaxed text-sm">
                 Redefining elegance for the modern woman. Premium quality fashion sourced directly for you.

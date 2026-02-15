@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useCMS } from '@/context/CMSContext';
@@ -88,19 +88,9 @@ export default function ContactPage() {
   };
 
   // Get contact details from CMS settings
-  const contactEmail = getSetting('contact_email') || 'support@standardstore.com';
-  const contactPhone = getSetting('contact_phone') || '0546014734';
+  const contactEmail = getSetting('contact_email') || 'info@doctorbarns.com';
+  const contactPhone = getSetting('contact_phone') || '+233546014734';
   const contactAddress = getSetting('contact_address') || 'Accra, Ghana';
-
-  const heroTitle = pageContent?.title || 'Get In Touch';
-  const heroSubtitle = pageContent?.subtitle || 'Have a question or need assistance?';
-  const heroContent = pageContent?.content || 'Our friendly team is here to help. Reach out through any of our contact channels.';
-
-  const teamContacts = [
-    { name: 'Main Line', phone: '0546014734', role: '' },
-    { name: 'David', phone: '0598922769', role: 'Manager' },
-    { name: 'Caleb', phone: '0592028581', role: 'PR' },
-  ];
 
   const contactMethods = [
     {
@@ -121,7 +111,7 @@ export default function ContactPage() {
       icon: 'ri-whatsapp-line',
       title: 'WhatsApp',
       value: contactPhone,
-      link: `https://wa.me/233${contactPhone.replace(/^0/, '')}`,
+      link: `https://wa.me/${contactPhone.replace(/[^0-9]/g, '')}`,
       description: 'Chat with us instantly'
     },
     {
@@ -144,7 +134,7 @@ export default function ContactPage() {
     },
     {
       question: 'What payment methods do you accept?',
-      answer: 'We accept mobile money (MTN, Vodafone, AirtelTigo) and credit/debit cards through our secure Moolre payment gateway.'
+      answer: 'We accept mobile money (MTN, Vodafone, AirtelTigo) and credit/debit cards through our secure payment gateway.'
     }
   ];
 
@@ -163,125 +153,89 @@ export default function ContactPage() {
               href={method.link}
               target={method.link.startsWith('http') ? '_blank' : '_self'}
               rel={method.link.startsWith('http') ? 'noopener noreferrer' : ''}
-              className="bg-white border border-gray-200 p-6 rounded-2xl hover:shadow-lg hover:border-blue-200 transition-all cursor-pointer"
+              className="group bg-white border border-gray-200 p-6 rounded-2xl hover:shadow-lg hover:border-blue-200 transition-all cursor-pointer"
             >
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <i className={`${method.icon} text-2xl text-blue-700`}></i>
+              <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
+                <i className={`${method.icon} text-2xl text-blue-600`}></i>
               </div>
               <h3 className="font-bold text-gray-900 mb-2">{method.title}</h3>
-              <p className="text-blue-700 font-medium mb-1">{method.value}</p>
+              <p className="text-blue-700 font-medium mb-1 break-words">{method.value}</p>
               <p className="text-sm text-gray-500">{method.description}</p>
             </a>
           ))}
         </div>
 
-        {/* Direct Phone Lines */}
-        <div className="bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-100 rounded-2xl p-8 mb-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Reach Our Team Directly</h2>
-          <p className="text-gray-600 mb-6">Call or WhatsApp any of our team members</p>
-          <div className="grid sm:grid-cols-3 gap-4">
-            {teamContacts.map((contact, index) => (
-              <div key={index} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <i className={`${index === 0 ? 'ri-phone-line' : 'ri-user-line'} text-lg text-blue-700`}></i>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{contact.name}</p>
-                    {contact.role && <p className="text-xs text-blue-600 font-medium">{contact.role}</p>}
-                  </div>
-                </div>
-                <p className="text-gray-800 font-medium mb-3">{contact.phone}</p>
-                <div className="flex gap-2">
-                  <a
-                    href={`tel:${contact.phone}`}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-blue-700 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors"
-                  >
-                    <i className="ri-phone-line"></i> Call
-                  </a>
-                  <a
-                    href={`https://wa.me/233${contact.phone.replace(/^0/, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-green-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
-                  >
-                    <i className="ri-whatsapp-line"></i> WhatsApp
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="grid lg:grid-cols-2 gap-12">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Send Us a Message</h2>
+            <h2 className="text-3xl font-serif font-bold text-gray-900 mb-6">Send Us a Message</h2>
             <p className="text-gray-600 mb-8">
               Fill out the form below and we'll get back to you as soon as possible.
             </p>
 
             <form id="contactForm" onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                  placeholder="John Doe"
-                />
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-gray-50 focus:bg-white transition-colors"
+                    placeholder="John Doe"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-gray-50 focus:bg-white transition-colors"
+                    placeholder="john@example.com"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                  placeholder="john@example.com"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                  placeholder="+233 XX XXX XXXX"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                  Subject *
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  name="subject"
-                  required
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                  placeholder="Order inquiry, product question, etc."
-                />
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-gray-50 focus:bg-white transition-colors"
+                    placeholder="+233 XX XXX XXXX"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                    Subject *
+                  </label>
+                  <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    required
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-gray-50 focus:bg-white transition-colors"
+                    placeholder="Order inquiry, product question, etc."
+                  />
+                </div>
               </div>
 
               <div>
@@ -296,21 +250,21 @@ export default function ContactPage() {
                   maxLength={500}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm bg-gray-50 focus:bg-white transition-colors"
                   placeholder="Tell us how we can help you..."
                 ></textarea>
-                <p className="text-xs text-gray-500 mt-1">{formData.message.length}/500 characters</p>
+                <p className="text-xs text-gray-500 mt-1 text-right">{formData.message.length}/500 characters</p>
               </div>
 
               {submitStatus === 'success' && (
-                <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-xl">
+                <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-xl animate-in fade-in slide-in-from-top-2">
                   <i className="ri-check-line mr-2"></i>
                   Message sent successfully! We'll respond within 24 hours.
                 </div>
               )}
 
               {submitStatus === 'error' && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl animate-in fade-in slide-in-from-top-2">
                   <i className="ri-error-warning-line mr-2"></i>
                   Failed to send message. Please try again or contact us directly.
                 </div>
@@ -319,70 +273,61 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={isSubmitting || verifying}
-                className="w-full bg-blue-700 text-white py-4 rounded-xl font-medium hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer"
+                className="w-full bg-blue-900 text-white py-4 rounded-xl font-medium hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition-all"
               >
-                {isSubmitting || verifying ? (verifying ? 'Verifying...' : 'Sending...') : 'Send Message'}
+                {isSubmitting || verifying ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <i className="ri-loader-4-line animate-spin"></i>
+                    {verifying ? 'Verifying...' : 'Sending...'}
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    Send Message <i className="ri-send-plane-fill"></i>
+                  </span>
+                )}
               </button>
             </form>
           </div>
 
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Quick Answers</h2>
+            <h2 className="text-3xl font-serif font-bold text-gray-900 mb-6">Quick Answers</h2>
             <p className="text-gray-600 mb-8">
               Find answers to common questions before reaching out
             </p>
 
             <div className="space-y-4 mb-12">
               {faqs.map((faq, index) => (
-                <details key={index} className="bg-gray-50 rounded-xl overflow-hidden">
-                  <summary className="px-6 py-4 font-medium text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors">
-                    {faq.question}
+                <details key={index} className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-200 transition-colors">
+                  <summary className="px-6 py-4 font-medium text-gray-900 cursor-pointer hover:bg-gray-50 transition-colors flex items-center justify-between list-none">
+                    <span>{faq.question}</span>
+                    <i className="ri-add-line group-open:rotate-45 transition-transform text-blue-600"></i>
                   </summary>
-                  <div className="px-6 pb-4 text-gray-600 leading-relaxed">
+                  <div className="px-6 pb-4 text-gray-600 leading-relaxed border-t border-gray-100 pt-4 bg-gray-50/50">
                     {faq.answer}
                   </div>
                 </details>
               ))}
             </div>
 
-            <div className="bg-gradient-to-br from-blue-700 to-blue-900 p-8 rounded-2xl text-white">
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-4">
+            <div className="bg-gradient-to-br from-blue-900 to-blue-800 p-8 rounded-3xl text-white shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
+              
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm">
                 <i className="ri-customer-service-2-line text-2xl"></i>
               </div>
-              <h3 className="text-2xl font-bold mb-3">Need Immediate Help?</h3>
+              <h3 className="text-2xl font-serif font-bold mb-3">Need Immediate Help?</h3>
               <p className="text-blue-100 mb-6 leading-relaxed">
                 Our customer support team is available Monday to Friday, 8am-6pm GMT. For urgent matters, reach out via WhatsApp.
               </p>
               <a
-                href={`https://wa.me/233${contactPhone.replace(/^0/, '')}`}
+                href={`https://wa.me/${contactPhone.replace(/[^0-9]/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-white text-blue-700 px-6 py-3 rounded-full font-medium hover:bg-blue-50 transition-colors whitespace-nowrap"
+                className="inline-flex items-center gap-2 bg-white text-blue-900 px-6 py-3 rounded-full font-bold hover:bg-blue-50 transition-colors whitespace-nowrap shadow-lg"
               >
                 <i className="ri-whatsapp-line text-xl"></i>
                 Chat on WhatsApp
               </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-gray-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Visit Our Store</h2>
-            <p className="text-gray-600 mb-6 leading-relaxed">
-              Prefer to shop in person? Visit our store. Our knowledgeable staff will be happy to assist you with product selection and answer any questions.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 text-gray-600">
-              <div className="flex items-center gap-2">
-                <i className="ri-map-pin-2-line text-blue-700"></i>
-                <span>{contactAddress}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <i className="ri-time-line text-blue-700"></i>
-                <span>Mon-Sat: 9am-6pm</span>
-              </div>
             </div>
           </div>
         </div>
