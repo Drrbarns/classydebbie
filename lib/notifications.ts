@@ -7,8 +7,8 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@standardecom.com';
 const EMAIL_FROM = process.env.EMAIL_FROM || 'Classy Debbie <noreply@classydebbie.com>';
 const BRAND = {
     name: 'Classy Debbie Collection',
-    color: '#047857',
-    colorLight: '#ecfdf5',
+    color: '#2563eb',
+    colorLight: '#eff6ff',
     colorDark: '#064e3b',
     url: (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/+$/, ''),
     phone: '0546014734',
@@ -355,7 +355,7 @@ export async function sendOrderStatusUpdate(order: any, newStatus: string) {
     // Status icons/colors
     const statusConfig: Record<string, { icon: string; color: string; bg: string }> = {
         processing: { icon: '&#9881;', color: '#2563eb', bg: '#eff6ff' },
-        shipped: { icon: '&#128666;', color: '#047857', bg: '#ecfdf5' },
+        shipped: { icon: '&#128666;', color: '#2563eb', bg: '#eff6ff' },
         delivered: { icon: '&#127881;', color: '#16a34a', bg: '#f0fdf4' },
         cancelled: { icon: '&#10060;', color: '#dc2626', bg: '#fef2f2' },
     };

@@ -8,13 +8,13 @@ function FooterSection({ title, children }: { title: string, children: React.Rea
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border-b border-emerald-800/50 lg:border-none last:border-0">
+    <div className="border-b border-blue-800/50 lg:border-none last:border-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between py-4 text-left lg:py-0 lg:cursor-default lg:mb-6"
       >
         <h4 className="font-bold text-lg text-white">{title}</h4>
-        <i className={`ri-arrow-down-s-line text-emerald-400 text-xl transition-transform duration-300 lg:hidden ${isOpen ? 'rotate-180' : ''}`}></i>
+        <i className={`ri-arrow-down-s-line text-blue-400 text-xl transition-transform duration-300 lg:hidden ${isOpen ? 'rotate-180' : ''}`}></i>
       </button>
       <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96 pb-6' : 'max-h-0 lg:max-h-full lg:overflow-visible'}`}>
         {children}
@@ -38,9 +38,9 @@ export default function Footer() {
     <footer className="relative mt-12 z-0">
 
       {/* Footer Background Shape */}
-      <div className="absolute inset-0 bg-emerald-950 rounded-t-[3rem] -z-10 overflow-hidden">
+      <div className="absolute inset-0 bg-blue-950 rounded-t-[3rem] -z-10 overflow-hidden">
         {/* Decorative elements inside footer bg */}
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-800 to-transparent opacity-30"></div>
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-800 to-transparent opacity-30"></div>
       </div>
 
       <div className="text-white pt-16 pb-12">
@@ -52,7 +52,7 @@ export default function Footer() {
               <Link href="/" className="inline-block group">
                 <img src="/logo.svg" alt={siteName} className="h-12 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity" />
               </Link>
-              <p className="text-emerald-200/60 leading-relaxed text-sm">
+              <p className="text-blue-200/60 leading-relaxed text-sm">
                 Redefining elegance for the modern woman. Premium quality fashion sourced directly for you.
               </p>
 
@@ -67,7 +67,7 @@ export default function Footer() {
                     href={social.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 bg-emerald-900/40 border border-emerald-800 rounded-full flex items-center justify-center text-emerald-300 hover:bg-emerald-500 hover:text-emerald-950 hover:border-emerald-500 transition-all hover:-translate-y-1"
+                    className="w-10 h-10 bg-blue-900/40 border border-blue-800 rounded-full flex items-center justify-center text-blue-300 hover:bg-blue-500 hover:text-blue-950 hover:border-blue-500 transition-all hover:-translate-y-1"
                   >
                     <i className={social.icon}></i>
                   </a>
@@ -80,38 +80,38 @@ export default function Footer() {
 
               <div className="space-y-6">
                 <h4 className="font-serif text-xl font-bold text-white">Shop</h4>
-                <ul className="space-y-3 text-emerald-100/60 text-sm">
-                  <li><Link href="/shop" className="hover:text-emerald-300 transition-colors">All Products</Link></li>
-                  <li><Link href="/categories" className="hover:text-emerald-300 transition-colors">Collections</Link></li>
-                  <li><Link href="/shop?sort=newest" className="hover:text-emerald-300 transition-colors">New Arrivals</Link></li>
-                  <li><Link href="/shop?sort=bestsellers" className="hover:text-emerald-300 transition-colors">Best Sellers</Link></li>
+                <ul className="space-y-3 text-blue-100/60 text-sm">
+                  <li><Link href="/shop" className="hover:text-blue-300 transition-colors">All Products</Link></li>
+                  <li><Link href="/categories" className="hover:text-blue-300 transition-colors">Collections</Link></li>
+                  <li><Link href="/shop?sort=newest" className="hover:text-blue-300 transition-colors">New Arrivals</Link></li>
+                  <li><Link href="/shop?sort=bestsellers" className="hover:text-blue-300 transition-colors">Best Sellers</Link></li>
                 </ul>
               </div>
 
               <div className="space-y-6">
                 <h4 className="font-serif text-xl font-bold text-white">Support</h4>
-                <ul className="space-y-3 text-emerald-100/60 text-sm">
-                  <li><Link href="/contact" className="hover:text-emerald-300 transition-colors">Contact Us</Link></li>
-                  <li><Link href="/order-tracking" className="hover:text-emerald-300 transition-colors">Track Order</Link></li>
-                  <li><Link href="/shipping" className="hover:text-emerald-300 transition-colors">Shipping & Delivery</Link></li>
-                  <li><Link href="/returns" className="hover:text-emerald-300 transition-colors">Returns & Exchange</Link></li>
+                <ul className="space-y-3 text-blue-100/60 text-sm">
+                  <li><Link href="/contact" className="hover:text-blue-300 transition-colors">Contact Us</Link></li>
+                  <li><Link href="/order-tracking" className="hover:text-blue-300 transition-colors">Track Order</Link></li>
+                  <li><Link href="/shipping" className="hover:text-blue-300 transition-colors">Shipping & Delivery</Link></li>
+                  <li><Link href="/returns" className="hover:text-blue-300 transition-colors">Returns & Exchange</Link></li>
                 </ul>
               </div>
 
               <div className="space-y-6">
                 <h4 className="font-serif text-xl font-bold text-white">Company</h4>
-                <ul className="space-y-3 text-emerald-100/60 text-sm">
-                  <li><Link href="/about" className="hover:text-emerald-300 transition-colors">Our Story</Link></li>
-                  <li><Link href="/privacy" className="hover:text-emerald-300 transition-colors">Privacy Policy</Link></li>
-                  <li><Link href="/terms" className="hover:text-emerald-300 transition-colors">Terms of Service</Link></li>
-                  <li><Link href="/admin" className="hover:text-emerald-300 transition-colors">Admin Access</Link></li>
+                <ul className="space-y-3 text-blue-100/60 text-sm">
+                  <li><Link href="/about" className="hover:text-blue-300 transition-colors">Our Story</Link></li>
+                  <li><Link href="/privacy" className="hover:text-blue-300 transition-colors">Privacy Policy</Link></li>
+                  <li><Link href="/terms" className="hover:text-blue-300 transition-colors">Terms of Service</Link></li>
+                  <li><Link href="/admin" className="hover:text-blue-300 transition-colors">Admin Access</Link></li>
                 </ul>
               </div>
 
             </div>
           </div>
 
-          <div className="border-t border-emerald-900/50 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-emerald-500/40">
+          <div className="border-t border-blue-900/50 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-blue-500/40">
             <p>&copy; {new Date().getFullYear()} {siteName}. All rights reserved.</p>
             <div className="flex gap-4 opacity-40">
               <i className="ri-visa-line text-2xl"></i>

@@ -100,7 +100,7 @@ export function CMSProvider({ children }: { children: ReactNode }) {
         social_facebook: 'https://facebook.com/classydebbie',
         social_instagram: 'https://instagram.com/classydebbie',
         social_twitter: 'https://twitter.com/classydebbie',
-        primary_color: '#047857',
+        primary_color: '#2563eb',
         secondary_color: '#FBF6F2',
         currency: 'GHS',
         currency_symbol: 'GH₵',

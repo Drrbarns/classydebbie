@@ -103,7 +103,7 @@ export default function Home() {
     if (activeBanners.length === 0) return null;
 
     return (
-      <div className="bg-emerald-900 text-white py-2 overflow-hidden relative">
+      <div className="bg-blue-900 text-white py-2 overflow-hidden relative">
         <div className="flex animate-marquee whitespace-nowrap">
           {activeBanners.concat(activeBanners).map((banner, index) => (
             <span key={index} className="mx-8 text-sm font-medium tracking-wide flex items-center">
@@ -199,11 +199,11 @@ export default function Home() {
 
         {/* Floating "Exclusive Offer" Card (Bottom Left) */}
         <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20 bg-white rounded-xl p-6 shadow-2xl max-w-[280px] animate-fade-in hidden lg:block">
-          <p className="font-serif text-emerald-800 text-lg italic mb-0.5">Exclusive Offer</p>
+          <p className="font-serif text-blue-800 text-lg italic mb-0.5">Exclusive Offer</p>
           <h3 className="text-3xl font-bold text-gray-900 mb-1">25% Off</h3>
           <p className="text-xs text-gray-500 font-medium leading-relaxed">
             On your first dedicated order. <br />
-            <Link href="/shop" className="underline text-emerald-700 hover:text-emerald-900 mt-1 inline-block">Shop now</Link>
+            <Link href="/shop" className="underline text-blue-700 hover:text-blue-900 mt-1 inline-block">Shop now</Link>
           </p>
         </div>
 
@@ -217,7 +217,7 @@ export default function Home() {
               <h2 className="font-serif text-4xl md:text-5xl text-gray-900 mb-4">Shop by Category</h2>
               <p className="text-gray-600 text-lg max-w-md">Explore our carefully curated collections</p>
             </div>
-            <Link href="/categories" className="hidden md:flex items-center text-emerald-800 font-medium hover:text-emerald-900 transition-colors">
+            <Link href="/categories" className="hidden md:flex items-center text-blue-800 font-medium hover:text-blue-900 transition-colors">
               View All <i className="ri-arrow-right-line ml-2"></i>
             </Link>
           </AnimatedSection>
@@ -237,7 +237,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
                   <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm p-4 rounded-xl text-center transform translate-y-2 opacity-90 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                     <h3 className="font-serif font-bold text-gray-900 text-lg">{category.name}</h3>
-                    <span className="text-xs text-emerald-800 font-medium uppercase tracking-wider mt-1 block">View Collection</span>
+                    <span className="text-xs text-blue-800 font-medium uppercase tracking-wider mt-1 block">View Collection</span>
                   </div>
                 </div>
               </Link>
@@ -245,7 +245,7 @@ export default function Home() {
           </AnimatedGrid>
 
           <div className="mt-8 text-center md:hidden">
-            <Link href="/categories" className="inline-flex items-center text-emerald-800 font-medium hover:text-emerald-900 transition-colors">
+            <Link href="/categories" className="inline-flex items-center text-blue-800 font-medium hover:text-blue-900 transition-colors">
               View All <i className="ri-arrow-right-line ml-2"></i>
             </Link>
           </div>
@@ -316,7 +316,7 @@ export default function Home() {
           <div className="text-center mt-16">
             <Link
               href="/shop"
-              className="inline-flex items-center justify-center bg-gray-900 text-white px-10 py-4 rounded-full font-medium hover:bg-emerald-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 btn-animate"
+              className="inline-flex items-center justify-center bg-gray-900 text-white px-10 py-4 rounded-full font-medium hover:bg-blue-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 btn-animate"
             >
               View All Products
             </Link>
