@@ -19,7 +19,7 @@ export function generateMetadata({
   title = 'Premium Online Shopping in Ghana',
   description = 'Discover curated premium products with fast delivery across Ghana. Shop fashion, home decor, electronics and more with secure payment and 30-day returns.',
   keywords = [],
-  ogImage = 'https://readdy.ai/api/search-image?query=modern%20premium%20ecommerce%20online%20shopping%20platform%20elegant%20design&width=1200&height=630&seq=ogimage&orientation=landscape',
+  ogImage = 'https://www.classydebbie.com/og-logo-bag.png',
   ogType = 'website',
   price,
   currency = 'GHS',
@@ -29,8 +29,8 @@ export function generateMetadata({
   author,
   noindex = false
 }: SEOProps): Metadata {
-  const siteName = 'PremiumShop Ghana';
-  const siteUrl = 'https://premiumshop.com';
+  const siteName = 'Classy Debbie Collection';
+  const siteUrl = 'https://www.classydebbie.com';
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 
   const defaultKeywords = [
@@ -114,7 +114,7 @@ export function generateProductSchema(product: {
     sku: product.sku,
     brand: {
       '@type': 'Brand',
-      name: product.brand || 'PremiumShop'
+      name: product.brand || 'Classy Debbie'
     },
     offers: {
       '@type': 'Offer',
@@ -162,20 +162,19 @@ export function generateOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'PremiumShop Ghana',
-    url: 'https://premiumshop.com',
-    logo: 'https://readdy.ai/api/search-image?query=premium%20shop%20logo%20elegant%20modern&width=200&height=200&seq=logo&orientation=squarish',
+    name: 'Classy Debbie Collection',
+    url: 'https://www.classydebbie.com',
+    logo: 'https://www.classydebbie.com/og-logo-bag.png',
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+233-XX-XXX-XXXX',
+      telephone: '+233240556909',
       contactType: 'Customer Service',
       areaServed: 'GH',
       availableLanguage: ['English']
     },
     sameAs: [
-      'https://facebook.com/premiumshop',
-      'https://instagram.com/premiumshop',
-      'https://twitter.com/premiumshop'
+      'https://www.instagram.com/classy_debbie_collections',
+      'https://www.tiktok.com/@topsales_liveghana'
     ]
   };
 }
@@ -184,13 +183,13 @@ export function generateWebsiteSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'PremiumShop Ghana',
-    url: 'https://premiumshop.com',
+    name: 'Classy Debbie Collection',
+    url: 'https://www.classydebbie.com',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://premiumshop.com/shop?search={search_term_string}'
+        urlTemplate: 'https://www.classydebbie.com/shop?search={search_term_string}'
       },
       'query-input': 'required name=search_term_string'
     }

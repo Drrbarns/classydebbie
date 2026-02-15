@@ -41,6 +41,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/icons/icon-32x32.png', sizes: '32x32', type: 'image/png' },
       { url: '/icons/icon-96x96.png', sizes: '96x96', type: 'image/png' },
       { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
@@ -71,19 +72,16 @@ export const metadata: Metadata = {
     description: "Discover our exclusive collection of women's dresses, shoes, bags, accessories, and intimate products. Elegance redefined.",
     siteName: "Classy Debbie Collection",
     images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Classy Debbie Collection",
-      },
+      { url: "/og-logo-bag.png", width: 1200, height: 1200, alt: "Classy Debbie - Inhale Fashion, Exhale Styles" },
+      { url: "/og-logo.png", width: 1200, height: 1200, alt: "Classy Debbie's" },
+      { url: "/og-originals.png", width: 1200, height: 630, alt: "We Sell Originals Only" },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Classy Debbie Collection | Premium Fashion",
     description: "Exclusive women's fashion, accessories & intimate products.",
-    images: ["/og-image.jpg"],
+    images: ["/og-logo-bag.png", "/og-logo.png", "/og-originals.png"],
     creator: "@classydebbie",
   },
   alternates: {
@@ -139,7 +137,7 @@ export default function RootLayout({
               "@type": "Organization",
               "name": "Classy Debbie Collection",
               "url": "https://www.classydebbie.com",
-              "logo": "https://www.classydebbie.com/logo.svg",
+              "logo": "https://www.classydebbie.com/og-logo-bag.png",
               "description": "Your premier destination for women's dresses, shoes, bags, accessories, and intimate products.",
               "address": {
                 "@type": "PostalAddress",

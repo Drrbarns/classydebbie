@@ -77,8 +77,8 @@
       "purpose": "maskable"
     },
     {
-      "src": "/logo.svg",
-      "sizes": "any",
+      "src": "/og-logo-bag.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     }
