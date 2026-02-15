@@ -11,7 +11,7 @@ const BRAND = {
     colorLight: '#eff6ff',
     colorDark: '#064e3b',
     url: (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/+$/, ''),
-    phone: '0546014734',
+    phone: '0240556909',
 };
 
 // Reusable branded email layout

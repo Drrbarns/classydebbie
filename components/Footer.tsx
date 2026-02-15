@@ -29,10 +29,9 @@ export default function Footer() {
   const siteName = getSetting('site_name') || 'Classy Debbie Collection';
   const siteTagline = getSetting('site_tagline') || 'Elegance for Every Occasion.';
   const contactEmail = getSetting('contact_email') || '';
-  const contactPhone = getSetting('contact_phone') || '0546014734';
-  const socialFacebook = getSetting('social_facebook') || '';
+  const contactPhone = getSetting('contact_phone') || '0240556909';
   const socialInstagram = getSetting('social_instagram') || '';
-  const socialTwitter = getSetting('social_twitter') || '';
+  const socialTiktok = getSetting('social_tiktok') || '';
 
   return (
     <footer className="relative mt-12 z-0">
@@ -59,8 +58,7 @@ export default function Footer() {
               <div className="flex gap-3 pt-2">
                 {[
                   { link: socialInstagram, icon: 'ri-instagram-line' },
-                  { link: socialFacebook, icon: 'ri-facebook-fill' },
-                  { link: socialTwitter, icon: 'ri-twitter-x-fill' }
+                  { link: socialTiktok, icon: 'ri-tiktok-fill' }
                 ].map((social, i) => social.link && (
                   <a
                     key={i}

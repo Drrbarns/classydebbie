@@ -13,6 +13,7 @@ interface SiteSettings {
     social_facebook: string;
     social_instagram: string;
     social_twitter: string;
+    social_tiktok: string;
     primary_color: string;
     secondary_color: string;
     currency: string;
@@ -66,12 +67,13 @@ const defaultSettings: SiteSettings = {
     site_name: 'Classy Debbie Collection',
     site_tagline: 'Elegance for Every Occasion',
     site_logo: '/logo.svg',
-    contact_email: 'support@classydebbie.com',
-    contact_phone: '0546014734',
-    contact_address: 'Accra, Ghana',
-    social_facebook: 'https://facebook.com/classydebbie',
-    social_instagram: 'https://instagram.com/classydebbie',
-    social_twitter: 'https://twitter.com/classydebbie',
+    contact_email: 'brownydebbie61@gmail.com',
+    contact_phone: '0240556909',
+    contact_address: 'Accra',
+    social_facebook: '',
+    social_instagram: 'https://www.instagram.com/classy_debbie_collections',
+    social_twitter: '',
+    social_tiktok: 'https://www.tiktok.com/@topsales_liveghana',
     primary_color: '#059669',
     secondary_color: '#0D9488',
     currency: 'GHS',
@@ -94,12 +96,13 @@ export function CMSProvider({ children }: { children: ReactNode }) {
         site_name: 'Classy Debbie Collection',
         site_tagline: 'Elegance for Every Occasion',
         site_logo: '/logo.svg',
-        contact_email: 'info@classydebbie.com',
-        contact_phone: '0546014734',
-        contact_address: 'Accra, Ghana',
-        social_facebook: 'https://facebook.com/classydebbie',
-        social_instagram: 'https://instagram.com/classydebbie',
-        social_twitter: 'https://twitter.com/classydebbie',
+        contact_email: 'brownydebbie61@gmail.com',
+        contact_phone: '0240556909',
+        contact_address: 'Accra',
+        social_facebook: '',
+        social_instagram: 'https://www.instagram.com/classy_debbie_collections',
+        social_twitter: '',
+        social_tiktok: 'https://www.tiktok.com/@topsales_liveghana',
         primary_color: '#2563eb',
         secondary_color: '#FBF6F2',
         currency: 'GHS',

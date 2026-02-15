@@ -77,7 +77,7 @@ export default function TermsPage() {
                   <i className="ri-mail-line text-blue-600 text-xl mt-1"></i>
                   <div>
                     <p className="font-bold text-gray-900">Email</p>
-                    <a href="mailto:info@doctorbarns.com" className="text-blue-600 hover:underline">info@doctorbarns.com</a>
+                    <a href="mailto:brownydebbie61@gmail.com" className="text-blue-600 hover:underline">brownydebbie61@gmail.com</a>
                   </div>
                 </div>
 
@@ -85,7 +85,7 @@ export default function TermsPage() {
                   <i className="ri-phone-line text-blue-600 text-xl mt-1"></i>
                   <div>
                     <p className="font-bold text-gray-900">Phone</p>
-                    <a href="tel:+233546014734" className="text-blue-600 hover:underline">+233 54 601 4734</a>
+                    <a href="tel:+233240556909" className="text-blue-600 hover:underline">024 055 6909</a>
                   </div>
                 </div>
               </div>

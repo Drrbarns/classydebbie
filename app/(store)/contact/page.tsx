@@ -88,9 +88,10 @@ export default function ContactPage() {
   };
 
   // Get contact details from CMS settings
-  const contactEmail = getSetting('contact_email') || 'info@doctorbarns.com';
-  const contactPhone = getSetting('contact_phone') || '+233546014734';
-  const contactAddress = getSetting('contact_address') || 'Accra, Ghana';
+  const contactEmail = getSetting('contact_email') || 'brownydebbie61@gmail.com';
+  const contactPhone = getSetting('contact_phone') || '0240556909';
+  const contactAddress = getSetting('contact_address') || 'Accra';
+  const waNumber = contactPhone.replace(/[^0-9]/g, '').replace(/^0/, '233');
 
   const contactMethods = [
     {
@@ -111,7 +112,7 @@ export default function ContactPage() {
       icon: 'ri-whatsapp-line',
       title: 'WhatsApp',
       value: contactPhone,
-      link: `https://wa.me/${contactPhone.replace(/[^0-9]/g, '')}`,
+      link: `https://wa.me/${waNumber}`,
       description: 'Chat with us instantly'
     },
     {
@@ -320,7 +321,7 @@ export default function ContactPage() {
                 Our customer support team is available Monday to Friday, 8am-6pm GMT. For urgent matters, reach out via WhatsApp.
               </p>
               <a
-                href={`https://wa.me/${contactPhone.replace(/[^0-9]/g, '')}`}
+                href={`https://wa.me/${waNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-white text-blue-900 px-6 py-3 rounded-full font-bold hover:bg-blue-50 transition-colors whitespace-nowrap shadow-lg"
