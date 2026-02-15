@@ -11,36 +11,36 @@ export default function AboutPage() {
   const { getSetting } = useCMS();
   const [activeTab, setActiveTab] = useState('story');
 
-  const siteName = getSetting('site_name') || 'Sarah Lawson Imports';
+  const siteName = getSetting('site_name') || 'Classy Debbie Collection';
 
   const values = [
     {
       icon: 'ri-verified-badge-line',
       title: 'Authenticity',
-      description: 'Handpicked by Sarah herself. We document the sourcing journey so you know exactly what you are buying.'
+      description: 'Handpicked selections. We document our sourcing journey so you know exactly what you are buying.'
     },
     {
       icon: 'ri-money-dollar-circle-line',
       title: 'Unbeatable Value',
-      description: 'Direct from the factory to you. We cut out the middleman to offer premium quality at wholesale prices.'
+      description: 'Direct sourcing ensures premium quality at prices that make sense, without the markup.'
     },
     {
       icon: 'ri-star-smile-line',
       title: 'Quality Assured',
-      description: 'Sarah inspects products personally. If it doesn’t meet her standards, it doesn’t make it to the store.'
+      description: 'Every product is personally inspected. From dresses to accessories, quality is our priority.'
     },
     {
       icon: 'ri-group-line',
-      title: 'Community First',
-      description: 'Built on trust and connection. We listen to our followers and find the products you actually want.'
+      title: 'Discretion & Trust',
+      description: 'Built on trust. We ensure privacy and discretion, especially with our intimate product line.'
     }
   ];
 
   return (
     <div className="min-h-screen bg-white">
       <PageHero
-        title="More Than Just An Influencer"
-        subtitle="Welcome to Sarah Lawson Imports. Where social media meets smart business, and premium quality meets unbeatable prices."
+        title="More Than Just A Brand"
+        subtitle="Welcome to Classy Debbie Collection. Where elegance meets confidence, offering premium fashion and intimate lifestyle products."
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -52,7 +52,7 @@ export default function AboutPage() {
               : 'text-gray-500 hover:text-gray-700'
               }`}
           >
-            Sarah's Story
+            Our Story
           </button>
           <button
             onClick={() => setActiveTab('mission')}
@@ -68,33 +68,28 @@ export default function AboutPage() {
         {activeTab === 'story' && (
           <div className="grid md:grid-cols-2 gap-16 items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">From TikTok to Global Trade</h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">Empowering Your Style</h2>
               <div className="space-y-6 text-lg text-gray-600 leading-relaxed">
                 <p>
-                  You might know <strong>Sarah Lawson</strong> as one of the biggest personalities on Snapchat and TikTok, lighting up your feed with energy and style. But behind the camera, she is a sharp, driven businesswoman with a vision.
+                  <strong>Classy Debbie Collection</strong> is more than just a store; it's a celebration of femininity and confidence. We believe that every woman deserves to look and feel her absolute best, whether she's stepping out in a stunning dress or embracing her intimate side.
                 </p>
                 <p>
-                  Sarah realized that her followers wanted access to the same high-quality products she used, but often couldn't find them at affordable prices. Frustrated by overpriced local options, she decided to take matters into her own hands.
+                  Our journey began with a simple mission: to curate a collection that blends elegance with excitement. We noticed a gap in the market for high-quality, fashionable items that are both accessible and unique.
                 </p>
                 <p>
-                  <strong>Sarah Lawson Imports</strong> was born from this commitment. Sarah travels directly to China, navigating factories and markets to hand-select products. By managing the supply chain herself, she ensures that every item is not only stylish and durable but also available at a price point that makes sense for everyone.
+                  From the latest trends in women's dresses, shoes, and bags to a discreet and tasteful selection of sex toys, <strong>Classy Debbie Collection</strong> is your one-stop destination for all things chic and sensual. We carefully select each item to ensure it meets our high standards of quality and style.
                 </p>
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl bg-gray-100 relative">
-                {/* 
-                   USER ACTION REQUIRED: 
-                   Replace the src beneath with the actual image of Sarah Lawson.
-                   Example: src="/images/sarah-profile.jpg"
-                */}
+              <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl bg-gray-100 relative flex items-center justify-center">
                 <img
-                  src="/sarah-lawson.jpeg"
-                  alt="Sarah Lawson - Founder"
-                  className="w-full h-full object-cover"
+                  src="/logo.svg"
+                  alt="Classy Debbie Collection"
+                  className="w-2/3 h-auto object-contain opacity-80"
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-8">
-                  <p className="text-white font-bold text-xl">Sarah Lawson</p>
+                  <p className="text-white font-bold text-xl">Classy Debbie</p>
                   <p className="text-emerald-200">Founder & CEO</p>
                 </div>
               </div>
@@ -108,20 +103,20 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="bg-emerald-50 p-10 rounded-3xl border border-emerald-100">
               <div className="w-16 h-16 bg-emerald-700 rounded-2xl flex items-center justify-center mb-8 shadow-lg">
-                <i className="ri-plane-line text-3xl text-white"></i>
+                <i className="ri-shirt-line text-3xl text-white"></i>
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">Direct Sourcing</h3>
+              <h3 className="text-3xl font-bold text-gray-900 mb-4">Fashion Forward</h3>
               <p className="text-gray-600 text-lg leading-relaxed">
-                We believe in going to the source. By visiting China personally, Sarah eliminates the middlemen who inflate prices. This hands-on approach guarantees that you aren't paying for invisible markups—just great products.
+                We are committed to bringing you the latest styles. Our collection of dresses, shoes, and bags is constantly updated to reflect current trends, ensuring you always step out in style.
               </p>
             </div>
             <div className="bg-amber-50 p-10 rounded-3xl border border-amber-100">
               <div className="w-16 h-16 bg-amber-600 rounded-2xl flex items-center justify-center mb-8 shadow-lg">
-                <i className="ri-heart-line text-3xl text-white"></i>
+                <i className="ri-heart-pulse-line text-3xl text-white"></i>
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">Quality For Everyone</h3>
+              <h3 className="text-3xl font-bold text-gray-900 mb-4">Intimate Wellness</h3>
               <p className="text-gray-600 text-lg leading-relaxed">
-                "Luxury" shouldn't be exclusive. Our mission is to democratize access to quality goods. Whether it's skincare, fashion, or home essentials, we believe everyone deserves the best, regardless of their budget.
+                We advocate for self-love and confidence. Our intimate products are chosen to enhance your personal wellness journey, provided with the utmost discretion and care.
               </p>
             </div>
           </div>
@@ -132,8 +127,8 @@ export default function AboutPage() {
       <div className="bg-gray-50 py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Shop With Sarah?</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">It's not just a store; it's a personal guarantee of quality and value.</p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Shop With Us?</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">It's not just shopping; it's an experience of luxury and care.</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
@@ -152,9 +147,9 @@ export default function AboutPage() {
       {/* CTA */}
       <div className="bg-emerald-900 py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <h2 className="text-4xl md:text-5xl font-bold mb-8">Ready to experience the difference?</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-8">Ready to elevate your style?</h2>
           <p className="text-xl text-emerald-100 mb-10 leading-relaxed max-w-2xl mx-auto">
-            Join thousands of happy customers who trust Sarah Lawson Imports for their lifestyle needs.
+            Join the Classy Debbie community and discover your new favorite pieces today.
           </p>
           <Link
             href="/shop"

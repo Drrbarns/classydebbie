@@ -4,30 +4,30 @@ import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.sarahlawsonimports.com';
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.classydebbie.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Sarah Lawson Imports | Premium Quality Mannequins & Home Essentials in Ghana",
-    template: "%s | Sarah Lawson Imports"
+    default: "Classy Debbie Collection | Premium Women's Fashion & Accessories",
+    template: "%s | Classy Debbie Collection"
   },
-  description: "Ghana's trusted source for premium quality mannequins, home essentials, electronics, and fashion. Sourced directly from China with verified quality. Fast delivery across Ghana.",
+  description: "Your premier destination for women's dresses, shoes, bags, accessories, and intimate products. Classy Debbie Collection offers elegance and style for every occasion.",
   keywords: [
-    "Sarah Lawson Imports",
-    "Mannequins Ghana",
-    "Home Essentials Ghana", 
-    "China Sourcing Ghana",
-    "Electronics Ghana",
-    "Wholesale Ghana",
-    "Premium Quality Products",
-    "Fashion Accessories Ghana",
-    "Buy Mannequins Online Ghana",
-    "Accra Shopping"
+    "Classy Debbie Collection",
+    "Women's Fashion Ghana",
+    "Ladies Dresses",
+    "Women's Shoes",
+    "Designer Bags",
+    "Fashion Accessories",
+    "Sex Toys Ghana",
+    "Intimate Products",
+    "Buy Dresses Online",
+    "Ladies Footwear"
   ],
-  authors: [{ name: "Sarah Lawson" }],
-  creator: "Sarah Lawson",
-  publisher: "Sarah Lawson Imports",
+  authors: [{ name: "Classy Debbie" }],
+  creator: "Classy Debbie",
+  publisher: "Classy Debbie Collection",
   robots: {
     index: true,
     follow: true,
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Sarah Lawson',
+    title: 'Classy Debbie',
   },
   formatDetection: {
     telephone: true,
@@ -67,24 +67,24 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_GH",
     url: siteUrl,
-    title: "Sarah Lawson Imports | Premium Quality Mannequins & Home Essentials in Ghana",
-    description: "Ghana's trusted source for premium quality mannequins, home essentials, electronics, and fashion. Direct from China with fast delivery.",
-    siteName: "Sarah Lawson Imports",
+    title: "Classy Debbie Collection | Premium Women's Fashion & Accessories",
+    description: "Discover our exclusive collection of women's dresses, shoes, bags, accessories, and intimate products. Elegance redefined.",
+    siteName: "Classy Debbie Collection",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Sarah Lawson Imports - Premium Quality Products",
+        alt: "Classy Debbie Collection",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sarah Lawson Imports | Premium Quality in Ghana",
-    description: "Ghana's trusted source for mannequins, home essentials & electronics. Fast delivery!",
+    title: "Classy Debbie Collection | Premium Fashion",
+    description: "Exclusive women's fashion, accessories & intimate products.",
     images: ["/og-image.jpg"],
-    creator: "@sarahlawsonimports",
+    creator: "@classydebbie",
   },
   alternates: {
     canonical: siteUrl,
@@ -108,11 +108,11 @@ export default function RootLayout({
         <meta name="theme-color" content="#047857" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Sarah Lawson" />
+        <meta name="apple-mobile-web-app-title" content="Classy Debbie" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-TileColor" content="#047857" />
         <meta name="msapplication-tap-highlight" content="no" />
-        
+
         {/* Apple Touch Icons */}
         <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
         <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
@@ -121,7 +121,7 @@ export default function RootLayout({
 
         {/* Apple Splash Screens */}
         <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
-        
+
         <link
           href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css"
           rel="stylesheet"
@@ -129,7 +129,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-        
+
         {/* Structured Data - Organization */}
         <script
           type="application/ld+json"
@@ -137,10 +137,10 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "name": "Sarah Lawson Imports",
-              "url": "https://www.sarahlawsonimports.com",
-              "logo": "https://www.sarahlawsonimports.com/sarahlogo.png",
-              "description": "Ghana's trusted source for premium quality mannequins, home essentials, electronics, and fashion.",
+              "name": "Classy Debbie Collection",
+              "url": "https://www.classydebbie.com",
+              "logo": "https://www.classydebbie.com/logo.svg",
+              "description": "Your premier destination for women's dresses, shoes, bags, accessories, and intimate products.",
               "address": {
                 "@type": "PostalAddress",
                 "addressCountry": "GH",
@@ -155,7 +155,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      
+
       {/* Google Analytics */}
       {GA_MEASUREMENT_ID && (
         <>
@@ -175,7 +175,7 @@ export default function RootLayout({
           </Script>
         </>
       )}
-      
+
       {/* Google reCAPTCHA v3 */}
       {RECAPTCHA_SITE_KEY && (
         <Script
@@ -183,7 +183,7 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
       )}
-      
+
       <body className="antialiased font-sans overflow-x-hidden pwa-body">
         <a
           href="#main-content"

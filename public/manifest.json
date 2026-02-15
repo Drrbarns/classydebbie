@@ -1,7 +1,7 @@
 {
-  "name": "Sarah Lawson Imports",
-  "short_name": "Sarah Lawson",
-  "description": "Premium Quality Mannequins, Home Essentials & Fashion in Ghana. Shop the best products at unbeatable prices.",
+  "name": "Classy Debbie Collection",
+  "short_name": "Classy Debbie",
+  "description": "Premium Women's Dresses, Shoes, Bags, Accessories & Intimate Products in Ghana.",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
@@ -10,7 +10,11 @@
   "theme_color": "#047857",
   "dir": "ltr",
   "lang": "en",
-  "categories": ["shopping", "lifestyle", "business"],
+  "categories": [
+    "shopping",
+    "lifestyle",
+    "fashion"
+  ],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -73,7 +77,7 @@
       "purpose": "maskable"
     },
     {
-      "src": "/sarahlawson.png",
+      "src": "/logo.svg",
       "sizes": "any",
       "type": "image/png",
       "purpose": "any"
@@ -85,28 +89,48 @@
       "short_name": "Shop",
       "description": "Browse all products",
       "url": "/shop?source=pwa-shortcut",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "My Cart",
       "short_name": "Cart",
       "description": "View your shopping cart",
       "url": "/cart?source=pwa-shortcut",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Track Order",
       "short_name": "Track",
       "description": "Track your order status",
       "url": "/order-tracking?source=pwa-shortcut",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "My Account",
       "short_name": "Account",
       "description": "View your account",
       "url": "/account?source=pwa-shortcut",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ],
   "screenshots": [],

@@ -58,7 +58,7 @@ export default function PaymentPage() {
 
   const handlePayNow = async () => {
     if (!order) return;
-    
+
     setProcessing(true);
     setError(null);
 
@@ -109,7 +109,7 @@ export default function PaymentPage() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-3">Order Not Found</h1>
           <p className="text-gray-600 mb-6">{error}</p>
-          <Link 
+          <Link
             href="/"
             className="inline-flex items-center px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-semibold transition-colors"
           >
@@ -130,7 +130,7 @@ export default function PaymentPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-6">
-            <span className="text-2xl font-['Pacifico'] text-emerald-700">Sarah Lawson</span>
+            <span className="text-2xl font-['Pacifico'] text-emerald-700">Classy Debbie</span>
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Complete Your Payment</h1>
           <p className="text-gray-600 mt-2">Hi {customerName}, your order is waiting for payment.</p>

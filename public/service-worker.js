@@ -1,4 +1,4 @@
-// Sarah Lawson Imports - Service Worker v2.0
+// Classy Debbie - Service Worker v2.0
 const CACHE_VERSION = 'sl-v2.0';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
@@ -14,8 +14,7 @@ const STATIC_ASSETS = [
   '/account',
   '/categories',
   '/offline',
-  '/sarahlawson.png',
-  '/sarahlogo.png',
+  '/logo.svg',
 ];
 
 // Cache size limits
@@ -213,7 +212,7 @@ self.addEventListener('push', (event) => {
 
   const data = event.data.json();
   const options = {
-    body: data.body || 'New update from Sarah Lawson Imports',
+    body: data.body || 'New update from Classy Debbie Collection',
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-72x72.png',
     vibrate: [100, 50, 100],
@@ -229,7 +228,7 @@ self.addEventListener('push', (event) => {
 
   event.waitUntil(
     self.registration.showNotification(
-      data.title || 'Sarah Lawson Imports',
+      data.title || 'Classy Debbie Collection',
       options
     )
   );
@@ -238,7 +237,7 @@ self.addEventListener('push', (event) => {
 // Notification click
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  
+
   if (event.action === 'close') return;
 
   const url = event.notification.data?.url || '/';
@@ -261,7 +260,7 @@ self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'update-content') {
     event.waitUntil(
       caches.open(STATIC_CACHE).then((cache) => {
-        return cache.addAll(STATIC_ASSETS).catch(() => {});
+        return cache.addAll(STATIC_ASSETS).catch(() => { });
       })
     );
   }

@@ -3,6 +3,7 @@
 import { Suspense } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import NewsletterSection from '@/components/NewsletterSection';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ScrollToTop from '@/components/ScrollToTop';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -42,6 +43,7 @@ export default function StoreLayout({
             {children}
           </div>
         </ErrorBoundary>
+        <NewsletterSection />
         <Footer />
         <MobileBottomNav />
         <SessionTimeoutWarning />
