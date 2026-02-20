@@ -4,6 +4,23 @@
 @tailwind utilities;
 
 /* ========================================
+   MOBILE / TOUCH UTILITIES
+   ======================================== */
+
+/* Faster tap response - removes 300ms delay on touch devices */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Prevent horizontal overflow on small screens */
+@media (max-width: 640px) {
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* ========================================
    ANIMATIONS & EFFECTS
    ======================================== */
 

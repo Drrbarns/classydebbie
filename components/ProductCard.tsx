@@ -119,9 +119,9 @@ export default function ProductCard({
           </div>
         )}
 
-        {/* Quick Actions - Floating Bottom Right */}
+        {/* Quick Actions - Floating Bottom Right (always visible on touch, hover on desktop) */}
         {inStock && (
-          <div className="absolute bottom-3 right-3 z-20 transform translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out">
+          <div className="absolute bottom-3 right-3 z-20 transform translate-y-0 opacity-100 md:translate-y-12 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300 ease-out">
             {hasVariants ? (
               <Link
                 href={`/product/${slug}`}

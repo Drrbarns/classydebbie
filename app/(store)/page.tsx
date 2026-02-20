@@ -154,25 +154,25 @@ export default function Home() {
             New Collection
           </p>
 
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif text-white mb-6 leading-tight drop-shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-serif text-white mb-6 leading-tight drop-shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             Elevate Your Style <br />
             <span className="italic font-light">with Classy Debbie</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-10 font-light tracking-wide animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8 sm:mb-10 font-light tracking-wide animate-fade-in-up px-2" style={{ animationDelay: '0.2s' }}>
             Premium women&apos;s fashion, accessories, and intimate products.<br />Handpicked for quality and elegance.
           </p>
 
-          <div className="flex items-center gap-6 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <Link
               href="/shop"
-              className="bg-white text-gray-900 px-10 py-4 rounded-full font-medium text-lg hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-1 duration-300"
+              className="w-full sm:w-auto text-center bg-white text-gray-900 px-6 sm:px-10 py-3.5 sm:py-4 rounded-full font-medium text-base sm:text-lg hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-1 duration-300 touch-manipulation"
             >
               Shop Collections
             </Link>
             <Link
               href="/about"
-              className="px-10 py-4 rounded-full font-medium text-lg text-white border border-white/40 hover:bg-white/10 transition-colors backdrop-blur-sm"
+              className="w-full sm:w-auto text-center px-6 sm:px-10 py-3.5 sm:py-4 rounded-full font-medium text-base sm:text-lg text-white border border-white/40 hover:bg-white/10 transition-colors backdrop-blur-sm touch-manipulation"
             >
               Our Story
             </Link>

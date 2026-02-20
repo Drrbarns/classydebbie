@@ -44,10 +44,10 @@ export default function AboutPage() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="flex border-b border-gray-200 mb-12 justify-center">
+        <div className="flex border-b border-gray-200 mb-12 justify-center overflow-x-auto">
           <button
             onClick={() => setActiveTab('story')}
-            className={`px-8 py-4 font-medium transition-colors text-lg cursor-pointer ${activeTab === 'story'
+            className={`px-4 sm:px-8 py-4 font-medium transition-colors text-base sm:text-lg cursor-pointer whitespace-nowrap shrink-0 touch-manipulation ${activeTab === 'story'
               ? 'text-blue-700 border-b-4 border-blue-700 font-bold'
               : 'text-gray-500 hover:text-gray-700'
               }`}
@@ -56,7 +56,7 @@ export default function AboutPage() {
           </button>
           <button
             onClick={() => setActiveTab('mission')}
-            className={`px-8 py-4 font-medium transition-colors text-lg cursor-pointer ${activeTab === 'mission'
+            className={`px-4 sm:px-8 py-4 font-medium transition-colors text-base sm:text-lg cursor-pointer whitespace-nowrap shrink-0 touch-manipulation ${activeTab === 'mission'
               ? 'text-blue-700 border-b-4 border-blue-700 font-bold'
               : 'text-gray-500 hover:text-gray-700'
               }`}

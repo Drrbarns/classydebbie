@@ -205,7 +205,7 @@ function ShopContent() {
       />
 
       {/* Mobile Filter Toggle */}
-      <div className="lg:hidden bg-white border-b border-gray-200 py-4 px-4 sticky top-[72px] z-20">
+      <div className="lg:hidden bg-white border-b border-gray-200 py-4 px-4 sticky top-[7.5rem] z-20">
         <div className="flex justify-between items-center">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -221,7 +221,7 @@ function ShopContent() {
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex gap-8">
-            <aside className={`${isFilterOpen ? 'fixed inset-0 z-50 bg-white overflow-y-auto' : 'hidden'} lg:block lg:w-64 lg:flex-shrink-0`}>
+            <aside className={`${isFilterOpen ? 'fixed inset-0 z-50 bg-white overflow-y-auto overscroll-contain' : 'hidden'} lg:block lg:w-64 lg:flex-shrink-0`}>
               <div className="lg:sticky lg:top-24">
                 <div className="bg-white lg:bg-transparent p-6 lg:p-0">
                   <div className="flex items-center justify-between mb-6 lg:hidden">
@@ -403,7 +403,7 @@ function ShopContent() {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" data-product-shop>
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8" data-product-shop>
                     {products.map(product => (
                       <ProductCard key={product.id} {...product} />
                     ))}

@@ -43,7 +43,7 @@ export default function Footer() {
       </div>
 
       <div className="text-white pt-16 pb-12">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid lg:grid-cols-4 gap-12">
 
             {/* Brand Column */}

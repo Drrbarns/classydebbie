@@ -197,7 +197,7 @@ export default function CartPage() {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+                  <div className="bg-white rounded-xl shadow-sm p-6 lg:sticky lg:top-24">
                     <h3 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h3>
 
                     <div className="space-y-4 mb-6">

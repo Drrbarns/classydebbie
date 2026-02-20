@@ -90,7 +90,7 @@ export default function AnnouncementBar() {
                 color: currentBanner.text_color,
             }}
         >
-            <div className="max-w-7xl mx-auto flex items-center justify-center gap-4">
+            <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-4 px-4 sm:px-6">
                 <p className="font-medium">
                     {currentBanner.title}
                     {currentBanner.subtitle && (

@@ -285,7 +285,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
               <i className="ri-arrow-right-s-line text-gray-400"></i>
               <Link href="#" className="text-gray-600 hover:text-blue-700 transition-colors">{product.category}</Link>
               <i className="ri-arrow-right-s-line text-gray-400"></i>
-              <span className="text-gray-900 font-medium truncate max-w-[200px]">{product.name}</span>
+              <span className="text-gray-900 font-medium truncate max-w-[120px] sm:max-w-[200px]">{product.name}</span>
             </nav>
           </div>
         </section>
@@ -312,7 +312,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 </div>
 
                 {product.images.length > 1 && (
-                  <div className="grid grid-cols-4 gap-4">
+                  <div className="grid grid-cols-4 gap-3 sm:gap-4">
                     {product.images.map((image: string, index: number) => (
                       <button
                         key={index}

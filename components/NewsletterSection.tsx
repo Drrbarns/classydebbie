@@ -36,7 +36,7 @@ export default function NewsletterSection() {
           <div className="absolute top-40 -left-20 w-72 h-72 bg-sky-300 rounded-full blur-[100px] opacity-20"></div>
         </div>
 
-        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between p-8 md:p-10 lg:p-12 gap-8">
+        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between p-6 sm:p-8 md:p-10 lg:p-12 gap-6 sm:gap-8">
 
           {/* Left Content */}
           <div className="text-center lg:text-left max-w-xl">
@@ -56,7 +56,7 @@ export default function NewsletterSection() {
 
           {/* Right Form */}
           <div className="w-full max-w-md bg-white/5 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 pwa-submit-form">
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 w-full">
               <input
                 type="email"
                 required

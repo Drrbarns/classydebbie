@@ -68,7 +68,7 @@ export default function Header() {
               {/* Left: Mobile Menu Trigger (Mobile) & Logo */}
               <div className="flex items-center gap-4">
                 <button
-                  className="lg:hidden p-2 -ml-2 text-gray-900 hover:text-gray-600 transition-colors"
+                  className="lg:hidden p-3 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-900 hover:text-gray-600 transition-colors touch-manipulation"
                   onClick={() => setIsMobileMenuOpen(true)}
                   aria-label="Open menu"
                 >
@@ -103,9 +103,9 @@ export default function Header() {
               </div>
 
               {/* Right: Icons */}
-              <div className="flex items-center justify-end space-x-2 sm:space-x-4">
+              <div className="flex items-center justify-end gap-1 sm:gap-2">
                 <button
-                  className="p-2 text-gray-900 hover:text-gray-600 transition-transform hover:scale-105"
+                  className="p-3 sm:p-2 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center text-gray-900 hover:text-gray-600 transition-transform hover:scale-105 touch-manipulation"
                   onClick={() => setIsSearchOpen(true)}
                   aria-label="Search"
                 >
@@ -114,7 +114,7 @@ export default function Header() {
 
                 <Link
                   href="/wishlist"
-                  className="p-2 text-gray-900 hover:text-gray-600 transition-transform hover:scale-105 relative hidden sm:block"
+                  className="p-3 sm:p-2 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center text-gray-900 hover:text-gray-600 transition-transform hover:scale-105 relative hidden sm:flex touch-manipulation"
                   aria-label="Wishlist"
                 >
                   <i className="ri-heart-line text-xl"></i>
@@ -128,7 +128,7 @@ export default function Header() {
                 {user ? (
                   <Link
                     href="/account"
-                    className="p-2 text-gray-900 hover:text-gray-600 transition-transform hover:scale-105 hidden sm:block"
+                    className="p-3 sm:p-2 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center text-gray-900 hover:text-gray-600 transition-transform hover:scale-105 hidden sm:flex touch-manipulation"
                     aria-label="Account"
                   >
                     <i className="ri-user-line text-xl"></i>
@@ -136,7 +136,7 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/auth/login"
-                    className="p-2 text-gray-900 hover:text-gray-600 transition-transform hover:scale-105 hidden sm:block"
+                    className="p-3 sm:p-2 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center text-gray-900 hover:text-gray-600 transition-transform hover:scale-105 hidden sm:flex touch-manipulation"
                     aria-label="Login"
                   >
                     <i className="ri-user-line text-xl"></i>
@@ -145,7 +145,7 @@ export default function Header() {
 
                 <div className="relative">
                   <button
-                    className="p-2 text-gray-900 hover:text-gray-600 transition-transform hover:scale-105"
+                    className="p-3 sm:p-2 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center text-gray-900 hover:text-gray-600 transition-transform hover:scale-105 touch-manipulation"
                     onClick={() => setIsCartOpen(!isCartOpen)}
                     aria-label="Cart"
                   >
@@ -166,8 +166,8 @@ export default function Header() {
       </header>
 
       {isSearchOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center pt-24">
-          <div className="bg-white rounded-lg w-full max-w-2xl mx-4 shadow-2xl">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center pt-20 sm:pt-24 px-4">
+          <div className="bg-white rounded-lg w-full max-w-2xl shadow-2xl mt-4 sm:mt-0">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-gray-900">Search Products</h3>
@@ -210,7 +210,7 @@ export default function Header() {
             onClick={() => setIsMobileMenuOpen(false)}
             aria-hidden="true"
           />
-          <div className="absolute top-0 left-0 bottom-0 w-4/5 max-w-xs bg-white shadow-xl flex flex-col animate-in slide-in-from-left duration-300">
+          <div className="absolute top-0 left-0 bottom-0 w-[85%] max-w-[320px] bg-white shadow-xl flex flex-col animate-in slide-in-from-left duration-300">
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
                 <img src="/logo.png" alt={siteName} className="h-8 w-auto object-contain" />
