@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import { getProductImageUrl } from '@/lib/image-utils';
+import { getProductImageUrl, normalizeImageUrl } from '@/lib/image-utils';
+import LazyImage from '@/components/LazyImage';
 import ProductCard, { type ColorVariant, getColorHex } from '@/components/ProductCard';
 import ProductCardSkeleton from '@/components/skeletons/ProductCardSkeleton';
 import AnimatedSection, { AnimatedGrid } from '@/components/AnimatedSection';
@@ -127,9 +128,9 @@ export default function Home() {
         {/* Background Slider */}
         <div className="absolute inset-0 z-0">
           {[
-            '/hero-1.png',
-            '/hero-2.png',
-            '/hero-3.png'
+            '/hero-1.jpg',
+            '/hero-2.jpg',
+            '/hero-3.jpg'
           ].map((img, index) => (
             <div
               key={index}
@@ -228,13 +229,10 @@ export default function Home() {
             {categories.map((category) => (
               <Link href={`/shop?category=${category.slug}`} key={category.id} className="group cursor-pointer block">
                 <div className="aspect-[3/4] rounded-2xl overflow-hidden mb-4 relative shadow-md">
-                  <Image
-                    src={category.image || category.image_url || 'https://via.placeholder.com/600x800?text=' + encodeURIComponent(category.name)}
+                  <LazyImage
+                    src={normalizeImageUrl(category.image_url)}
                     alt={category.name}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                    quality={75}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
                   <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm p-4 rounded-xl text-center transform translate-y-2 opacity-90 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">

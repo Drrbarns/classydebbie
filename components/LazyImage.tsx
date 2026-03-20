@@ -47,6 +47,8 @@ export default function LazyImage({
     );
   }
 
+  const isExternal = src.startsWith('http');
+
   return (
     <div className={`relative overflow-hidden ${className}`} style={{ width, height }}>
       {!isLoaded && (
@@ -62,6 +64,7 @@ export default function LazyImage({
         onError={handleError}
         priority={priority}
         quality={75}
+        unoptimized={isExternal}
       />
     </div>
   );
