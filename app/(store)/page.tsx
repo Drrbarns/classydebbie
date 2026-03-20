@@ -143,6 +143,7 @@ export default function Home() {
                 className="object-cover opacity-80"
                 priority={index === 0}
                 quality={90}
+                unoptimized
               />
               <div className="absolute inset-0 bg-black/30"></div> {/* Dark overlay for text readability */}
             </div>
