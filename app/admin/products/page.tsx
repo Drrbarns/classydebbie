@@ -108,28 +108,86 @@ export default function ProductsPage() {
     }
   };
 
+  const getAuthHeaders = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+  };
+
   const handleDeleteProduct = async (productId: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      const { error } = await supabase.from('products').delete().eq('id', productId);
-      if (!error) {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/admin/products/delete', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ ids: [productId] })
+      });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        let errorMsg = 'Error deleting product';
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMsg = errorData.error || errorMsg;
+        } catch {
+          errorMsg = `Server error (${res.status}): ${errorText || res.statusText}`;
+        }
+        alert(errorMsg);
+        return;
+      }
+
+      const data = await res.json();
+      if (data.success) {
         setProducts(products.filter(p => p.id !== productId));
         alert('Product deleted successfully');
+        fetchProducts(); // Refresh the list
       } else {
-        alert('Error deleting product');
+        alert(data.error || 'Error deleting product');
       }
+    } catch (e: any) {
+      console.error('Delete error:', e);
+      alert(`Network error: ${e.message || 'Failed to connect to server'}`);
     }
   };
 
   const handleBulkDelete = async () => {
-    if (confirm(`Are you sure you want to delete ${selectedProducts.length} products?`)) {
-      const { error } = await supabase.from('products').delete().in('id', selectedProducts);
-      if (!error) {
+    if (!confirm(`Are you sure you want to delete ${selectedProducts.length} products?`)) return;
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/admin/products/delete', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ ids: selectedProducts })
+      });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        let errorMsg = 'Error deleting products';
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMsg = errorData.error || errorMsg;
+        } catch {
+          errorMsg = `Server error (${res.status}): ${errorText || res.statusText}`;
+        }
+        alert(errorMsg);
+        return;
+      }
+
+      const data = await res.json();
+      if (data.success) {
         setProducts(products.filter(p => !selectedProducts.includes(p.id)));
         setSelectedProducts([]);
         alert('Products deleted successfully');
+        fetchProducts(); // Refresh the list
       } else {
-        alert('Error deleting products');
+        alert(data.error || 'Error deleting products');
       }
+    } catch (e: any) {
+      console.error('Bulk delete error:', e);
+      alert(`Network error: ${e.message || 'Failed to connect to server'}`);
     }
   };
 

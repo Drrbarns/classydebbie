@@ -7,6 +7,7 @@ import ProductCard, { type ColorVariant } from '@/components/ProductCard';
 import ProductCardSkeleton from '@/components/skeletons/ProductCardSkeleton';
 import { getColorHex } from '@/components/ProductCard';
 import { supabase } from '@/lib/supabase';
+import { getProductImageUrl } from '@/lib/image-utils';
 import { cachedQuery } from '@/lib/query-cache';
 import PageHero from '@/components/PageHero';
 
@@ -169,7 +170,7 @@ function ShopContent() {
               name: p.name,
               price: p.price,
               originalPrice: p.compare_at_price,
-              image: p.product_images?.[0]?.url || 'https://via.placeholder.com/800x800?text=No+Image',
+              image: getProductImageUrl(p.product_images, 'https://via.placeholder.com/800x800?text=No+Image'),
               rating: p.rating_avg || 0,
               reviewCount: 0, // Need to implement reviews relation
               badge: p.compare_at_price > p.price ? 'Sale' : undefined, // Simple badge logic

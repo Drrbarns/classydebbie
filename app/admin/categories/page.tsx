@@ -61,15 +61,28 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDelete = async (categoryId: string) => {
-    if (confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
-      try {
-        const { error } = await supabase.from('categories').delete().eq('id', categoryId);
-        if (error) throw error;
+    if (!confirm('Are you sure you want to delete this category? This action cannot be undone.')) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
+
+      const res = await fetch('/api/admin/categories/delete', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ id: categoryId })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
         setCategories(categories.filter(c => c.id !== categoryId));
+        setShowEditModal(false);
+        setEditingCategory(null);
         alert('Category deleted successfully');
-      } catch (err: any) {
-        alert('Error deleting: ' + err.message);
+      } else {
+        alert(data.error || 'Error deleting category');
       }
+    } catch (err: any) {
+      alert('Error deleting: ' + err.message);
     }
   };
 

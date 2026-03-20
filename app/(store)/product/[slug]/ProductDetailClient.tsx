@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { normalizeImageUrl, getProductImageUrl } from '@/lib/image-utils';
 import { cachedQuery } from '@/lib/query-cache';
 import ProductCard from '@/components/ProductCard';
 import ProductReviews from '@/components/ProductReviews';
@@ -98,7 +99,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
         const transformedProduct = {
           ...productData,
-          images: productData.product_images?.sort((a: any, b: any) => a.position - b.position).map((img: any) => img.url) || [],
+          images: productData.product_images?.sort((a: any, b: any) => (a.position || 0) - (b.position || 0)).map((img: any) => normalizeImageUrl(img.url)) || [],
           category: productData.categories?.name || 'Shop',
           rating: productData.rating_avg || 0,
           reviewCount: 0,
@@ -157,7 +158,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 slug: p.slug,
                 name: p.name,
                 price: p.price,
-                image: p.product_images?.[0]?.url || 'https://via.placeholder.com/800?text=No+Image',
+                image: getProductImageUrl(p.product_images, 'https://via.placeholder.com/800?text=No+Image'),
                 rating: p.rating_avg || 0,
                 reviewCount: 0,
                 inStock: effectiveStock > 0,
