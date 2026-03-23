@@ -5,6 +5,7 @@ import { verifyAuth } from '@/lib/auth';
 /**
  * DELETE products (single or bulk).
  * Requires admin/staff auth. Uses service role so RLS does not block.
+ * Cleans up all foreign key references before deleting.
  */
 export async function POST(req: Request) {
     try {
@@ -25,32 +26,88 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Invalid product id(s)' }, { status: 400 });
         }
 
+        const errors: string[] = [];
+
         for (const productId of validIds) {
+            // 1. Nullify order_items references (preserve order history)
+            const { error: oiErr } = await supabaseAdmin
+                .from('order_items')
+                .update({ product_id: null })
+                .eq('product_id', productId);
+            if (oiErr) {
+                console.error('[Admin] Nullify order_items.product_id:', oiErr.message);
+                errors.push(`order_items: ${oiErr.message}`);
+            }
+
+            // 2. Delete cart items referencing this product
+            const { error: cartErr } = await supabaseAdmin
+                .from('cart_items')
+                .delete()
+                .eq('product_id', productId);
+            if (cartErr) {
+                console.error('[Admin] Delete cart_items:', cartErr.message);
+            }
+
+            // 3. Delete wishlist items referencing this product
+            const { error: wishErr } = await supabaseAdmin
+                .from('wishlist_items')
+                .delete()
+                .eq('product_id', productId);
+            if (wishErr) {
+                console.error('[Admin] Delete wishlist_items:', wishErr.message);
+            }
+
+            // 4. Delete reviews for this product
+            const { error: revErr } = await supabaseAdmin
+                .from('reviews')
+                .delete()
+                .eq('product_id', productId);
+            if (revErr) {
+                console.error('[Admin] Delete reviews:', revErr.message);
+            }
+
+            // 5. Delete product images
             const { error: imgErr } = await supabaseAdmin
                 .from('product_images')
                 .delete()
                 .eq('product_id', productId);
             if (imgErr) {
-                console.error('[Admin] Delete product_images:', imgErr);
+                console.error('[Admin] Delete product_images:', imgErr.message);
             }
 
+            // 6. Nullify order_items.variant_id for variants we're about to delete
+            const { data: variants } = await supabaseAdmin
+                .from('product_variants')
+                .select('id')
+                .eq('product_id', productId);
+
+            if (variants && variants.length > 0) {
+                const variantIds = variants.map((v: any) => v.id);
+                await supabaseAdmin
+                    .from('order_items')
+                    .update({ variant_id: null })
+                    .in('variant_id', variantIds);
+            }
+
+            // 7. Delete product variants
             const { error: varErr } = await supabaseAdmin
                 .from('product_variants')
                 .delete()
                 .eq('product_id', productId);
             if (varErr) {
-                console.error('[Admin] Delete product_variants:', varErr);
+                console.error('[Admin] Delete product_variants:', varErr.message);
             }
 
+            // 8. Finally delete the product itself
             const { error: delErr } = await supabaseAdmin
                 .from('products')
                 .delete()
                 .eq('id', productId);
 
             if (delErr) {
-                console.error('[Admin] Delete product:', productId, delErr);
+                console.error('[Admin] Delete product:', productId, delErr.message);
                 return NextResponse.json(
-                    { error: delErr.message || 'Could not delete product (e.g. already used in orders)' },
+                    { error: `Failed to delete product: ${delErr.message}` },
                     { status: 400 }
                 );
             }
